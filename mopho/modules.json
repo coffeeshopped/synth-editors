@@ -2,6 +2,5 @@
   {
     "manufacturer": "DSI",
     "model": "Mopho",
-    "image": "dsi.mopho.jpg",
     "module": "module.js",
   }
