@@ -6,17 +6,24 @@ function defaultBankEditorBlock() {
   return BankController.controller()
 }
 
+function defaultBackupEditorBlock() {
+  return BackupController.controller()
+}
+
 function makeSections(global, main) {
   return [
     [null, [
       ["Global", ["global"], global],
       ["Voice", ["patch"], () => KeyController.controller(main(), {})],
-      ]],
+    ]],
     ["Voice Bank", [
       ["Bank 1", ["bank", 0], defaultBankEditorBlock],
       ["Bank 2", ["bank", 1], defaultBankEditorBlock],
       ["Bank 3", ["bank", 2], defaultBankEditorBlock],
-      ]],
+    ]],
+    ["Backup", [
+      ["Backup", ["backup"], defaultBackupEditorBlock], 
+    ]]
   ]
 }
 
