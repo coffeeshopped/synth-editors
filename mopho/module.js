@@ -1,14 +1,7 @@
 const MoEd = require('editor.js')
 const MophoEditor = MoEd.MophoEditor
 const MophoKeyEditor = MoEd.MophoKeyEditor
-
-function defaultBankEditorBlock() {
-  return BankController.controller()
-}
-
-function defaultBackupEditorBlock() {
-  return BackupController.controller()
-}
+const { bankCtrlr, backupCtrlr } = require('/core/Controller.js')
 
 function makeSections(global, main) {
   return [
@@ -17,12 +10,12 @@ function makeSections(global, main) {
       ["Voice", ["patch"], () => KeyController.controller(main(), {})],
     ]],
     ["Voice Bank", [
-      ["Bank 1", ["bank", 0], defaultBankEditorBlock],
-      ["Bank 2", ["bank", 1], defaultBankEditorBlock],
-      ["Bank 3", ["bank", 2], defaultBankEditorBlock],
+      ["Bank 1", ["bank", 0], bankCtrlr],
+      ["Bank 2", ["bank", 1], bankCtrlr],
+      ["Bank 3", ["bank", 2], bankCtrlr],
     ]],
     ["Backup", [
-      ["Backup", ["backup"], defaultBackupEditorBlock], 
+      ["Backup", ["backup"], backupCtrlr], 
     ]]
   ]
 }

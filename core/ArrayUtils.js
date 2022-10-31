@@ -6,6 +6,12 @@ Array.prototype.mapWithIndex = function(mapFn) {
   return arr
 }
 
+Array.prototype.forEachWithIndex = function(mapFn) {
+  for(let i=0; i<this.length; ++i) {
+    mapFn(this[i], i)
+  }
+}
+
 // NOTE: all ranges are treated as open (up to but not including the upper bound)
 Array.prototype.rangeMap = function(mapFn) {
   if (this.length < 2 || this[1] < this[0]) { return [] }
@@ -24,3 +30,6 @@ Array.prototype.safeBytes = function(range) {
   return range.rangeMap((i) => i < this.length ? this[i] : 0)
 }
 
+Array.prototype.sum = function() {
+  return this.reduce((a, b) => a + b, 0)
+}
