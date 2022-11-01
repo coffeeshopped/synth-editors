@@ -26,13 +26,12 @@ module.exports = {
       // 
       bytes: function(fileData) {
         // make dependent on data count, since it can be 298 or 300 (300 is from bank)
-        const exp = expandedBodyCount
-        const start = fileData.length - (exp + 1)
+        const start = fileData.length - (expandedBodyCount + 1)
         if (start < 0) {
           return (bodyCount).map(() => 0)
           // throw "fileData was too short: "+fileData.length
         }
-        return Byte.unpack87(fileData, bodyCount, start, start + exp)
+        return Byte.unpack87(fileData, bodyCount, start, start + expandedBodyCount)
       },
       
       sysexData: (bytes, headerBytes) => sysexData(bytes, headerBytes),
@@ -155,16 +154,14 @@ module.exports = {
     ])
   ),
   
-  tempoArpSeq: function(b, obj) {
-    return inc({b: b}, [
-      [["tempo"], {p: 91, min: 30, max: 250}],
-      [["clock", "divide"], {p: 92, opts: obj.clockDivOptions}],
-      [["arp", "mode"], {p: 97, opts: obj.arpModeOptions}],
-      [["arp", "on"], {p: 100, max: 1}],
-      [["seq", "trigger"], {p: 94, opts: obj.seqTrigOptions}],
-      [["seq", "on"], {p: 101, max: 1}],
-    ])
-  },
+  tempoArpSeq: (b, obj) => inc({b: b}, [
+    [["tempo"], {p: 91, min: 30, max: 250}],
+    [["clock", "divide"], {p: 92, opts: obj.clockDivOptions}],
+    [["arp", "mode"], {p: 97, opts: obj.arpModeOptions}],
+    [["arp", "on"], {p: 100, max: 1}],
+    [["seq", "trigger"], {p: 94, opts: obj.seqTrigOptions}],
+    [["seq", "on"], {p: 101, max: 1}],
+  ]),
   
   seqSteps: prefix(["seq"], {count: 4, bx: 16, px: 16}, 
     prefix(["step"], {count: 16, bx: 1, px: 1}, [
