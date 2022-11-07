@@ -188,7 +188,7 @@ function oscController(vc, index, waveReset) {
 }
 
 function lfosController(vc) {
-  vc.addChildren(4, "lfo", (index) => ctrlr(lfoController, index))
+  vc.addChildren(4, "lfo",index => ctrlr(lfoController, index))
 
   vc.layGrid([
     [["lfo0", 1], ["lfo1", 1]],

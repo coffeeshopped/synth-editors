@@ -33,3 +33,14 @@ Array.prototype.safeBytes = function(range) {
 Array.prototype.sum = function() {
   return this.reduce((a, b) => a + b, 0)
 }
+
+Array.prototype.compactMap = function(mapFn) {
+  var arr = []
+  for(let i=0; i<this.length; ++i) {
+    const e = mapFn(this[i]) 
+    if (e !== null) {
+      arr.push(e)
+    }
+  }
+  return arr
+}

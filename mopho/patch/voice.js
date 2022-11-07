@@ -11,7 +11,6 @@ module.exports = {
     function sysexData(bytes, headerBytes) {
       const packedBytes = Byte.pack78(bytes, expandedBodyCount)
       return ([0xf0, 0x01, idByte]).concat(headerBytes).concat(packedBytes).concat([0xf7])
-      // return .sysex(data)
     }
   
     return Object.assign(obj, {
