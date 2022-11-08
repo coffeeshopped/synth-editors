@@ -44,3 +44,11 @@ Array.prototype.compactMap = function(mapFn) {
   }
   return arr
 }
+
+Array.prototype.slices = function(size, offset = 0) {
+  var arr = [];
+  for (let i = offset + size; i < this.length; i += size) {
+    arr.push(this.slice(i - size, i));
+  }
+  return arr  
+}

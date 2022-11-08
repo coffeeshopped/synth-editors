@@ -14,7 +14,7 @@ module.exports = {
     [null, [
       // ["Global", ["global"], global],
       ["Voice", ["patch"], () => KeyController.controller(require('./controller/voice.js')(), {})],
-      // ["Voice Bank", ["bank"], bankCtrlr],
+      ["Voice Bank", ["bank"], bankCtrlr],
     ]],
   ],
 }

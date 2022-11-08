@@ -1,6 +1,7 @@
 require('/core/NumberUtils.js')
 require('/core/ArrayUtils.js')
 const DX7VoicePatch = require('patch/voice.js')
+const DX7VoiceBank = require('patch/voiceBank.js')
 
 class RxMidi {
   static FetchCommand = class { 
@@ -69,7 +70,7 @@ const editor = {
   sysexMap: [
       // [.global] : ChannelSettingsPatch,
       [["patch"], DX7VoicePatch],
-      // [.bank] : DX7VoiceBank,
+      [["bank"], DX7VoiceBank],
   ],
   
   fetchCommands: function(editor, path) {

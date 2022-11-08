@@ -9,9 +9,9 @@ function reduce(genFn, itemMapFn = ((item) => item)) {
   // each call to generator should yield an array of arrays of [path, optionsObject]  
   let opts = []
   for(let arr of genFn()) {
-    opts.push(...arr.mapWithIndex(itemMapFn));
+    opts.push(...arr);
   }
-  return opts
+  return opts.mapWithIndex(itemMapFn)
 }
   
 function prefix(pfx, {count = null, bx = 0, px = null} = {}, genFn) {
