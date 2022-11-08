@@ -12,7 +12,7 @@ module.exports = {
   
   sections: [
     [null, [
-      // ["Global", ["global"], global],
+      ["Global", ["global"], () => require('./controller/channel.js')()],
       ["Voice", ["patch"], () => KeyController.controller(require('./controller/voice.js')(), {})],
       ["Voice Bank", ["bank"], bankCtrlr],
     ]],

@@ -68,7 +68,7 @@ function bankOut(editor) {
 const editor = {
   
   sysexMap: [
-      // [.global] : ChannelSettingsPatch,
+      [["global"], require('./patch/channel.js')],
       [["patch"], DX7VoicePatch],
       [["bank"], DX7VoiceBank],
   ],
