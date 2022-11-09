@@ -36,18 +36,18 @@ const DX7VoiceBank = {
         [["brk", "pt"], {b: 8}],
         [["left", "depth"], {b: 9}],
         [["right", "depth"], {b: 10}],
-        [["left", "curve"], {b: 11, bits: [0, 1]}],
-        [["right", "curve"], {b: 11, bits: [2, 3]}],
+        [["left", "curve"], {b: 11, bits: [0, 2]}],
+        [["right", "curve"], {b: 11, bits: [2, 4]}],
       ])
       yield [
-        [["rate", "scale"], {b: 12, bits: [0, 2]}],
-        [["amp", "mod"], {b: 13, bits: [0, 1]}],
-        [["velo"], {b: 13, bits: [2, 4]}],
+        [["rate", "scale"], {b: 12, bits: [0, 3]}],
+        [["amp", "mod"], {b: 13, bits: [0, 2]}],
+        [["velo"], {b: 13, bits: [2, 5]}],
         [["level"], {b: 14}],
         [["osc", "mode"], {b: 15, bit: 0}],
-        [["coarse"], {b: 15, bits: [1, 6]}],
+        [["coarse"], {b: 15, bits: [1, 7]}],
         [["fine"], {b: 16}],
-        [["detune"], {b: 12, bits: [3, 6]}],
+        [["detune"], {b: 12, bits: [3, 7]}],
       ]
     }))
     
@@ -58,7 +58,7 @@ const DX7VoiceBank = {
   
     yield [
       [["algo"], {b: 110}],
-      [["feedback"], {b: 111, bits: [0, 2]}],
+      [["feedback"], {b: 111, bits: [0, 3]}],
       [["osc", "sync"], {b: 111, bit: 3}],
     ]
     yield prefix(["lfo"], {}, [
@@ -67,8 +67,8 @@ const DX7VoiceBank = {
       [["pitch", "mod", "depth"], {b: 114}],
       [["amp", "mod", "depth"], {b: 115}],
       [["sync"], {b: 116, bit: 0}],
-      [["wave"], {b: 116, bits: [1, 3]}],
-      [["pitch", "mod"], {b: 116, bits: [4, 6]}],    
+      [["wave"], {b: 116, bits: [1, 4]}],
+      [["pitch", "mod"], {b: 116, bits: [4, 7]}],
     ])
     yield [
       [["transpose"], {b: 117}],

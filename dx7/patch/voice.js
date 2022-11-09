@@ -2,13 +2,6 @@ const { inc, prefix, reduce } = require('/core/ParamOptions.js')
 require('/core/NumberUtils.js')
 require('/core/ArrayUtils.js')
 
-// enum DXLevelScalingCurve: Int {
-//   case negativeLinear = 0
-//   case negativeExponential = 1
-//   case positiveExponential = 2
-//   case positiveLinear = 3
-// }
-
 function checksum(bytes) {
   return (-1 * bytes.sum()) & 0x7f
 }
