@@ -12,8 +12,8 @@ module.exports = {
   
   sections: [
     [null, [
-      ["Global", ["global"], () => require('./controller/channel.js')()],
-      ["Voice", ["patch"], () => KeyController.controller(require('./controller/voice.js')(), {})],
+      ["Global", ["global"], () => require('../dx7/controller/channel.js')()],
+      ["Voice", ["patch"], () => KeyController.controller(require('../dx7/controller/voice.js')(), {})],
       ["Voice Bank", ["bank"], bankCtrlr],
     ]],
   ],

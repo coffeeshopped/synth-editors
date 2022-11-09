@@ -59,7 +59,7 @@ function bankOut(editor) {
     outType: "wholeBank",
     bankTransform: function(bytesArray) {
       const ch = channel(editor)
-      return [["sx", [DX7VoiceBank.sysexData(ch, bytesArray)], 0]]
+      return [["sx", [DX7VoiceBank.sysexData(bytesArray, ch)], 0]]
     },
   }
 }

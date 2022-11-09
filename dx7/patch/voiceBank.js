@@ -6,7 +6,7 @@ function checksum(bytes) {
   return (-1 * bytes.sum()) & 0x7f
 }
 
-function sysexData(channel, compactByteArrays) {
+function sysexData(compactByteArrays, channel) {
   const patchData = compactByteArrays.flat()
   return ([0xf0, 0x43, channel, 0x09, 0x20, 0x00]).concat(patchData).concat([checksum(patchData), 0xf7])
 }
