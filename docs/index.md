@@ -3,7 +3,7 @@ This guide will (eventually) describe how to implement a full synth editor modul
 The main parts of an editor module:
 
 * [Module](/module)
-* Editor
+* [Editor](/editor)
 * Patch definitions
 * Bank definitions
 * Controllers (UI)
