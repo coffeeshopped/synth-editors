@@ -22,7 +22,7 @@ const DX7VoiceBank = {
   compactByteCount: compactByteCount,
   
   sysexData: sysexData,
-  fileData: compactByteArrays => sysexData(0, compactByteArrays),
+  fileData: compactByteArrays => sysexData(compactByteArrays, 0),
 
   compactByteArrays: fileData => fileData.slices(compactByteCount, 6),
   

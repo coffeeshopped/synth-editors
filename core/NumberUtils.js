@@ -11,6 +11,12 @@ Number.prototype.map = function(mapFn) {
   return arr
 }
 
+Number.prototype.forEach = function(mapFn) {
+  for(let i=0; i<this; ++i) {
+    mapFn(i)
+  }
+}
+
 Number.prototype.bit = function(index) {
   return (this >> index) & 0x1
 }

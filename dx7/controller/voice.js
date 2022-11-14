@@ -39,7 +39,8 @@ function miniOpController(vc, index) {
 
   vc.color()
 
-  //   dims(view: view, forPath: [.on])
+  vc.dims("on")
+  
   const env = vc.get("env")
   vc.onPatchChange("level", v => env.config({gain: v / 99 }))
 
@@ -235,12 +236,15 @@ function opController(vc, index, initAmpMod) {
   })
   
   let onSwitch = vc.get("on")
+  onSwitch.v = 1 // editor won't push an initial value for this
+  
   let ampModKnob = vc.get("ampMod")
   vc.onIndexChange((i) => {
     onSwitch.config({l: "" + (i + 1)})
   })
   
-  // dims(view: view, forPath: [.on])
+  vc.dims("on")
+  
   const levelScale = vc.get("levelScale")
   vc.onPatchChange("level/scale/left/depth", v => levelScale.config({ depthL: v}))
   vc.onPatchChange("level/scale/right/depth", v => levelScale.config({ depthR: v}))

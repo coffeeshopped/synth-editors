@@ -12,7 +12,7 @@ class RxMidi {
 }
 
 function channel(editor) {
-  return editor.patch(["global"])?.get(["channel"]) ?? 0
+  return editor.patchValue("global", "channel") ?? 0
 }
 
 function paramData(ch, parm, value) {
@@ -30,7 +30,12 @@ function voiceOut(editor) {
       let v = 0
       if (path.length == 3 && path[0] == "op" && path[2] == "on") {
         parm = 155
-        v = (6).map(i => editor.getExtra(["op", i]) == 1 ? 1 << (5 - i) : 0).sum()
+        const op = path[1]
+        // for this op, look at passed value bc it won't be stored yet
+        v = (6).map(i => {
+          const opOn = op == i ? value : editor.getExtra(["op", i])
+          return opOn == 1 ? 1 << (5 - i) : 0
+        }).sum()
       }
       else {
         const param = DX7VoicePatch.params[path.join("/")]
@@ -97,6 +102,40 @@ const editor = {
       bankOut(editor),
     ]
   },
+  
+  patchChanged: function(editor, path, change, transmit) {
+    if (path[0] == "patch") {
+      switch (change.type) {
+        case "params":
+          // store op on/off param values
+          (6).forEach(i => {
+            const opOn = change.params["op/" + i + "/on"]
+            if (opOn !== undefined) {
+              editor.setExtra(["op", i], opOn)
+            }
+          })
+          break
+        case "replace":
+          (6).forEach(i => editor.setExtra(["op", i], 1))
+          editor.changePatch("patch", {
+            type: "params",
+            params: {
+              "op/0/on" : 1,
+              "op/1/on" : 1,
+              "op/2/on" : 1,
+              "op/3/on" : 1,
+              "op/4/on" : 1,
+              "op/5/on" : 1,
+            },
+          }, false)
+          break
+        default:
+          break
+      }
+    }
+
+  },
+
 
 
   bankInfo(templateType) {
