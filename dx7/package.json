@@ -1,0 +1,13 @@
+{
+  "name": "dx7",
+  "version": "0.0.1",
+  "description": "Yamaha DX7 and family",
+  "modules": [
+    {
+      "name": "dx7",
+      "manufacturer": "Yamaha",
+      "model": "DX7",
+      "module": "module.js",
+    }
+  ]
+}

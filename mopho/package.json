@@ -1,0 +1,13 @@
+{
+  "name": "mopho",
+  "version": "0.0.1",
+  "description": "DSI Mopho",
+  "modules": [
+    {
+      "name": "mopho",
+      "manufacturer": "DSI",
+      "model": "Mopho",
+      "module": "module.js",
+    }
+  ]
+}

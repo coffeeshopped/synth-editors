@@ -1,0 +1,14 @@
+{
+  "name": "volca-fm",
+  "version": "0.0.1",
+  "description": "Korg Volca FM",
+  "modules": [
+    {
+      "name": "volca-fm",
+      "manufacturer": "Korg",
+      "model": "Volca FM",
+      "module": "module.js",
+    }
+  ]
+}
+

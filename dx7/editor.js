@@ -11,13 +11,10 @@ class RxMidi {
   }
 }
 
-function channel(editor) {
-  return editor.patchValue("global", "channel") ?? 0
-}
+const channel = editor => editor.patchValue("global", "channel") ?? 0
 
-function paramData(ch, parm, value) {
-  return ["sx", [0xf0, 0x43, 0x10 + ch, parm >> 7, parm & 0x7f, value, 0xf7]]
-}
+const paramData = (ch, parm, value) => 
+  ["sx", [0xf0, 0x43, 0x10 + ch, parm >> 7, parm & 0x7f, value, 0xf7]]
 
 function voiceOut(editor) {
   return {
