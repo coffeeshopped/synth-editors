@@ -1,7 +1,7 @@
 const { bankCtrlr } = require('/core/Controller.js')
 
 module.exports = {
-  EditorTemplate: require('editor.js'),
+  EditorTemplate: require('./editor.js'),
 
   colorGuide: [
     "#FDC63F",
@@ -12,8 +12,8 @@ module.exports = {
   
   sections: [
     [null, [
-      ["Global", ["global"], () => require('/dx7/dx7/controller/channel.js')()],
-      ["Voice", ["patch"], () => KeyController.controller(require('/dx7/dx7/controller/voice.js')(), {})],
+      ["Global", ["global"], () => require('./controller/channel.js')()],
+      ["Voice", ["patch"], () => KeyController.controller(require('./controller/voice.js')(), {})],
       ["Voice Bank", ["bank"], bankCtrlr],
     ]],
   ],

@@ -1,13 +1,13 @@
 require('/core/NumberUtils.js')
 require('/core/ArrayUtils.js')
-const DX7VoicePatch = require('/dx7/patch/voice.js')
-const DX7VoiceBank = require('/dx7/patch/voiceBank.js')
+const DX7VoicePatch = require('/dx7/dx7/patch/voice.js')
+const DX7VoiceBank = require('/dx7/dx7/patch/voiceBank.js')
 
 function channel(editor) {
   return editor.patch(["global"])?.get(["channel"]) ?? 0
 }
 
-const dx7Editor = require('/dx7/editor.js')
+const dx7Editor = require('/dx7/dx7/editor.js')
 
 module.exports = {
   sysexMap: dx7Editor.sysexMap,

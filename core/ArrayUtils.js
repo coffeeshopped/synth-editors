@@ -52,3 +52,25 @@ Array.prototype.slices = function(size, offset = 0) {
   }
   return arr  
 }
+
+// break an array of ints into an array of array of ints (sysex msgs)
+// each starting with 0xf0 and ending with 0xf7
+Array.prototype.sysex = function() {
+  var msgs = []
+  var msgStart = -1
+  var msgEndPlusOne = -1
+  
+  while (msgEndPlusOne < this.length) {
+    msgStart = this.indexOf(0xf0, msgEndPlusOne < 0 ? 0 : msgEndPlusOne)
+    msgEndPlusOne = this.indexOf(0xf7, msgEndPlusOne < 0 ? 0 : msgEndPlusOne)
+    
+    // if beginning or end not found, we're done
+    if (msgStart < 0 || msgEndPlusOne < 0) {
+      break
+    }
+    
+    msgs.push(this.slice(msgStart, msgEndPlusOne))
+  }
+  
+  return msgs  
+}

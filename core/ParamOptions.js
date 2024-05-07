@@ -79,10 +79,21 @@ function inc({b = null, p = null} = {}, genFn) {
 //   }
 //   
 
+function fromOpts(paramOptions) {
+  let p = {}
+  for (let i=0; i<paramOptions.length; ++i) {
+    let path = paramOptions[i][0].join('/')
+    let obj = paramOptions[i][1]
+    p[path] = obj
+  }
+  return p
+}
+
 module.exports = {
   reduce,
   prefix,
   prefixes,
   offset,
   inc,
+  fromOpts,
 }

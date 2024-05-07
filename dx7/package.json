@@ -7,7 +7,7 @@
       "name": "dx7",
       "manufacturer": "Yamaha",
       "model": "DX7",
-      "module": "module.js",
-    }
+      "module": "dx7/module.js",
+    },
   ]
 }
