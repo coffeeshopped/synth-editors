@@ -5,9 +5,9 @@ const Matrix = require('./matrix.js')
 const rampModeOptions = ["Single","Multi","External","Ext Gated"]
 const fixedModsOptions = ["Off","Bend","Vibrato","Both"]
 
-const mixOptions = (64).map((i) => {
+const mixOptions = (64).map((i) => 
   i == 31 ? "Equal" : i < 31 ? `O2 +${31 - i}` : `O1 +${i - 31}`
-})
+)
 
 const portaOptions = ["Off","Porta","Key Track"]
 
@@ -254,3 +254,5 @@ module.exports = {
   },
 
 }
+
+// console.dir(module.exports, { depth: null })
