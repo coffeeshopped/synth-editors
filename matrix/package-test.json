@@ -1,0 +1,13 @@
+{
+  "name": "matrix",
+  "version": "0.0.1",
+  "description": "Oberheim Matrix-6, 6r, 1000",
+  "modules": [
+    {
+      "name": "matrix6",
+      "manufacturer": "Oberheim",
+      "model": "Matrix-6",
+      "module": "matrix6.js"
+    }
+  ]
+}

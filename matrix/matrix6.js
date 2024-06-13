@@ -7,8 +7,8 @@ const globalPatchTruss = {
   id: "matrix6.global",
   parms: [
     [
-      [["channel"], { b: 0, max: 15, dispOff: 1 }],
-      [["patch"], { b: 1, max: 99 }],
+      ["channel", { b: 0, max: 15, dispOff: 1 }],
+      ["patch", { b: 1, max: 99 }],
     ]
   ]
 }
@@ -32,7 +32,6 @@ const createEditorTruss = (name) => {
           },
           {
             custom: (editorVals, x) => {
-              console.log(editorVals)
               const channel = editorVals[0]
               const tempPatch = editorVals[1]
               return [["send", ['pgmChange', channel, tempPatch]]]

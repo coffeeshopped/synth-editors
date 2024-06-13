@@ -40,8 +40,8 @@ const editor = {
   ],
 
   slotTransforms: [
-    ["bank/0", { user: (location) => `${location}` }],
-    ["bank/1", { user: (location) => `${location + 100}` }]
+    ["bank/0", { user: location => `${location}` }],
+    ["bank/1", { user: location => `${location + 100}` }]
   ],
 }
 
@@ -53,7 +53,7 @@ module.exports = {
     subId: "matrix1000",
     sections: [
       ['first', [
-        ['channel'],
+        'channel',
         ['voice', "Voice", VoiceCtrlr],
       ]],
       ['basic', "Voice Bank", [
