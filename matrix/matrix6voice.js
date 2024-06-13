@@ -43,8 +43,8 @@ function createPatchTruss(createFileData) {
     namePack: {
       type: 'filtered',
       range: [0, 8],
-      toBytes: ['upper', (char) => { char & 0x3f }],
-      toName: [(byte) => { byte > 31 ? byte : (byte & 0x3f) | 0x40 }, 'clean'],
+      toBytes: ['upper', (char) => char & 0x3f],
+      toString: [(byte) => byte > 31 ? byte : (byte & 0x3f) | 0x40, 'clean'],
     },
     randomize: () => [
       [["env", 1, "trigger", "mode"], 0],
@@ -68,14 +68,14 @@ function createBankTruss(patchTruss) {
     type: "singleBank",
     patchTruss: patchTruss,
     patchCount: patchCount, 
-    createFileData: {
+    createFile: {
       type: 'createFileDataWithLocationMap',
-      locationMap: (bodyData, location) => { sysexData(bodyData, location) },
+      locationMap: (bodyData, location) => sysexDataWithLocation(bodyData, location),
     }, 
-    parseBodyData: {
-      type: 'sortAndParseBodyData',
+    parseBody: {
+      type: 'sortAndParseBody',
       locationIndex: 4, 
-      patchTruss: patchTruss, 
+      parseBody: patchTruss.parseBody, 
       patchCount: patchCount,
     }, 
     validSizes: [30404], 
@@ -96,7 +96,7 @@ const parms = [
     [["osc", 1, "pw"], { b: 16, p: 13, max: 63 }],
     [["osc", 1, "fixed", "mod"], { b: 17, p: 17, opts: fixedModsOptions }],
     [["osc", 1, "wave"], { b: 18, p: 16, opts: ["Off","Pulse","Wave","Both","Noise"] }],
-    [["osc", 1, "detune"], { b: 19, p: 12, rng: [-31, 31] }],
+    [["osc", 1, "detune"], { b: 19, p: 12, rng: [-31, 32] }],
     [["mix"], { b: 20, p: 20, opts: mixOptions }],
     [["osc", 0, "porta"], { b: 21, p: 8, max: 1 }],
     [["osc", 0, "click"], { b: 22, p: 9, max: 1 }],
@@ -114,7 +114,7 @@ const parms = [
     [["porta", "legato"], { b: 34, p: 47, max: 1 }],
   ],
   {
-    prefix: 'lfo', count: 2, bx: 7, px: 10, block: [
+    prefix: 'lfo', count: 2, bx: 7, px: 10, block: () => [
       [["speed"], { b: 35, p: 80, max: 63 }],
       [["trigger"], { b: 36, p: 86, opts: ["Off","Single","Multi","External"] }],
       [["lag"], { b: 37, p: 87, max: 1 }],
@@ -125,7 +125,7 @@ const parms = [
     ] 
   },
   {
-    prefix: 'env', count: 3, bx: 9, px: 10, block: [
+    prefix: 'env', count: 3, bx: 9, px: 10, block: () => [
       [["trigger", "mode"], { b: 49, p: 57, opts: ["Single","Single Reset","Multiple","Multi Reset","Ext Single","Ext Single Reset","Ext Multi","Ext Multi Reset"] }],
       [["delay"], { b: 50, p: 50, max: 63 }],
       [["attack"], { b: 51, p: 51, max: 63 }],
@@ -134,7 +134,7 @@ const parms = [
       [["release"], { b: 54, p: 54, max: 63 }],
       [["amp"], { b: 55, p: 55, max: 63 }],
       [["lfo", "trigger", "mode"], { b: 56, p: 59, options: [
-        [0, "Normal]"],
+        [0, "Normal"],
         [2, "LFO 1"],
         [3, "Gated LFO 1"],
         ] }],
@@ -145,7 +145,7 @@ const parms = [
     [["trk", "src"], { b: 76, p: 33, options: trkSrcOptions }],
   ],
   {
-    prefix: "trk/pt", count: 5, bx: 1, px: 1, block: [
+    prefix: "trk/pt", count: 5, bx: 1, px: 1, block: () => [
       [[], { b: 77, p: 34, max: 63 }],
     ]
   },
@@ -154,54 +154,52 @@ const parms = [
     [["ramp", 0, "mode"], { b: 83, p: 41, opts: rampModeOptions }],
     [["ramp", 1, "rate"], { b: 84, p: 42, max: 63 }],
     [["ramp", 1, "mode"], { b: 85, p: 43, opts: rampModeOptions }],
-    [["osc", 0, "freq", "lfo", 0, "amt"], { b: 86, p: 1, rng: [-63, 63] }],
-    [["osc", 0, "pw", "lfo", 1, "amt"], { b: 87, p: 4, rng: [-63, 63] }],
-    [["osc", 1, "freq", "lfo", 0, "amt"], { b: 88, p: 11, rng: [-63, 63] }],
-    [["osc", 1, "pw", "lfo", 1, "amt"], { b: 89, p: 14, rng: [-63, 63] }],
-    [["cutoff", "env", 0, "amt"], { b: 90, p: 22, rng: [-63, 63] }],
-    [["cutoff", "pressure", "amt"], { b: 91, p: 23, rng: [-63, 63] }],
-    [["amp", 0, "velo", "amt"], { b: 92, p: 28, rng: [-63, 63] }],
-    [["amp", 1, "env", 1, "amt"], { b: 93, p: 29, rng: [-63, 63] }],
-    [["env", 0, "velo"], { b: 94, p: 56, rng: [-63, 63] }],
-    [["env", 1, "velo"], { b: 95, p: 66, rng: [-63, 63] }],
-    [["env", 2, "velo"], { b: 96, p: 76, rng: [-63, 63] }],
-    [["lfo", 0, "ramp", 0, "amt"], { b: 97, p: 85, rng: [-63, 63] }],
-    [["lfo", 1, "ramp", 1, "amt"], { b: 98, p: 95, rng: [-63, 63] }],
-    [["porta", "rate", "velo", "amt"], { b: 99, p: 45, rng: [-63, 63] }],
-    [["filter", "fm", "env", 2, "amt"], { b: 100, p: 31, rng: [-63, 63] }],
-    [["filter", "fm", "pressure", "amt"], { b: 101, p: 32, rng: [-63, 63] }],
-    [["lfo", 0, "speed", "pressure", "amt"], { b: 102, p: 81, rng: [-63, 63] }],
-    [["lfo", 1, "speed", "key", "amt"], { b: 103, p: 91, rng: [-63, 63] }],  
+    [["osc", 0, "freq", "lfo", 0, "amt"], { b: 86, p: 1, rng: [-63, 64] }],
+    [["osc", 0, "pw", "lfo", 1, "amt"], { b: 87, p: 4, rng: [-63, 64] }],
+    [["osc", 1, "freq", "lfo", 0, "amt"], { b: 88, p: 11, rng: [-63, 64] }],
+    [["osc", 1, "pw", "lfo", 1, "amt"], { b: 89, p: 14, rng: [-63, 64] }],
+    [["cutoff", "env", 0, "amt"], { b: 90, p: 22, rng: [-63, 64] }],
+    [["cutoff", "pressure", "amt"], { b: 91, p: 23, rng: [-63, 64] }],
+    [["amp", 0, "velo", "amt"], { b: 92, p: 28, rng: [-63, 64] }],
+    [["amp", 1, "env", 1, "amt"], { b: 93, p: 29, rng: [-63, 64] }],
+    [["env", 0, "velo"], { b: 94, p: 56, rng: [-63, 64] }],
+    [["env", 1, "velo"], { b: 95, p: 66, rng: [-63, 64] }],
+    [["env", 2, "velo"], { b: 96, p: 76, rng: [-63, 64] }],
+    [["lfo", 0, "ramp", 0, "amt"], { b: 97, p: 85, rng: [-63, 64] }],
+    [["lfo", 1, "ramp", 1, "amt"], { b: 98, p: 95, rng: [-63, 64] }],
+    [["porta", "rate", "velo", "amt"], { b: 99, p: 45, rng: [-63, 64] }],
+    [["filter", "fm", "env", 2, "amt"], { b: 100, p: 31, rng: [-63, 64] }],
+    [["filter", "fm", "pressure", "amt"], { b: 101, p: 32, rng: [-63, 64] }],
+    [["lfo", 0, "speed", "pressure", "amt"], { b: 102, p: 81, rng: [-63, 64] }],
+    [["lfo", 1, "speed", "key", "amt"], { b: 103, p: 91, rng: [-63, 64] }],  
   ],
   {
     prefix: 'mod', count: 10, bx: 3, px: 0, block: (mod) => [
       [["src"], { b: 104, p: -(mod + 1), opts: modSourceOptions }],
-      [["amt"], { b: 105, p: -(mod + 1), rng: [-63, 63] }],
+      [["amt"], { b: 105, p: -(mod + 1), rng: [-63, 64] }],
       [["dest"], { b: 106, p: -(mod + 1), opts: modDestinationOptions }],
     ]
   },
 ]
 
-const sysex = (bodyData, location) => {
+const sysex = (bodyData, location) =>
   ['syx', sysexDataWithLocation(bodyData, location)]
-}
 
-const sysexDataWithLocation = function(bodyData, location) {
-  sysexDataWithHeader(bodyData, [0x01, UInt8(location)])
-}
+const sysexDataWithLocation = (bodyData, location) =>
+  sysexDataWithHeader(bodyData, [0x01, location])
 
-const sysexDataWithHeader = function(bodyData, header) {
-  let bodyBytes = bodyData.map((b) => { [b.bits([0, 3]), b.bits([4, 7])] }).joined()
+const sysexDataWithHeader = (bodyData, header) => {
+  let bodyBytes = bodyData.flatMap(b => [b.bits(0, 4), b.bits(4, 8)])
   let checksum = bodyData.sum() & 0x7f
   return Matrix.sysex(header.concat(bodyBytes).concat([checksum]))
 }
 
-const patchOut = (location, bytes) => [sysex(bytes, location), 100]
+const patchOut = (location, bytes) => [[["syx", sysexDataWithLocation(bytes, location)], 100]]
 
-const patchTruss = createPatchTruss((bodyData) => { sysexDataWithLocation(bodyData, 0) })
+const patchTruss = createPatchTruss(bodyData => sysexDataWithLocation(bodyData, 0))
 
 module.exports = {
-  
+
   patchTruss: patchTruss,
 
   createPatchTruss: createPatchTruss,
@@ -220,17 +218,17 @@ module.exports = {
     type: 'singlePatch',
     throttle: 200,
     editorVal: Matrix.tempPatch,
-    param: (v, bodyData, parm, path, value) => {
+    param: (v, bodyData, parm, value) => {
       if (!parm) { return null }
       if (parm.p < 0) {
         // MATRIX MOD SEND
         // send the whole patch for mod changes
-        return [patchOut(v, bodyData)]
+        return patchOut(v, bodyData)
       }
       else {
         // NORMAL PARAM SEND
-        if (value < 0 || path == ["env", 0, "sustain"] || path == ["amp", 1, "env", 1, "amt"]) {
-          return [patchOut(v, bodyData)]
+        if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+          return patchOut(v, bodyData)
         }
         else {
           // quick edit doesn't save to the 6, so use a timer to do periodic saves
@@ -241,8 +239,8 @@ module.exports = {
         }
       }
     }, 
-    patch: (v, bodyData) => [patchOut(v, bodyData)], 
-    name: (v, bodyData, path, name) => [patchOut(v, bodyData)],
+    patch: (v, bodyData) => patchOut(v, bodyData), 
+    name: (v, bodyData, path, name) => patchOut(v, bodyData),
   },
 
   parms: parms,

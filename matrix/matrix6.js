@@ -17,45 +17,46 @@ const createEditorTruss = (name) => {
   return {
     name: name,
     trussMap: [
-      [["global"], globalPatchTruss],
-      [["patch"], Voice.patchTruss],
-      [["bank"], Voice.bankTruss],
+      ["global", globalPatchTruss],
+      ["patch", Voice.patchTruss],
+      ["bank", Voice.bankTruss],
     ],
     
     fetchTransforms: [
-      [["patch"], {
-        type: "sequence",
+      ["patch", {
         sequence: [
-        // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
-        { type: 'truss', editorVal: Matrix.tempPatch, fn: (editorVal) => Matix.fetchPatch(editorVal) },
-        {
-          type: 'custom',
-          editorVals: ['basic', Matrix.tempPatch],
-          fn: (editorVals, x) => {
-            let channel = editorVals['basic']
-            let tempPatch = editorVals[Matrix.tempPatch]
-            return [["send", ['pgmChange', channel, tempPatch]]]
-          }
-        },
+          // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
+          { 
+            truss: editorVal => Matrix.fetchPatch(editorVal), 
+            editorVal: Matrix.tempPatch,
+          },
+          {
+            custom: (editorVals, x) => {
+              console.log(editorVals)
+              const channel = editorVals[0]
+              const tempPatch = editorVals[1]
+              return [["send", ['pgmChange', channel, tempPatch]]]
+            },
+            editorVals: ['basic', Matrix.tempPatch],
+          },
         ],
       }],
-      [["bank"], {
-        type: "bankTruss",
-        fn: (editorVal, location) => Matrix.fetchPatch(loc),
+      ["bank", {
+        bankTruss: (editorVal, location) => Matrix.fetchPatch(loc),
       }],
     ],
     
     midiOuts: [
-      [["patch"], Voice.patchTransform],
-      [["bank"], Voice.bankTransform],
+      ["patch", Voice.patchTransform],
+      ["bank", Voice.bankTransform],
     ],
     
     midiChannels: [
-      [["patch"], "basic"],
+      ["patch", "basic"],
     ],
     
     slotTransforms: [
-      [["bank"], { user: (location) => `${location}` }]
+      ["bank", { user: location => `${location}` }]
     ],
   }
 }
@@ -86,7 +87,8 @@ const createModuleTruss = (name, subid) => {
     ],
     dirMap: [
       ["bank", "Bank"],
-    ], colorGuide: [
+    ], 
+    colorGuide: [
       "#e8a833",
       "#1a7bf5",
       "#9aec2c",
@@ -98,4 +100,6 @@ const createModuleTruss = (name, subid) => {
 
 module.exports = {
   createModuleTruss: createModuleTruss,
+  module: createModuleTruss("Matrix-6", "matrix6"),
 }
+

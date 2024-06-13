@@ -5,14 +5,14 @@ const env = (label) => {
   return {
     display: 'dadsrEnv',
     l: label,
-    maps: parts.map((part) => ["src", part, (v) => { v / 63 }]),
+    maps: parts.map(part => ["src", part, v => v / 63]),
     id: "env"
   }
 }
 
 const envController = (label, index) => {
   return {
-    prefix: { fixed: ["lfo", index] },
+    prefix: { fixed: ["env", index] },
     builders: [
       ["grid", [[
         env(label),
@@ -40,10 +40,10 @@ const envController = (label, index) => {
 
 const lfoEffects = [
   ['patchChange', ['wave'], [
-    ['dimItem', (v) => { v != 6 }, ['sample', 'src'], 0],
+    ['dimItem', v => v != 6, ['sample', 'src'], 0],
   ]],
   ['patchChange', ['trigger'], [
-    ['dimItem', (v) => { v == 0 }, ["retrigger", "pt"], 0],
+    ['dimItem', v => v == 0, ["retrigger", "pt"], 0],
   ]],
 ]
 
@@ -101,9 +101,9 @@ let modEffects = (10).map((mod) => {
 let modItems = [
   { 
     row: [
-      {label: "Mod Src", w: 3},
-      {label: "Amt", w: 2},
-      {label: "Dest", w: 3},
+      {l: "Mod Src", w: 3},
+      {l: "Amt", w: 2},
+      {l: "Dest", w: 3},
     ], 
     h: 0.5, 
   }
@@ -136,7 +136,7 @@ module.exports = {
       [{t: 'checkbox', l: "Click"}, "osc/0/click"],
       [{t: 'switsch', l: "Sync"}, "osc/sync"],
       [{t: 'checkbox', l: "Porta"}, "osc/0/porta"],
-      {t: 'spacer'},
+      'spacer',
       ],[
       [{t: 'switsch', l: "DCO2"}, "osc/1/wave"],
       ["Freq", "osc/1/freq"],

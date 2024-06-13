@@ -1,0 +1,199 @@
+
+const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
+  // note the order: 4, 2, 3, 1. wacky
+  return {
+    prefix: ['op', op], block: {
+      offset: true, b: i * 13, block: [
+        ["attack", { b: 0, max: 31 }],
+        ["decay/0", { b: 1, max: 31 }],
+        ["decay/1", { b: 2, max: 31 }],
+        ["release", { b: 3, rng: [1, 16] }],
+        ["decay/level", { b: 4, max: 15 }],
+        ["level/scale", { b: 5, max: 99 }],
+        ["rate/scale", { b: 6, max: 3 }],
+        ["env/bias/sens", { b: 7, max: 7 }],
+        ["amp/mod", { b: 8, max: 1 }],
+        ["velo", { b: 9, max: 7 }],
+        ["level", { b: 10, max: 99 }],
+        ["coarse", { b: 11, max: 63 }],
+        ["detune", { b: 12, max: 6, dispOff: -3 }],
+      ]
+    }
+  }
+}).concat([
+  { 
+    inc: true, b: 52, block: [
+      ["algo", { max: 7, dispOff: 1 }],
+      ["feedback", { max: 7 }],
+      ["lfo/speed", { max: 99 }],
+      ["lfo/delay", { max: 99 }],
+      ["pitch/mod/depth", { max: 99 }],
+      ["amp/mod/depth", { max: 99 }],
+      ["lfo/sync", { max: 1 }],
+      ["lfo/wave", { opts: ["Saw Up","Square","Triangle","S/Hold"] }],
+      ["pitch/mod/sens", { max: 7 }],
+      ["amp/mod/sens", { max: 3 }],
+      ["transpose", { max: 48, dispOff: -24 }],
+      ["poly", { max: 1 }],
+      ["bend", { max: 12 }],
+      ["porta/mode", { max: 1 }],
+      ["porta/time", { max: 99 }],
+      ["foot/volume", { max: 99 }],
+      ["sustain", { max: 1 }],
+      ["porta", { max: 1 }],
+      ["chorus", { max: 1 }],
+      ["modWheel/pitch", { max: 99 }],
+      ["modWheel/amp", { max: 99 }],
+      ["breath/pitch", { max: 99 }],
+      ["breath/amp", { max: 99 }],
+      ["breath/pitch/bias", { max: 99, dispOff: -50 }],
+      ["breath/env/bias", { max: 99 }],
+    ] 
+  },
+  { 
+    inc: true, b: 87, block: {
+      prefix: "pitch/env", block: [
+        // Pitch env is on DX21
+        ["rate/0", { max: 99 }],
+        ["rate/1", { max: 99 }],
+        ["rate/2", { max: 99 }],
+        ["level/0", { max: 99 }],
+        ["level/1", { max: 99 }],
+        ["level/2", { max: 99 }],
+      ],
+    }
+  },
+])
+
+const compactParms = ([3,1,2,0]).forEachWithIndex((op, i) => {
+    // note the order: 4, 2, 3, 1. wacky
+  return {
+    prefix: ["op", op], block: {
+      offset: true, b: i * 10, block: [
+        ["attack", { 0 }],
+        ["decay/0", { 1 }],
+        ["decay/1", { 2 }],
+        ["release", { 3 }],
+        ["decay/level", { 4 }],
+        ["level/scale", { 5 }],
+        ["rate/scale", { b: 9, bits: [3, 5] }],
+        ["env/bias/sens", { b: 6, bits: [3, 6] }],
+        ["amp/mod", { b: 6, bit: 6 }],
+        ["velo", { b: 6, bits: [0, 3] }],
+        ["level", { 7 }],
+        ["coarse", { 8 }],
+        ["detune", { b: 9, bits: [0, 3] }],
+      ]
+    }
+  }
+}).concat([
+  [
+    ["algo", { b: 40, bits: [0, 3] }],
+    ["feedback", { b: 40, bits: [3, 6] }],
+    ["lfo/speed", { b: 41 }],
+    ["lfo/delay", { b: 42 }],
+    ["pitch/mod/depth", { b: 43 }],
+    ["amp/mod/depth", { b: 44 }],
+    ["lfo/sync", { b: 40, bit: 6 }],
+    ["lfo/wave", { b: 45, bits: [0, 2] }],
+    ["pitch/mod/sens", { b: 45, bits: [4, 7] }],
+    ["amp/mod/sens", { b: 45, bits: [2, 4] }],
+    ["transpose", { b: 46 }],
+    ["poly", { b: 48, bit: 3 }],
+    ["bend", { b: 47 }],
+    ["porta/mode", { b: 48, bit: 0 }],
+    ["porta/time", { b: 49 }],
+    ["foot/volume", { b: 50 }],
+    ["sustain", { b: 48, bit: 2 }],
+    ["porta", { b: 48, bit: 1 }],
+    ["chorus", { b: 48, bit: 4 }],
+    ["modWheel/pitch", { b: 51 }],
+    ["modWheel/amp", { b: 52 }],
+    ["breath/pitch", { b: 53 }],
+    ["breath/amp", { b: 54 }],
+    ["breath/pitch/bias", { b: 55 }],
+    ["breath/env/bias", { b: 56 }],
+  
+    // Pitch env is on DX21
+    ["pitch/env/rate/0", { b: 67 }],
+    ["pitch/env/rate/1", { b: 68 }],
+    ["pitch/env/rate/2", { b: 69 }],
+    ["pitch/env/level/0", { b: 70 }],
+    ["pitch/env/level/1", { b: 71 }],
+    ["pitch/env/level/2", { b: 72 }],
+  ],
+])
+
+const cmdByte = 0x12
+
+const sysexData = (channel, bodyData) => yamahaSysexData(channel, [0x03, 0x00, 0x5d], bodyData)
+
+const paramData = (channel, cmdBytes) => yamahaParamData(channel, [cmdByte].concat(cmdBytes))
+
+const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
+const nameRange = [77, 87]
+
+const patchTransform = (editorVal, bodyData) =>  [['syx', sysexData(bodyData, editorVal), 100]]
+const nameTransform = (editorVal, bodyData, path, name) => {
+  return nameRange.rangeMap(i => [['syx', paramData(editorVal, [i, bodyData[i]])], 10])
+}
+
+const patchTruss = {
+  type: 'singlePatch',
+  id: 'tx81z.vced',
+  bodyDataCount: 93,
+  initFile: "dx100-init",
+  parseOffset: 6,
+  createFile: (bodyData) => sysexData(0, bodyData),
+  parms: parms,
+  namePack: {
+    basic: nameRange,
+  },
+  randomize: () => [
+    // TODO 
+  ],
+}
+  
+module.exports = {
+  patchTruss: patchTruss,
+  sysexData: sysexData,
+  paramData: paramData,
+}
+// compact: (body: 128, namePack: .basic(57..<67), parms: compactParms))
+
+//    open func randomize() {
+//
+//      let algos = Self.algorithms()
+//      let algoIndex = self[[.algo]] ?? 0
+//
+//      let algo = algos[algoIndex]
+//
+//      // make output ops audible
+//      for outputId in algo.outputOps {
+//        let op: SynthPath = [.op, .i(outputId)]
+//        self[op + [.level]] = 90+(0...9).random()!
+//        self[op + [.level, .scale]] = 0
+//      }
+//
+//      self[[.transpose]] = 24
+//      self[[.porta, .time]] = 0
+//      self[[.modWheel, .pitch]] = 0
+//      self[[.modWheel, .amp]] = 0
+//      self[[.breath, .pitch]] = 0
+//      self[[.breath, .amp]] = 0
+//      self[[.breath, .pitch, .bias]] = 50
+//      self[[.breath, .env, .bias]] = 0
+//
+//
+//      // flat pitch env
+//      for i in 0..<3 {
+//        self[[.pitch, .env, .level, .i(i)]] = 50
+//      }
+//
+//      // all ops on
+//      for op in 0..<4 { self[[.op, .i(op), .on]] = 1 }
+//    }
+    
+
+
+

@@ -21,8 +21,9 @@ Number.prototype.bit = function(index) {
   return (this >> index) & 0x1
 }
 
+// hi is 1 greater than the top index we read
 Number.prototype.bits = function(lo, hi) {
-  const bitlen = 1 + (hi - lo)
+  const bitlen = hi - lo
   const bitmask = (1 << bitlen) - 1 // all 1's
   return (this >> lo) & bitmask
 }
