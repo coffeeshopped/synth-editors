@@ -7,7 +7,7 @@
       "name": "mopho",
       "manufacturer": "DSI",
       "model": "Mopho",
-      "module": "module.js",
+      "module": "mopho.js"
     }
   ]
 }
