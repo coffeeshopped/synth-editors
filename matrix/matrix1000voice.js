@@ -3,7 +3,7 @@ const Matrix6Voice = require('./matrix6voice.js')
 
 const tempSysexData = (bodyData) => Matrix6Voice.sysexDataWithHeader(bodyData, [0x0d, 0x00])
 
-const patchOut = (bodyData) => [["syx", tempSysexData(bodyData)], 100]
+const patchOut = (bodyData) => [[["syx", tempSysexData(bodyData)], 100]]
 
 const patchTruss = Matrix6Voice.createPatchTruss(tempSysexData)
 
@@ -13,16 +13,16 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    param: (editorVal, bodyData, parm, path, value) => {
+    param: (editorVal, bodyData, parm, value) => {
       if (!parm) { return null }
 
       if (parm.p < 0) {
         // MATRIX MOD SEND
         // mod number is encoded in params as negative parm value (1...10)
         let mod = (-parm.p) - 1
-        let src = patchTrussValue(patchTruss, bodyData, ["mod", mod, "src"])
-        let amt = patchTrussValue(patchTruss, bodyData, ["mod", mod, "amt"])
-        let dest = patchTrussValue(patchTruss, bodyData, ["mod", mod, "dest"])
+        let src = trussValue(patchTruss, bodyData, ["mod", mod, "src"])
+        let amt = trussValue(patchTruss, bodyData, ["mod", mod, "amt"])
+        let dest = trussValue(patchTruss, bodyData, ["mod", mod, "dest"])
         const v = amt < 0 ? amt + 128 : amt
     
         const cmdBytes = [0x0b, mod, src, v, dest]
@@ -30,8 +30,8 @@ module.exports = {
       }
       else {
         // NORMAL PARAM SEND
-        if (value < 0 || path == ["env", 0, "sustain"] || path == ["amp", 1, "env", 1, "amt"]) {
-          return [patchOut(bodyData)]
+        if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+          return patchOut(bodyData)
         }
         else {
           // if value is negative, do some bit twiddling
@@ -41,8 +41,8 @@ module.exports = {
       }
     
     }, 
-    patch: (editorVal, bodyData) => [patchOut(bodyData)],
-    name: (editorVal, bodyData, path, name) => [patchOut(bodyData)],
+    patch: (editorVal, bodyData) => patchOut(bodyData),
+    name: (editorVal, bodyData, path, name) => patchOut(bodyData),
   },
   bankTruss: Matrix6Voice.createBankTruss(patchTruss),
   bankTransform: (bank) => {

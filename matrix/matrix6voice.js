@@ -25,10 +25,10 @@ function createPatchTruss(createFileData) {
     bodyDataCount: 134,
     initFile: "matrix1000-init",
     parseBody: (bodyData) => {
-      let d = bodyData.safeBytes(5, 268)
-      return (134).map((i) => {
-        let off = i * 2
-        return d[off].bits(0, 3) + (d[off + 1].bits(0, 3) << 4)
+      const d = bodyData.safeBytes(5, 268)
+      return (134).map(i => {
+        const off = i * 2
+        return d[off].bits(0, 4) + (d[off + 1].bits(0, 4) << 4)
       })
     },
     createFile: createFileData,
@@ -43,8 +43,8 @@ function createPatchTruss(createFileData) {
     namePack: {
       type: 'filtered',
       range: [0, 8],
-      toBytes: ['upper', (char) => char & 0x3f],
-      toString: [(byte) => byte > 31 ? byte : (byte & 0x3f) | 0x40, 'clean'],
+      toBytes: ['upper', char => char & 0x3f],
+      toString: [byte => byte > 31 ? byte : (byte | 0x40), 'clean'],
     },
     randomize: () => [
       [["env", 1, "trigger", "mode"], 0],
