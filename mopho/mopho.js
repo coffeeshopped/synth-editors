@@ -44,5 +44,5 @@ const createModuleTruss = (name, subid, globalCtrlr, mainCtrlr) => {
 
 module.exports = {
   createModuleTruss: createModuleTruss,
-  module, createModuleTruss("Mopho", "mopho")
+  module: createModuleTruss("Mopho", "mopho")
 }

@@ -24,13 +24,10 @@ function createPatchTruss(createFileData) {
     id: "matrix6.voice",
     bodyDataCount: 134,
     initFile: "matrix1000-init",
-    parseBody: (bodyData) => {
-      const d = bodyData.safeBytes(5, 268)
-      return (134).map(i => {
-        const off = i * 2
-        return d[off].bits(0, 4) + (d[off + 1].bits(0, 4) << 4)
-      })
-    },
+    parseBody: [
+      ['bytes', 5, 268],
+      'denibblizeLSB',
+    ],
     createFile: createFileData,
     parms: parms,
     unpack: (bodyData, param) => {
@@ -192,6 +189,18 @@ const sysexDataWithHeader = (bodyData, header) => {
   let bodyBytes = bodyData.flatMap(b => [b.bits(0, 4), b.bits(4, 8)])
   let checksum = bodyData.sum() & 0x7f
   return Matrix.sysex(header.concat(bodyBytes).concat([checksum]))
+}
+
+const sysexDataWithHeader = (header) => {
+  let bodyBytes = bodyData.flatMap(b => [b.bits(0, 4), b.bits(4, 8)])
+  let checksum = bodyData.sum() & 0x7f
+  return Matrix.sysex(header.concat(bodyBytes).concat([checksum]))
+  
+  // return [
+  //   'nibblizeLSB',
+  //   'addChecksum',
+  //   ['wrap', [0xf0, 0x10, 0x06].concat(header), [0xf7]],
+  // ]
 }
 
 const patchOut = (location, bytes) => [[["syx", sysexDataWithLocation(bytes, location)], 100]]

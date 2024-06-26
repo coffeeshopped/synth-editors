@@ -162,9 +162,13 @@ const mophoTypePatch = (obj) => {
   const bodyCount = obj.bodyCount
   const idByte = obj.idByte
   
-  const sysexData = (bytes, headerBytes) => {
-    const packedBytes = Byte.pack78(bytes, expandedBodyCount)
-    return ([0xf0, 0x01, idByte]).concat(headerBytes).concat(packedBytes).concat([0xf7])
+  const sysexData = (headerBytes) => {
+    // const packedBytes = Byte.pack78(bytes, expandedBodyCount)
+    // return ([0xf0, 0x01, idByte]).concat(headerBytes).concat(packedBytes).concat([0xf7])
+    return [
+      ['packMSBit'],
+      ['wrap', [0xf0, 0x01, idByte].concat(headerBytes), [0xf7]],
+    ]
   }
 
   return Object.assign(obj, {
@@ -180,21 +184,21 @@ const mophoTypePatch = (obj) => {
     parseBody: (fileData) => {
       // make dependent on data count, since it can be 298 or 300 (300 is from bank)
       const start = fileData.length - (expandedBodyCount + 1)
-      if (start < 0) {
-        return (bodyCount).map(() => 0)
-        // throw "fileData was too short: "+fileData.length
-      }
-      return Byte.unpack87(fileData, bodyCount, start, start + expandedBodyCount)
+      return [
+        ['bytes', start, start + expandedBodyCount], // parse the bytes we need
+        'unpackMSbit', // unpack them
+      ]
+      // return Byte.unpack87(fileData, bodyCount, start, start + expandedBodyCount)
     },
     
-    sysexData: (bytes, headerBytes) => sysexData(bytes, headerBytes),
-    sysexWriteData: (bytes, bank, location) => sysexData(bytes, [0x02, bank, location]),
-    createFile: (bytes) => sysexData(bytes, [0x03]),
-    
+    sysexData: sysexData,
+    sysexWriteData: (bank, location) => sysexData([0x02, bank, location]),
+    createFile: sysexData([0x03]),
   })
 }
 
-const voicePatch = {
+// contains the base info that mophoTypePatch() uses to compute everything else.
+const patchTruss = {
   idByte: 0x25,
   fileDataCount: 298,
   bodyCount: 256,
@@ -241,18 +245,18 @@ const voicePatch = {
   knobAssignOptions: ["Osc 1 Freq", "Osc 1 Fine", "Osc 1 Shape", "Osc 1 Glide", "Osc 1 Key", "Sub Osc 1 Level", "Osc 2 Freq", "Osc 2 Fine", "Osc 2 Shape", "Osc 2 Glide", "Osc 2 Key", "Sub Osc 2 Level", "Sync", "Glide Mode", "Osc Slop", "Bend Range", "Key Assign Mode", "Osc Mix", "Noise Level", "Ext Aud In Level", "Filter Freq", "Resonance", "Filter Key Amt", "Filter Aud Mod", "Filter 4-pole", "Filter Env Amt", "Filter Env Velo", "Filter Env Delay", "Filter Env Attack", "Filter Env Decay", "Filter Env Sustain", "Filter Env Release", "VCA Initial Level", "VCA Env Amt", "VCA Env Velo Amt", "VCA Env Delay", "VCA Env Attack", "VCA Env Decay", "VCA Env Sustain", "VCA Env Release", "Voice Volume", "LFO 1 Freq", "LFO 1 Shape", "LFO 1 Amount", "LFO 1 Mod Dest", "LFO 1 Key Sync", "LFO 2 Freq", "LFO 2 Shape", "LFO 2 Amount", "LFO 2 Mod Dest", "LFO 2 Key Sync", "LFO 3 Freq", "LFO 3 Shape", "LFO 3 Amount", "LFO 3 Mod Dest", "LFO 3 Key Sync", "LFO 4 Freq", "LFO 4 Shape", "LFO 4 Amount", "LFO 4 Mod Dest", "LFO 4 Key Sync", "Env 3 Mod Destination", "Env 3 Amt", "Env 3 Velo Amt", "Env 3 Delay", "Env 3 Attack", "Env 3 Decay", "Env 3 Sustain", "Env 3 Release", "Env 3 Repeat", "Mod 1 Source", "Mod 1 Amount", "Mod 1 Destination", "Mod 2 Source", "Mod 2 Amount", "Mod 2 Destination", "Mod 3 Source", "Mod 3 Amount", "Mod 3 Destination", "Mod 4 Source", "Mod 4 Amount", "Mod 4 Destination", "Mod Wheel Amt", "Mod Wheel Destination", "Pressure Amt", "Pressure Destination", "Breath Amt", "Breath Destination", "Velocity Amt", "Velocity Destination", "Foot Amt", "Foot Destination", "Push It Note", "Push It Velo", "Push It Mode", "Tempo", "Clock Divide", "Arp Mode", "Arp On/Off", "Seq Trigger", "Seq On/Off", "Seq 1 Destination", "Seq 2 Destination", "Seq 3 Destination", "Seq 4 Destination"],
 }
 
-mophoTypePatch(voicePatch)
+mophoTypePatch(patchTruss)
 
-voicePatch.parms = [
+patchTruss.parms = [
   baseParms.osc,
   {
     incB: 12, block: [
       [["sync"], {p: 10, max: 1}],
-      [["glide"], {p: 11, opts: voicePatch.glideOptions}],
+      [["glide"], {p: 11, opts: patchTruss.glideOptions}],
       [["slop"], {p: 12, max: 5}],
       [["bend"], {p: 93, max: 12}],
-      [["keyAssign"], {p: 96, opts: voicePatch.keyAssignOptions}],
-      [["mix"], {p: 13, dispOff: -64, isoS: voicePatch.mixIso}],
+      [["keyAssign"], {p: 96, opts: patchTruss.keyAssignOptions}],
+      [["mix"], {p: 13, dispOff: -64, isoS: patchTruss.mixIso}],
       [["noise"], {p: 14}],
       [["extAudio"], {p: 116}],
     ]
@@ -262,28 +266,47 @@ voicePatch.parms = [
   [
     [["volume"], {b: 40, p: 29}]
   ],
-  baseParms.lfo(41, voicePatch),
-  baseParms.env3(61, 69, voicePatch),
-  baseParms.mods(70, voicePatch),
-  baseParms.ctrls(82, voicePatch),
-  baseParms.pushIt(92, voicePatch),
-  baseParms.tempoArpSeq(95, voicePatch),
+  baseParms.lfo(41, patchTruss),
+  baseParms.env3(61, 69, patchTruss),
+  baseParms.mods(70, patchTruss),
+  baseParms.ctrls(82, patchTruss),
+  baseParms.pushIt(92, patchTruss),
+  baseParms.tempoArpSeq(95, patchTruss),
   {
     prefix: "seq", count: 4, bx: 1, px: 1, block: [
-      ["dest", {b: 101, p: 77, opts: voicePatch.modDestOptions}],
+      ["dest", {b: 101, p: 77, opts: patchTruss.modDestOptions}],
     ]
   },
   baseParms.seqSteps,
   {
     prefix: "knob", count: 4, bx: 1, block: [
-      ["", {b: 105, opts: voicePatch.knobAssignOptions}],
+      ["", {b: 105, opts: patchTruss.knobAssignOptions}],
     ]
   },
 ]
 
 
+const patchCount = 128
+const createBankTruss = (patchTruss, initFile, sysexWriteData) => ({
+  type: "singleBank",
+  patchTruss: patchTruss,
+  patchCount: patchCount,
+  fileDataCount: patchCount * (patchTruss.fileDataCount + 2),
+  initFile: initFile,
+  createFile: {
+    type: 'createFileDataWithLocationMap',
+    locationMap: (bodyData, location) => sysexWriteData(bodyData, 0, location),
+  }, 
+  parseBody: {
+    type: 'sortAndParseBody',
+    locationIndex: 5, 
+    parseBody: patchTruss.parseBody, 
+    patchCount: patchCount,
+  },
+})
+
 module.exports = {
   baseParms: baseParms,
+  patchTruss: patchTruss,
+  bankTruss: createBankTruss(patchTruss, "mopho-bank-init", patchTruss.sysexWriteData)
 }
-
-console.log(voicePatch)
