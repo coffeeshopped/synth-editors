@@ -35,7 +35,9 @@ function createPatchTruss(createFileData) {
       let byte = param.byte
       if (byte >= bodyData.count) { return null }
       // return Int(Int8(bitPattern: bodyData[byte]))
-      return bodyData[byte]
+      const b = bodyData[byte]
+      console.log("hi there")
+      return b > 127 ? b - 256 : b // correct?
     },
     namePack: {
       type: 'filtered',
@@ -67,7 +69,7 @@ function createBankTruss(patchTruss) {
     patchCount: patchCount, 
     createFile: {
       type: 'createFileDataWithLocationMap',
-      locationMap: (bodyData, location) => sysexDataWithLocation(bodyData, location),
+      locationMap: sysexDataWithLocation,
     }, 
     parseBody: {
       type: 'sortAndParseBody',
@@ -179,41 +181,23 @@ const parms = [
   },
 ]
 
-const sysex = (bodyData, location) =>
-  ['syx', sysexDataWithLocation(bodyData, location)]
+const sysexDataWithLocation = (location) => sysexDataWithHeader([0x01, location])
 
-const sysexDataWithLocation = (bodyData, location) =>
-  sysexDataWithHeader(bodyData, [0x01, location])
+// returns: array of instructions for processing body data and returning sysex data
+const sysexDataWithHeader = (header) => [
+  ['concat', ['nibblize', 'lsb'], ['checksum']],
+  ['wrap', ([0xf0, 0x10, 0x06]).concat(header), [0xf7]],
+]
 
-const sysexDataWithHeader = (bodyData, header) => {
-  let bodyBytes = bodyData.flatMap(b => [b.bits(0, 4), b.bits(4, 8)])
-  let checksum = bodyData.sum() & 0x7f
-  return Matrix.sysex(header.concat(bodyBytes).concat([checksum]))
-}
+const patchOut = (location) => [[sysexDataWithLocation(location), 100]]
 
-const sysexDataWithHeader = (header) => {
-  let bodyBytes = bodyData.flatMap(b => [b.bits(0, 4), b.bits(4, 8)])
-  let checksum = bodyData.sum() & 0x7f
-  return Matrix.sysex(header.concat(bodyBytes).concat([checksum]))
-  
-  // return [
-  //   'nibblizeLSB',
-  //   'addChecksum',
-  //   ['wrap', [0xf0, 0x10, 0x06].concat(header), [0xf7]],
-  // ]
-}
-
-const patchOut = (location, bytes) => [[["syx", sysexDataWithLocation(bytes, location)], 100]]
-
-const patchTruss = createPatchTruss(bodyData => sysexDataWithLocation(bodyData, 0))
+const patchTruss = createPatchTruss(sysexDataWithLocation(0))
 
 module.exports = {
 
   patchTruss: patchTruss,
 
   createPatchTruss: createPatchTruss,
-  
-  sysex: sysex,
   
   sysexDataWithLocation: sysexDataWithLocation,
   
@@ -232,24 +216,24 @@ module.exports = {
       if (parm.p < 0) {
         // MATRIX MOD SEND
         // send the whole patch for mod changes
-        return patchOut(v, bodyData)
+        return patchOut(v)
       }
       else {
         // NORMAL PARAM SEND
         if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
-          return patchOut(v, bodyData)
+          return patchOut(v)
         }
         else {
           // quick edit doesn't save to the 6, so use a timer to do periodic saves
           return [
-            [["syx", Matrix.sysex([0x05])], 10], // quick edit mode bytes
-            [["syx", Matrix.sysex([0x06, parm.p, value])], 10],
+            [Matrix.sysex([0x05]), 10], // quick edit mode bytes
+            [Matrix.sysex([0x06, parm.p, value]), 10],
           ]
         }
       }
     }, 
-    patch: (v, bodyData) => patchOut(v, bodyData), 
-    name: (v, bodyData, path, name) => patchOut(v, bodyData),
+    patch: (v, bodyData) => patchOut(v), 
+    name: (v, bodyData, path, name) => patchOut(v),
   },
 
   parms: parms,
@@ -257,7 +241,7 @@ module.exports = {
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: (editorVal, bodyData, location) => [(sysex(bodyData, location), 50)],
+    bank: (editorVal, bodyData, location) => [(sysexDataWithLocation(location), 50)],
   },
 
 }

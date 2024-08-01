@@ -1,6 +1,6 @@
 
 
-const sysex = (cmdBytes) => [0xf0, 0x10, 0x06].concat(cmdBytes).concat([0xf7])
+const sysex = (cmdBytes) => ([0xf0, 0x10, 0x06]).concat(cmdBytes).concat([0xf7])
   
 module.exports = {
   sysex: sysex,

@@ -6,8 +6,8 @@ const bankFetch = (bank) => {
   return {
     sequence: [
       { custom: (editorVals, x) => [
-        ["send", ["syx", Matrix.bankSelect(bank)]], // select bank
-        ["send", ["syx", Matrix.sysex([0xc])]], // turn off bank lock
+        ["send", Matrix.bankSelect(bank)], // select bank
+        ["send", Matrix.sysex([0xc])], // turn off bank lock
       ] },
       { bankTruss: (editorVal, location) => Matrix.fetchPatch(location) },
     ]
