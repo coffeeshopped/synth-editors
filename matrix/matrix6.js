@@ -13,53 +13,51 @@ const globalPatchTruss = {
   ]
 }
 
-const createEditorTruss = (name) => {
-  return {
-    name: name,
-    trussMap: [
-      ["global", globalPatchTruss],
-      ["patch", Voice.patchTruss],
-      ["bank", Voice.bankTruss],
-    ],
-    
-    fetchTransforms: [
-      ["patch", {
-        sequence: [
-          // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
-          { 
-            truss: editorVal => Matrix.fetchPatch(editorVal), 
-            editorVal: Matrix.tempPatch,
+const createEditorTruss = name => ({
+  name: name,
+  trussMap: [
+    ["global", globalPatchTruss],
+    ["patch", Voice.patchTruss],
+    ["bank", Voice.bankTruss],
+  ],
+  
+  fetchTransforms: [
+    ["patch", {
+      sequence: [
+        // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
+        { 
+          truss: editorVal => Matrix.fetchPatch(editorVal), 
+          editorVal: Matrix.tempPatch,
+        },
+        {
+          custom: (editorVals, x) => {
+            const channel = editorVals[0]
+            const tempPatch = editorVals[1]
+            return [["send", ['pgmChange', channel, tempPatch]]]
           },
-          {
-            custom: (editorVals, x) => {
-              const channel = editorVals[0]
-              const tempPatch = editorVals[1]
-              return [["send", ['pgmChange', channel, tempPatch]]]
-            },
-            editorVals: ['basic', Matrix.tempPatch],
-          },
-        ],
-      }],
-      ["bank", {
-        // this seems wrong.
-        bankTruss: (editorVal, location) => Matrix.fetchPatch(loc),
-      }],
-    ],
-    
-    midiOuts: [
-      ["patch", Voice.patchTransform],
-      ["bank", Voice.bankTransform],
-    ],
-    
-    midiChannels: [
-      ["patch", "basic"],
-    ],
-    
-    slotTransforms: [
-      ["bank", { user: location => `${location}` }]
-    ],
-  }
-}
+          editorVals: ['basic', Matrix.tempPatch],
+        },
+      ],
+    }],
+    ["bank", {
+      // this seems wrong.
+      bankTruss: (editorVal, location) => Matrix.fetchPatch(loc),
+    }],
+  ],
+  
+  midiOuts: [
+    ["patch", Voice.patchTransform],
+    ["bank", Voice.bankTransform],
+  ],
+  
+  midiChannels: [
+    ["patch", "basic"],
+  ],
+  
+  slotTransforms: [
+    ["bank", { user: location => `${location}` }]
+  ],
+})
 
 const globalCtrlr = {
   builders: [
