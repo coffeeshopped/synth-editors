@@ -294,11 +294,9 @@ const createBankTruss = (patchTruss, initFile, sysexWriteData) => ({
   fileDataCount: patchCount * (patchTruss.fileDataCount + 2),
   initFile: initFile,
   createFile: {
-    type: 'createFileDataWithLocationMap',
     locationMap: (bodyData, location) => sysexWriteData(bodyData, 0, location),
   }, 
   parseBody: {
-    type: 'sortAndParseBody',
     locationIndex: 5, 
     parseBody: patchTruss.parseBody, 
     patchCount: patchCount,

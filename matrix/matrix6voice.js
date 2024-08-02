@@ -30,14 +30,8 @@ function createPatchTruss(createFileData) {
     ],
     createFile: createFileData,
     parms: parms,
-    unpack: (bodyData, param) => {
-      // Gotta handle those negative values
-      let byte = param.byte
-      if (byte >= bodyData.length) { return null }
-      // return Int(Int8(bitPattern: bodyData[byte]))
-      const b = bodyData[byte]
-      console.log("hi there")
-      return b > 127 ? b - 256 : b // correct?
+    unpack: {
+      b: '2comp',
     },
     namePack: {
       type: 'filtered',
@@ -59,28 +53,22 @@ function createPatchTruss(createFileData) {
   }
 }
 
-function createBankTruss(patchTruss) {
-  let patchCount = 100
-  
-  // 30404 is a full dump with extra global/splits info
-  return {
-    type: "singleBank",
-    patchTruss: patchTruss,
-    patchCount: patchCount, 
-    createFile: {
-      type: 'createFileDataWithLocationMap',
-      locationMap: sysexDataWithLocation,
-    }, 
-    parseBody: {
-      type: 'sortAndParseBody',
-      locationIndex: 4, 
-      parseBody: patchTruss.parseBody, 
-      patchCount: patchCount,
-    }, 
-    validSizes: [30404], 
-    includeFileDataCount: true,
-  }
-}
+// 30404 is a full dump with extra global/splits info
+const createBankTruss = patchTruss => ({
+  type: "singleBank",
+  patchTruss: patchTruss,
+  patchCount: 100, 
+  createFile: {
+    locationMap: sysexDataWithLocation,
+  }, 
+  parseBody: {
+    locationIndex: 4, 
+    parseBody: patchTruss.parseBody, 
+    patchCount: 100,
+  }, 
+  validSizes: [30404], 
+  includeFileDataCount: true,
+})
 
 const parms = [
   [
@@ -181,15 +169,15 @@ const parms = [
   },
 ]
 
-const sysexDataWithLocation = (location) => sysexDataWithHeader([0x01, location])
+const sysexDataWithLocation = location => sysexDataWithHeader([0x01, location])
 
 // returns: array of instructions for processing body data and returning sysex data
-const sysexDataWithHeader = (header) => [
+const sysexDataWithHeader = header => [
   ['concat', ['nibblize', 'lsb'], ['checksum']],
   ['wrap', ([0xf0, 0x10, 0x06]).concat(header), [0xf7]],
 ]
 
-const patchOut = (location) => [[sysexDataWithLocation(location), 100]]
+const patchOut = location => [[sysexDataWithLocation(location), 100]]
 
 const patchTruss = createPatchTruss(sysexDataWithLocation(0))
 
