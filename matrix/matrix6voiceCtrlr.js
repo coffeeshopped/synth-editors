@@ -92,7 +92,7 @@ let modEffects = (10).map((mod) => {
   return ['patchChange', {
     paths: modPaths,
     fn: (values) => {
-      let active = modPaths.map((p) => { values[p] !== 0 }).reduce((a, b) => { a && b }, true)
+      const active = modPaths.map((p) => { values[p] !== 0 }).reduce((a, b) => { a && b }, true)
       return modPaths.map((p) => ['dimItem', !active, p])
     }
   }]

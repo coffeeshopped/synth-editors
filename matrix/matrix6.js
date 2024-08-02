@@ -41,6 +41,7 @@ const createEditorTruss = (name) => {
         ],
       }],
       ["bank", {
+        // this seems wrong.
         bankTruss: (editorVal, location) => Matrix.fetchPatch(loc),
       }],
     ],
@@ -70,31 +71,29 @@ const globalCtrlr = {
 }
 
 
-const createModuleTruss = (name, subid) => {
-  return {
-    editor: createEditorTruss(name),
-    manu: "Oberheim",
-    subId: subid,
-    sections: [
-      ['first', [
-        ['global', globalCtrlr],
-        ['voice', "Voice", VoiceCtrlr],
-      ]],
-      ['basic', "Voice Bank", [
-        ['bank', "Bank 0-99", 'bank'],
-      ]],
-    ],
-    dirMap: [
-      ["bank", "Bank"],
-    ], 
-    colorGuide: [
-      "#e8a833",
-      "#1a7bf5",
-      "#9aec2c",
-      "#ff3ba6",
-    ],
-  } 
-} 
+const createModuleTruss = (name, subid) => ({
+  editor: createEditorTruss(name),
+  manu: "Oberheim",
+  subId: subid,
+  sections: [
+    ['first', [
+      ['global', globalCtrlr],
+      ['voice', "Voice", VoiceCtrlr],
+    ]],
+    ['basic', "Voice Bank", [
+      ['bank', "Bank 0-99", 'bank'],
+    ]],
+  ],
+  dirMap: [
+    ["bank", "Bank"],
+  ], 
+  colorGuide: [
+    "#e8a833",
+    "#1a7bf5",
+    "#9aec2c",
+    "#ff3ba6",
+  ],
+})
 
 
 module.exports = {

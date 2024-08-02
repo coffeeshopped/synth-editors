@@ -13,13 +13,13 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    param: (editorVal, bodyData, parm, value) => {
+    param: (editorVal, parm, value) => {
       if (!parm) { return null }
 
       if (parm.p < 0) {
         // MATRIX MOD SEND
         // mod number is encoded in params as negative parm value (1...10)
-        let mod = (-parm.p) - 1
+        const mod = (-parm.p) - 1
         
         return [
           [[
@@ -27,32 +27,30 @@ module.exports = {
               ["mod", mod, "src"],
               ["mod", mod, "amt"],
               ["mod", mod, "dest"],
-            ], (amt) => amt < 0 ? amt + 128 : amt],
+            ], amt => amt < 0 ? amt + 128 : amt],
             ['wrap', [0xf0, 0x10, 0x06, 0x0b, mod], [0xf7]]
           ], 10]
         ]
       }
+      else if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+        return patchOut
+      }
       else {
         // NORMAL PARAM SEND
-        if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
-          return patchOut
-        }
-        else {
-          // if value is negative, do some bit twiddling
-          let v = value < 0 ? value + 128 : value
-          return [[Matrix.sysex([0x06, parm.p, v]), 10]]
-        }
+        // if value is negative, do some bit twiddling
+        const v = value < 0 ? value + 128 : value
+        return [[Matrix.sysex([0x06, parm.p, v]), 10]]
       }
     
     }, 
-    patch: (editorVal, bodyData) => patchOut,
-    name: (editorVal, bodyData, path, name) => patchOut,
+    patch: (editorVal) => patchOut,
+    name: (editorVal, path, name) => patchOut,
   },
   bankTruss: Matrix6Voice.createBankTruss(patchTruss),
-  bankTransform: (bank) => ({
+  bankTransform: bank => ({
     type: 'singleBank',
     throttle: 0,
-    bank: (editorVal, bodyData, location) => [
+    bank: (editorVal, location) => [
       [Matrix.bankSelect(bank), 100],
       [Matrix6Voice.sysexDataWithLocation(location), 50],
     ],

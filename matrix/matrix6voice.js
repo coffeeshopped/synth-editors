@@ -33,7 +33,7 @@ function createPatchTruss(createFileData) {
     unpack: (bodyData, param) => {
       // Gotta handle those negative values
       let byte = param.byte
-      if (byte >= bodyData.count) { return null }
+      if (byte >= bodyData.length) { return null }
       // return Int(Int8(bitPattern: bodyData[byte]))
       const b = bodyData[byte]
       console.log("hi there")
@@ -211,29 +211,24 @@ module.exports = {
     type: 'singlePatch',
     throttle: 200,
     editorVal: Matrix.tempPatch,
-    param: (v, bodyData, parm, value) => {
+    param: (v, parm, value) => {
       if (!parm) { return null }
-      if (parm.p < 0) {
-        // MATRIX MOD SEND
-        // send the whole patch for mod changes
+
+      if (parm.p < 0 || value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+        // MATRIX MOD SEND or buggy params
         return patchOut(v)
       }
       else {
         // NORMAL PARAM SEND
-        if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
-          return patchOut(v)
-        }
-        else {
-          // quick edit doesn't save to the 6, so use a timer to do periodic saves
-          return [
-            [Matrix.sysex([0x05]), 10], // quick edit mode bytes
-            [Matrix.sysex([0x06, parm.p, value]), 10],
-          ]
-        }
+        // quick edit doesn't save to the 6, so use a timer to do periodic saves
+        return [
+          [Matrix.sysex([0x05]), 10], // quick edit mode bytes
+          [Matrix.sysex([0x06, parm.p, value]), 10],
+        ]
       }
     }, 
-    patch: (v, bodyData) => patchOut(v), 
-    name: (v, bodyData, path, name) => patchOut(v),
+    patch: (v) => patchOut(v), 
+    name: (v, path, name) => patchOut(v),
   },
 
   parms: parms,
@@ -241,7 +236,7 @@ module.exports = {
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: (editorVal, bodyData, location) => [(sysexDataWithLocation(location), 50)],
+    bank: (editorVal, location) => [(sysexDataWithLocation(location), 50)],
   },
 
 }
