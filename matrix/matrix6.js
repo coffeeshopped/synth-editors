@@ -70,7 +70,7 @@ const globalCtrlr = {
 const createModuleTruss = (name, subid) => ({
   editor: createEditorTruss(name),
   manu: "Oberheim",
-  subId: subid,
+  subid: subid,
   sections: [
     ['first', [
       ['global', globalCtrlr],
