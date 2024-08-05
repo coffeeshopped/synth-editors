@@ -5,7 +5,7 @@ const Matrix = require('./matrix.js')
 const rampModeOptions = ["Single","Multi","External","Ext Gated"]
 const fixedModsOptions = ["Off","Bend","Vibrato","Both"]
 
-const mixOptions = (64).map((i) => 
+const mixOptions = (64).map(i => 
   i == 31 ? "Equal" : i < 31 ? `O2 +${31 - i}` : `O1 +${i - 31}`
 )
 
@@ -18,40 +18,38 @@ const trkSrcOptions = modSourceOptions.mapWithIndex((s, i) => [i, s]).slice(1)
 
 const modDestinationOptions = ["Unused","DCO1 Freq","DCO1 PW","DCO1 Waveshape","DCO2 Freq","DCO2 PW","DCO2 Waveshape","Mix Level","VCF FM Amount","VCF Freq","VCF Resonance","VCA1 Level","VCA2 Level","Env1 Delay","Env1 Attack","Env1 Decay","Env1 Release","Env1 Amp","Env2 Delay","Env2 Attack","Env2 Decay","Env2 Release","Env2 Amp","Env3 Delay","Env3 Attack","Env3 Decay","Env3 Release","Env3 Amp","LFO1 Speed","LFO1 Amp","LFO2 Speed","LFO2 Amp","Porta Time"]
 
-function createPatchTruss(createFileData) {    
-  return {
-    type: "singlePatch",
-    id: "matrix6.voice",
-    bodyDataCount: 134,
-    initFile: "matrix1000-init",
-    parseBody: [
-      ['bytes', 5, 268],
-      'denibblizeLSB',
-    ],
-    createFile: createFileData,
-    parms: parms,
-    unpack: {
-      b: '2comp',
-    },
-    namePack: {
-      type: 'filtered',
-      range: [0, 8],
-      toBytes: ['upper', char => char & 0x3f],
-      toString: [byte => byte > 31 ? byte : (byte | 0x40), 'clean'],
-    },
-    randomize: () => [
-      [["env", 1, "trigger", "mode"], 0],
-      [["env", 1, "lfo", "trigger", "mode"], 0],
-      [["env", 1, "mode"], 0],
-      [["env", 1, "delay"], 0],
-      [["env", 1, "amp"], 63],
-      [["env", 1, "velo"], (64).rand()],
-      [["amp", 0, "amt"], 63],
-      [["amp", 0, "velo", "amt"], (64).rand()],
-      [["amp", 1, "env", 1, "amt"], 63],
-    ],
-  }
-}
+const createPatchTruss = createFileData => ({
+  type: "singlePatch",
+  id: "matrix6.voice",
+  bodyDataCount: 134,
+  initFile: "matrix1000-init",
+  parseBody: [
+    ['bytes', 5, 268],
+    'denibblizeLSB',
+  ],
+  createFile: createFileData,
+  parms: parms,
+  unpack: {
+    b: '2comp',
+  },
+  namePack: {
+    type: 'filtered',
+    range: [0, 8],
+    toBytes: ['upper', char => char & 0x3f],
+    toString: [byte => byte > 31 ? byte : (byte | 0x40), 'clean'],
+  },
+  randomize: () => [
+    ["env/1/trigger/mode", 0],
+    ["env/1/lfo/trigger/mode", 0],
+    ["env/1/mode", 0],
+    ["env/1/delay", 0],
+    ["env/1/amp", 63],
+    ["env/1/velo", (64).rand()],
+    ["amp/0/amt", 63],
+    ["amp/0/velo/amt", (64).rand()],
+    ["amp/1/env/1/amt", 63],
+  ],
+})
 
 // 30404 is a full dump with extra global/splits info
 const createBankTruss = patchTruss => ({
@@ -73,32 +71,32 @@ const createBankTruss = patchTruss => ({
 const parms = [
   { inc: 1, b: 8, block: [
     ["key/mode", { p: 48, opts: ["Reassign","Rotate","Unison","Reassign w/ Rob"] }],
-    [["osc", 0, "freq"], { p: 0, max: 63 }],
-    [["osc", 0, "shape"], { p: 5, max: 63 }],
-    [["osc", 0, "pw"], { p: 3, max: 63 }],
-    [["osc", 0, "fixed", "mod"], { p: 7, opts: fixedModsOptions }],
-    [["osc", 0, "wave"], { p: 6, opts: ["Off","Pulse","Wave","Both"] }],
-    [["osc", 1, "freq"], { p: 10, max: 63 }],
-    [["osc", 1, "shape"], { p: 15, max: 63 }],
-    [["osc", 1, "pw"], { p: 13, max: 63 }],
-    [["osc", 1, "fixed", "mod"], { p: 17, opts: fixedModsOptions }],
-    [["osc", 1, "wave"], { p: 16, opts: ["Off","Pulse","Wave","Both","Noise"] }],
-    [["osc", 1, "detune"], { p: 12, rng: [-31, 32] }],
-    [["mix"], { p: 20, opts: mixOptions }],
-    [["osc", 0, "porta"], { p: 8, max: 1 }],
-    [["osc", 0, "click"], { p: 9, max: 1 }],
-    [["osc", 1, "porta"], { p: 18, opts: portaOptions }],
-    [["osc", 1, "click"], { p: 19, max: 1 }],
-    [["osc", "sync"], { p: 2, opts: ["Off","Soft","Medium","Hard"] }],
-    [["cutoff"], { p: 21 }],
-    [["reson"], { p: 24, max: 63 }],
-    [["filter", "fixed", "mod"], { p: 25, opts: fixedModsOptions }],
-    [["filter", "porta"], { p: 26, opts: portaOptions }],
-    [["filter", "fm"], { p: 30, max: 63 }],
-    [["amp", 0, "amt"], { p: 27, max: 63 }],
-    [["porta", "rate"], { p: 44, max: 63 }],
-    [["lag", "mode"], { p: 46, opts: ["Const Speed","Const Time","Exponent"] }],
-    [["porta", "legato"], { p: 47, max: 1 }],
+    ["osc/0/freq", { p: 0, max: 63 }],
+    ["osc/0/shape", { p: 5, max: 63 }],
+    ["osc/0/pw", { p: 3, max: 63 }],
+    ["osc/0/fixed/mod", { p: 7, opts: fixedModsOptions }],
+    ["osc/0/wave", { p: 6, opts: ["Off","Pulse","Wave","Both"] }],
+    ["osc/1/freq", { p: 10, max: 63 }],
+    ["osc/1/shape", { p: 15, max: 63 }],
+    ["osc/1/pw", { p: 13, max: 63 }],
+    ["osc/1/fixed/mod", { p: 17, opts: fixedModsOptions }],
+    ["osc/1/wave", { p: 16, opts: ["Off","Pulse","Wave","Both","Noise"] }],
+    ["osc/1/detune", { p: 12, rng: [-31, 32] }],
+    ["mix", { p: 20, opts: mixOptions }],
+    ["osc/0/porta", { p: 8, max: 1 }],
+    ["osc/0/click", { p: 9, max: 1 }],
+    ["osc/1/porta", { p: 18, opts: portaOptions }],
+    ["osc/1/click", { p: 19, max: 1 }],
+    ["osc/sync", { p: 2, opts: ["Off","Soft","Medium","Hard"] }],
+    ["cutoff", { p: 21 }],
+    ["reson", { p: 24, max: 63 }],
+    ["filter/fixed/mod", { p: 25, opts: fixedModsOptions }],
+    ["filter/porta", { p: 26, opts: portaOptions }],
+    ["filter/fm", { p: 30, max: 63 }],
+    ["amp/0/amt", { p: 27, max: 63 }],
+    ["porta/rate", { p: 44, max: 63 }],
+    ["lag/mode", { p: 46, opts: ["Const Speed","Const Time","Exponent"] }],
+    ["porta/legato", { p: 47, max: 1 }],
   ] },
   { prefix: 'lfo', count: 2, bx: 7, px: 10, block: 
     { inc: 1, b: 35, block: [
@@ -128,33 +126,33 @@ const parms = [
       ["mode", { p: 58, opts: ["Normal","DADR","Freerun","Both"] }],
     ] } 
   },
-  [["trk", "src"], { b: 76, p: 33, options: trkSrcOptions }],
+  ["trk/src", { b: 76, p: 33, options: trkSrcOptions }],
   { prefix: "trk/pt", count: 5, bx: 1, px: 1, block: [
     ["", { b: 77, p: 34, max: 63 }],
   ] },
   { inc: 1, b: 82, block: [
     ["ramp/0/rate", { p: 40, max: 63 }],
-    [["ramp", 0, "mode"], { p: 41, opts: rampModeOptions }],
-    [["ramp", 1, "rate"], { p: 42, max: 63 }],
-    [["ramp", 1, "mode"], { p: 43, opts: rampModeOptions }],
-    [["osc", 0, "freq", "lfo", 0, "amt"], { p: 1, rng: [-63, 64] }],
-    [["osc", 0, "pw", "lfo", 1, "amt"], { p: 4, rng: [-63, 64] }],
-    [["osc", 1, "freq", "lfo", 0, "amt"], { p: 11, rng: [-63, 64] }],
-    [["osc", 1, "pw", "lfo", 1, "amt"], { p: 14, rng: [-63, 64] }],
-    [["cutoff", "env", 0, "amt"], { p: 22, rng: [-63, 64] }],
-    [["cutoff", "pressure", "amt"], { p: 23, rng: [-63, 64] }],
-    [["amp", 0, "velo", "amt"], { p: 28, rng: [-63, 64] }],
-    [["amp", 1, "env", 1, "amt"], { p: 29, rng: [-63, 64] }],
-    [["env", 0, "velo"], { p: 56, rng: [-63, 64] }],
-    [["env", 1, "velo"], { p: 66, rng: [-63, 64] }],
-    [["env", 2, "velo"], { p: 76, rng: [-63, 64] }],
-    [["lfo", 0, "ramp", 0, "amt"], { p: 85, rng: [-63, 64] }],
-    [["lfo", 1, "ramp", 1, "amt"], { p: 95, rng: [-63, 64] }],
-    [["porta", "rate", "velo", "amt"], { p: 45, rng: [-63, 64] }],
-    [["filter", "fm", "env", 2, "amt"], { p: 31, rng: [-63, 64] }],
-    [["filter", "fm", "pressure", "amt"], { p: 32, rng: [-63, 64] }],
-    [["lfo", 0, "speed", "pressure", "amt"], { p: 81, rng: [-63, 64] }],
-    [["lfo", 1, "speed", "key", "amt"], { p: 91, rng: [-63, 64] }],  
+    ["ramp/0/mode", { p: 41, opts: rampModeOptions }],
+    ["ramp/1/rate", { p: 42, max: 63 }],
+    ["ramp/1/mode", { p: 43, opts: rampModeOptions }],
+    ["osc/0/freq/lfo/0/amt", { p: 1, rng: [-63, 64] }],
+    ["osc/0/pw/lfo/1/amt", { p: 4, rng: [-63, 64] }],
+    ["osc/1/freq/lfo/0/amt", { p: 11, rng: [-63, 64] }],
+    ["osc/1/pw/lfo/1/amt", { p: 14, rng: [-63, 64] }],
+    ["cutoff/env/0/amt", { p: 22, rng: [-63, 64] }],
+    ["cutoff/pressure/amt", { p: 23, rng: [-63, 64] }],
+    ["amp/0/velo/amt", { p: 28, rng: [-63, 64] }],
+    ["amp/1/env/1/amt", { p: 29, rng: [-63, 64] }],
+    ["env/0/velo", { p: 56, rng: [-63, 64] }],
+    ["env/1/velo", { p: 66, rng: [-63, 64] }],
+    ["env/2/velo", { p: 76, rng: [-63, 64] }],
+    ["lfo/0/ramp/0/amt", { p: 85, rng: [-63, 64] }],
+    ["lfo/1/ramp/1/amt", { p: 95, rng: [-63, 64] }],
+    ["porta/rate/velo/amt", { p: 45, rng: [-63, 64] }],
+    ["filter/fm/env/2/amt", { p: 31, rng: [-63, 64] }],
+    ["filter/fm/pressure/amt", { p: 32, rng: [-63, 64] }],
+    ["lfo/0/speed/pressure/amt", { p: 81, rng: [-63, 64] }],
+    ["lfo/1/speed/key/amt", { p: 91, rng: [-63, 64] }],  
   ] },
   { prefix: 'mod', count: 10, bx: 3, px: 0, block: mod => [
     ["src", { b: 104, p: -(mod + 1), opts: modSourceOptions }],
