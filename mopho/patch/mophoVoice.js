@@ -4,7 +4,7 @@ const baseParms = {
   osc: [
     {
       prefix: 'osc', count: 2, bx: 6, px: 5, block: {
-        incB: 0, p: 0, block: [
+        inc: 1, b: 0, p: 0, block: [
           ["semitone", { max: 120, isoS: ['noteName', "C0"] }],
           ["detune", { max: 100, dispOff: -50 }],
           ["shape", { max: 103 }],
@@ -21,7 +21,7 @@ const baseParms = {
   ],
     
   filter: {
-    incB: 20, p: 15, block: [
+    inc: 1, b: 20, p: 15, block: [
       [
         ["cutoff", {max: 164}],
         ["reson", {}],
@@ -29,9 +29,9 @@ const baseParms = {
       {
         prefix: "filter", block: [
           [
-            [["keyTrk"], {}],
-            [["extAudio"], {}],
-            [["fourPole"], {max: 1}],
+            ["keyTrk", {}],
+            ["extAudio", {}],
+            ["fourPole", {max: 1}],
           ],
           {
             prefix: "env", block: [
@@ -50,12 +50,10 @@ const baseParms = {
   },
      
   ampEnv: [
-    [
-      [["amp", "level"], {b: 32, p: 27}],
-    ],
+    ["amp/level", {b: 32, p: 27}],
     {
       prefix: "amp/env", block: {
-        incB: 33, p: 30, block: [
+        inc: 1, b: 33, p: 30, block: [
           ["amt", {}],
           ["velo", {}],
           ["delay", {}],
@@ -70,7 +68,7 @@ const baseParms = {
   
   lfo: (b, obj) => ({
     prefix: "lfo", count: 4, bx: 5, px: 5, block: {
-      incB: b, p: 37, block: [
+      inc: 1, b: b, p: 37, block: [
         ["freq", {max: 166}],
         ["shape", {opts: obj.lfoWaveOptions}],
         ["amt", {}],
@@ -83,7 +81,7 @@ const baseParms = {
   env3: (b, repB, obj) => ({
     prefix: "env/2", block: [
       {
-        incB: b, p: 57, block: [
+        inc: 1, b: b, p: 57, block: [
           ["dest", {opts: obj.modDestOptions}],
           ["amt", {max: 254, dispOff: -127}],
           ["velo", {}],
@@ -94,15 +92,13 @@ const baseParms = {
           ["release", {}],
         ]
       },
-      [
-        ["rrepeat", {b: repB, p: 98, max: 1}],
-      ]
+      ["rrepeat", {b: repB, p: 98, max: 1}],
     ]
   }),
   
   mods: (b, obj) => ({
     prefix: "mod", count: 4, bx: 3, px: 3, block: {
-      incB: b, p: 65, block: [
+      inc: 1, b: b, p: 65, block: [
         ["src", {opts: obj.modSrcOptions}],
         ["amt", {max: 254, dispOff: -127}],
         ["dest", {opts: obj.modDestOptions}],
@@ -112,16 +108,16 @@ const baseParms = {
   
   ctrls: (b, obj) => ({
     prefixes: ["modWheel", "pressure", "breath", "velo", "foot"], bx: 2, px: 2, block: {
-      incB: b, p: 81, block: [
-        [["amt"], {max: 254, dispOff: -127}],
-        [["dest"], {opts: obj.modDestOptions}],
+      inc: 1, b: b, p: 81, block: [
+        ["amt", {max: 254, dispOff: -127}],
+        ["dest", {opts: obj.modDestOptions}],
       ]
     }
   }),
   
   pushIt: (b, obj) => ({
     prefix: "pushIt", block: {
-      incB: b, p: 111, block: [
+      inc: 1, b: b, p: 111, block: [
         ["note", {max: 120, isoS: ['noteName', "C0"] }],
         ["velo", {}],
         ["mode", {opts: obj.pushItModeOptions}],
@@ -130,7 +126,7 @@ const baseParms = {
   }),
   
   tempoArpSeq: (b, obj) => ({
-    incB: b, block: [
+    inc: 1, b: b, block: [
       [["tempo"], {p: 91, min: 30, max: 250}],
       [["clock", "divide"], {p: 92, opts: obj.clockDivOptions}],
       [["arp", "mode"], {p: 97, opts: obj.arpModeOptions}],
@@ -148,11 +144,11 @@ const baseParms = {
     }
   },
   
-  unison: (b) => ({
-    incB: b, block: [
-      [["unison", "mode"], {p: 95, opts: obj.unisonModeOptions}], // NEW
-      [["keyAssign"], {p: 96, opts: obj.keyAssignOptions}],
-      [["unison"], {p: 99, max: 1}], // NEW
+  unison: b => ({
+    inc: 1, b: b, block: [
+      ["unison/mode", {p: 95, opts: obj.unisonModeOptions}], // NEW
+      ["keyAssign", {p: 96, opts: obj.keyAssignOptions}],
+      ["unison", {p: 99, max: 1}], // NEW
     ]
   })
 }
@@ -250,7 +246,7 @@ mophoTypePatch(patchTruss)
 patchTruss.parms = [
   baseParms.osc,
   {
-    incB: 12, block: [
+    inc: 1, b: 12, block: [
       [["sync"], {p: 10, max: 1}],
       [["glide"], {p: 11, opts: patchTruss.glideOptions}],
       [["slop"], {p: 12, max: 5}],
@@ -263,9 +259,7 @@ patchTruss.parms = [
   },
   baseParms.filter,
   baseParms.ampEnv,
-  [
-    [["volume"], {b: 40, p: 29}]
-  ],
+  ["volume", {b: 40, p: 29}],
   baseParms.lfo(41, patchTruss),
   baseParms.env3(61, 69, patchTruss),
   baseParms.mods(70, patchTruss),

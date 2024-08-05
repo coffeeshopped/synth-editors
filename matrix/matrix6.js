@@ -6,10 +6,8 @@ const globalPatchTruss = {
   type: "json",
   id: "matrix6.global",
   parms: [
-    [
-      ["channel", { b: 0, max: 15, dispOff: 1 }],
-      ["patch", { b: 1, max: 99 }],
-    ]
+    ["channel", { b: 0, max: 15, dispOff: 1 }],
+    ["patch", { b: 1, max: 99 }],
   ]
 }
 
