@@ -33,7 +33,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
         const key = path[0]
         var note = 0
         var fine = 0
-        if path.last() == 'note' {
+        if (path.last() == 'note') {
           note = Math.max(0, value)
           fine = patchTrussGetValue(truss, bodyData, [key, 'fine'])
         }

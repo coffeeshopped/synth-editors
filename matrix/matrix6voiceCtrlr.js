@@ -1,6 +1,6 @@
 require('../core/NumberUtils.js')
 
-const env = (label) => {
+const env = label => {
   const parts = ["delay", "attack", "decay", "sustain", "release"]
   return {
     display: 'dadsrEnv',
@@ -10,34 +10,32 @@ const env = (label) => {
   }
 }
 
-const envController = (label, index) => {
-  return {
-    prefix: { fixed: ["env", index] },
-    builders: [
-      ["grid", [[
-        env(label),
-        ["Delay", "delay"],
-        ["Attack", "attack"],
-        ["Decay", "decay"],
-        ["Sustain", "sustain"],
-        ["Release", "release"],
-      ],[
-        ["Amp", "amp"],
-        ["Velo", "velo"],
-        [{t: "select", l: "Trigger Mode"}, "trigger/mode"],
-        [{t: "switsch", l: "Mode"}, "mode"],
-        [{t: "switsch", l: "LFO Trigger"}, "lfo/trigger/mode"],
-      ]]]
-    ], 
-    effects: [
-      ["editMenu", "env", {
-        paths: ["delay", "attack", "decay", "sustain", "release"], 
-        type: "Matrix6Envelope",
-        init: [0, 0, 0, 63, 0],
-      }],
-    ],
-  }
-}
+const envController = (label, index) => ({
+  prefix: { fixed: ["env", index] },
+  builders: [
+    ["grid", [[
+      env(label),
+      ["Delay", "delay"],
+      ["Attack", "attack"],
+      ["Decay", "decay"],
+      ["Sustain", "sustain"],
+      ["Release", "release"],
+    ],[
+      ["Amp", "amp"],
+      ["Velo", "velo"],
+      [{t: "select", l: "Trigger Mode"}, "trigger/mode"],
+      [{t: "switsch", l: "Mode"}, "mode"],
+      [{t: "switsch", l: "LFO Trigger"}, "lfo/trigger/mode"],
+    ]]]
+  ], 
+  effects: [
+    ["editMenu", "env", {
+      paths: ["delay", "attack", "decay", "sustain", "release"], 
+      type: "Matrix6Envelope",
+      init: [0, 0, 0, 63, 0],
+    }],
+  ],
+})
 
 const lfoEffects = [
   ['patchChange', 'wave', v => ['dimItem', v != 6, 'sample/src', 0]],

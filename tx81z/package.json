@@ -1,0 +1,13 @@
+{
+  "name": "op4",
+  "version": "0.0.1",
+  "description": "Yamaha TX81Z",
+  "modules": [
+    {
+      "name": "tx81z",
+      "manufacturer": "Yamaha",
+      "model": "TX81Z",
+      "module": "tx81z.js"
+    }
+  ]
+}

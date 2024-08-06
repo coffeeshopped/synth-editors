@@ -1,28 +1,28 @@
+require('../core/NumberUtils.js')
+require('../core/ArrayUtils.js')
 
-const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
   // note the order: 4, 2, 3, 1. wacky
-  return {
-    prefix: ['op', op], block: {
-      offset: true, b: i * 13, block: [
-        ["attack", { b: 0, max: 31 }],
-        ["decay/0", { b: 1, max: 31 }],
-        ["decay/1", { b: 2, max: 31 }],
-        ["release", { b: 3, rng: [1, 16] }],
-        ["decay/level", { b: 4, max: 15 }],
-        ["level/scale", { b: 5, max: 99 }],
-        ["rate/scale", { b: 6, max: 3 }],
-        ["env/bias/sens", { b: 7, max: 7 }],
-        ["amp/mod", { b: 8, max: 1 }],
-        ["velo", { b: 9, max: 7 }],
-        ["level", { b: 10, max: 99 }],
-        ["coarse", { b: 11, max: 63 }],
-        ["detune", { b: 12, max: 6, dispOff: -3 }],
-      ]
-    }
+const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
+  prefix: ['op', op], block: {
+    offset: true, b: i * 13, block: [
+      ["attack", { b: 0, max: 31 }],
+      ["decay/0", { b: 1, max: 31 }],
+      ["decay/1", { b: 2, max: 31 }],
+      ["release", { b: 3, rng: [1, 16] }],
+      ["decay/level", { b: 4, max: 15 }],
+      ["level/scale", { b: 5, max: 99 }],
+      ["rate/scale", { b: 6, max: 3 }],
+      ["env/bias/sens", { b: 7, max: 7 }],
+      ["amp/mod", { b: 8, max: 1 }],
+      ["velo", { b: 9, max: 7 }],
+      ["level", { b: 10, max: 99 }],
+      ["coarse", { b: 11, max: 63 }],
+      ["detune", { b: 12, max: 6, dispOff: -3 }],
+    ]
   }
-}).concat([
+})).concat([
   { 
-    inc: true, b: 52, block: [
+    inc: 1, b: 52, block: [
       ["algo", { max: 7, dispOff: 1 }],
       ["feedback", { max: 7 }],
       ["lfo/speed", { max: 99 }],
@@ -51,7 +51,7 @@ const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
     ] 
   },
   { 
-    inc: true, b: 87, block: {
+    inc: 1, b: 87, block: {
       prefix: "pitch/env", block: [
         // Pitch env is on DX21
         ["rate/0", { max: 99 }],
@@ -65,28 +65,26 @@ const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
   },
 ])
 
-const compactParms = ([3,1,2,0]).forEachWithIndex((op, i) => {
     // note the order: 4, 2, 3, 1. wacky
-  return {
-    prefix: ["op", op], block: {
-      offset: true, b: i * 10, block: [
-        ["attack", { 0 }],
-        ["decay/0", { 1 }],
-        ["decay/1", { 2 }],
-        ["release", { 3 }],
-        ["decay/level", { 4 }],
-        ["level/scale", { 5 }],
-        ["rate/scale", { b: 9, bits: [3, 5] }],
-        ["env/bias/sens", { b: 6, bits: [3, 6] }],
-        ["amp/mod", { b: 6, bit: 6 }],
-        ["velo", { b: 6, bits: [0, 3] }],
-        ["level", { 7 }],
-        ["coarse", { 8 }],
-        ["detune", { b: 9, bits: [0, 3] }],
-      ]
-    }
+const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
+  prefix: ["op", op], block: {
+    offset: true, b: i * 10, block: [
+      ["attack", { b: 0 }],
+      ["decay/0", { b: 1 }],
+      ["decay/1", { b: 2 }],
+      ["release", { b: 3 }],
+      ["decay/level", { b: 4 }],
+      ["level/scale", { b: 5 }],
+      ["rate/scale", { b: 9, bits: [3, 5] }],
+      ["env/bias/sens", { b: 6, bits: [3, 6] }],
+      ["amp/mod", { b: 6, bit: 6 }],
+      ["velo", { b: 6, bits: [0, 3] }],
+      ["level", { b: 7 }],
+      ["coarse", { b: 8 }],
+      ["detune", { b: 9, bits: [0, 3] }],
+    ]
   }
-}).concat([
+})).concat([
   [
     ["algo", { b: 40, bits: [0, 3] }],
     ["feedback", { b: 40, bits: [3, 6] }],
@@ -130,12 +128,12 @@ const sysexData = (channel, bodyData) => yamahaSysexData(channel, [0x03, 0x00, 0
 
 const paramData = (channel, cmdBytes) => yamahaParamData(channel, [cmdByte].concat(cmdBytes))
 
-const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
+// const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
 const nameRange = [77, 87]
 
-const patchTransform = (editorVal, bodyData) =>  [['syx', sysexData(bodyData, editorVal), 100]]
+const patchTransform = (editorVal, bodyData) =>  [[sysexData(bodyData, editorVal), 100]]
 const nameTransform = (editorVal, bodyData, path, name) => {
-  return nameRange.rangeMap(i => [['syx', paramData(editorVal, [i, bodyData[i]])], 10])
+  return nameRange.rangeMap(i => [paramData(editorVal, [i, bodyData[i]]), 10])
 }
 
 const patchTruss = {

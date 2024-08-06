@@ -1,4 +1,7 @@
-const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
+require('../core/NumberUtils.js')
+require('../core/ArrayUtils.js')
+
+const parms = ([3,1,2,0]).mapWithIndex((op, i) => {
   // note the order: 4, 2, 3, 1. wacky
   return {
     prefix: ['op', op], block: {
@@ -6,7 +9,7 @@ const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
         ["osc/mode", { b: 0, max: 1 }],
         ["fixed/range", { b: 1, max: 7 }],
         ["fine", { b: 2, max: 15 }],
-        ["wave", { b: 3, .opts(8.map { "tx81z-wave-\($0 + 1)" }) }],
+        ["wave", { b: 3, opts: (8).map(i => { `tx81z-wave-${i + 1}` }) }],
         ["shift", { b: 4, max: 3 }],
       ] 
     }
@@ -15,13 +18,13 @@ const parms = ([3,1,2,0]).forEachWithIndex((op, i) => {
   {
     inc: true, b: 20, block: [
       ["reverb", { max: 7 }],
-      ["foot/pitch", max: 99 }],
-      ["foot/amp", max: 99 }],
+      ["foot/pitch", {max: 99} ],
+      ["foot/amp", {max: 99} ],
     ]
   }  
 ])
 
-const compactParms = ([3,1,2,0]).forEachWithIndex((op, i) => {
+const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => {
   // note the order: 4, 2, 3, 1. wacky
   return {
     prefix: ["op", op], block: {
@@ -36,7 +39,7 @@ const compactParms = ([3,1,2,0]).forEachWithIndex((op, i) => {
   }
 }).concat([
   {
-    inc: true, b: 81, [
+    inc: true, b: 81, block: [
       ["reverb"],
       ["foot/pitch"],
       ["foot/amp"],
