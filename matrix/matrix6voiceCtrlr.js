@@ -32,19 +32,16 @@ const envController = (label, index) => {
     effects: [
       ["editMenu", "env", {
         paths: ["delay", "attack", "decay", "sustain", "release"], 
-        type: "Matrix6Envelope"
-      }]
+        type: "Matrix6Envelope",
+        init: [0, 0, 0, 63, 0],
+      }],
     ],
   }
 }
 
 const lfoEffects = [
-  ['patchChange', ['wave'], [
-    ['dimItem', v => v != 6, ['sample', 'src'], 0],
-  ]],
-  ['patchChange', ['trigger'], [
-    ['dimItem', v => v == 0, ["retrigger", "pt"], 0],
-  ]],
+  ['patchChange', 'wave', v => ['dimItem', v != 6, 'sample/src', 0]],
+  ['patchChange', 'trigger', v => ['dimItem', v == 0, "retrigger/pt", 0]],
 ]
 
 const lfo1 = {
@@ -86,14 +83,14 @@ const lfo2 = {
   effects: lfoEffects,
 }
 
-let modParts = ["src", "amt", "dest"]
-let modEffects = (10).map((mod) => {
-  let modPaths = modParts.map((part) => ["mod", mod, part])
+const modParts = ["src", "amt", "dest"]
+const modEffects = (10).map(mod => {
+  const modPaths = modParts.map(part => ["mod", mod, part])
   return ['patchChange', {
     paths: modPaths,
-    fn: (values) => {
-      const active = modPaths.map((p) => { values[p] !== 0 }).reduce((a, b) => { a && b }, true)
-      return modPaths.map((p) => ['dimItem', !active, p])
+    fn: values => {
+      const active = values.map(v => v != 0).reduce((a, b) => a && b, true)
+      return modPaths.map(p => ['dimItem', !active, p])
     }
   }]
 })
