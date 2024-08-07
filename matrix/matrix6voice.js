@@ -165,8 +165,8 @@ const sysexDataWithLocation = location => sysexDataWithHeader([0x01, location])
 
 // returns: array of instructions for processing body data and returning sysex data
 const sysexDataWithHeader = header => [
-  ['concat', ['nibblize', 'lsb'], ['checksum']],
-  ['wrap', ([0xf0, 0x10, 0x06]).concat(header), [0xf7]],
+  ['+', 'nibblizeLSB', 'checksum'],
+  ['+', ([0xf0, 0x10, 0x06]).concat(header), 'b', 0xf7],
 ]
 
 const patchOut = location => [[sysexDataWithLocation(location), 100]]

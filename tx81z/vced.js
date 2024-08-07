@@ -1,10 +1,11 @@
 require('../core/NumberUtils.js')
 require('../core/ArrayUtils.js')
+const Op4 = require('./op4.js')
 
   // note the order: 4, 2, 3, 1. wacky
 const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   prefix: ['op', op], block: {
-    offset: true, b: i * 13, block: [
+    b: i * 13, offset: [
       ["attack", { b: 0, max: 31 }],
       ["decay/0", { b: 1, max: 31 }],
       ["decay/1", { b: 2, max: 31 }],
@@ -68,7 +69,7 @@ const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
     // note the order: 4, 2, 3, 1. wacky
 const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   prefix: ["op", op], block: {
-    offset: true, b: i * 10, block: [
+    b: i * 10, offset: [
       ["attack", { b: 0 }],
       ["decay/0", { b: 1 }],
       ["decay/1", { b: 2 }],
@@ -124,14 +125,16 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
 
 const cmdByte = 0x12
 
-const sysexData = (channel, bodyData) => yamahaSysexData(channel, [0x03, 0x00, 0x5d], bodyData)
+const sysexData = channel => [
+  ['yamCmd', [channel, 0x03, 0x00, 0x5d], "b"],
+]
 
-const paramData = (channel, cmdBytes) => yamahaParamData(channel, [cmdByte].concat(cmdBytes))
+const paramData = Op4.paramData(cmdByte)
 
 // const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
 const nameRange = [77, 87]
 
-const patchTransform = (editorVal, bodyData) =>  [[sysexData(bodyData, editorVal), 100]]
+const patchTransform = editorVal => [[sysexData(editorVal), 100]]
 const nameTransform = (editorVal, bodyData, path, name) => {
   return nameRange.rangeMap(i => [paramData(editorVal, [i, bodyData[i]]), 10])
 }
@@ -141,8 +144,8 @@ const patchTruss = {
   id: 'tx81z.vced',
   bodyDataCount: 93,
   initFile: "dx100-init",
-  parseOffset: 6,
-  createFile: (bodyData) => sysexData(0, bodyData),
+  parseBody: 6,
+  createFile: sysexData(0),
   parms: parms,
   namePack: {
     basic: nameRange,
@@ -151,13 +154,24 @@ const patchTruss = {
     // TODO 
   ],
 }
+
+const compactTruss = {
+  type: 'singlePatch',
+  id: 'tx81z.vced.compact',
+  bodyDataCount: 128,
+  namePack: {
+    basic: [57, 67]
+  },
+  parms: compactParms,
+}
   
 module.exports = {
   patchTruss: patchTruss,
+  compactTruss: compactTruss,
   sysexData: sysexData,
   paramData: paramData,
+  patchWerk: Op4.patchWerk(cmdByte, nameRange, sysexData),
 }
-// compact: (body: 128, namePack: .basic(57..<67), parms: compactParms))
 
 //    open func randomize() {
 //

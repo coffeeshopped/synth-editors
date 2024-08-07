@@ -56,91 +56,32 @@ const createVoicePatchTruss = (synthName, map, initFile, validSizes) => ({
   includeFileDataCount: true,
 })
 
-const createVoiceBankTruss = (patchTruss, patchCount, initFile, map) => ({
-  type: 'multiBank',
+const createVoiceBankTruss = (patchTruss, patchCount, initFile, compactTrussMap) => ({
+  type: 'compactMultiBank',
   patchTruss: patchTruss, 
   patchCount: patchCount, 
   initFile: initFile,
-  fileDataCount: 4104, 
-  createFileData: (bd) => voiceBankSysexData(bd, 0, map), 
-  parseBodyData: {
-    type: 'compactData',
-    offset: 6, 
-    patchByteCount: 128,
-    fn: (d) => map.map(x => [$0[0], $0[1].parseCompactData(d)]),
-  },
+  fileDataCount: 4104,
+  compactTrussMap: compactTrussMap,
+  createFile: voiceBankSysexData(0),
+  parseBody: 6, 
 })
 
-const voiceBankSysexData = (bodyData, channel, map) => {
-  const patchData = bodyData.flatMap(d => {
-    const compactData = Array(128).fill(0)
-    map.forEach(m => {
-      const bd = d[m.path]
-      if (bd === null) { return }
-      patchTrussTransform(m.compactTruss, m.truss, bodyData)
-    })
-    return compactData
-  })
-  return yamahaSysexData(channel, [0x04, 0x20, 0x00], patchData)
-}
+const voiceBankSysexData = channel => [
+  ['yamCmd', [channel, 0x04, 0x20, 0x00]],
+]
 
-const patchBankTransform = (map) => {
+const patchBankTransform = map => {
   return {
     type: 'multi',
     throttle: 0,
     editorVal: sysexChannel,
-    wholeBank: (editorVal, bodyData) => 
-      [[['sysex', voiceBankSysexData(bodyData, editorVal, map)], 100]]
+    wholeBank: editorVal => [[voiceBankSysexData(editorVal), 100]]
   }
 }
 
-/// For TX81z. Same as VCED only except send full patch (VCED and ACED) when there are multiple changes
-// const patchChangeTransform = (truss, map) => {
-//   return {
-//     type: 'multiDictPatch',
-//     throttle: 100,
-//     editorVals: ([sysexChannel]).concat(opOns),
-//     param: (editorVal, bodyData, path, value) => {
-//       let isOpOn = path.first == 'voice' && path.last == 'on'
-//       let opOnParam = RangeParam(byte: 93)
-//       guard let param = isOpOn ? opOnParam : truss.param(path),
-//             let subpatch = bodyData[[path[0]]],
-//             let channel = editorVal[Op4.sysexChannel] as? Int else { return nil }
-//       let data: [UInt8]
-//       switch path[0] {
-//       case .voice:
-//         let value = isOpOn ? opOnByte(editorVal, newOp: path.i(2) ?? 0, value: value) : subpatch[param.byte]
-//         data = VCED.patchWerk.paramData(channel: channel, cmdBytes: [UInt8(param.byte), value])
-//       case .extra:
-//         let value = subpatch[param.byte]
-//         data = ACED.patchWerk.paramData(channel: channel, cmdBytes: [UInt8(param.byte), value])
-//       case .aftertouch:
-//         // offset byte by 23 to get param address
-//         let value = subpatch[param.byte]
-//         data = ACED.patchWerk.paramData(channel: channel, cmdBytes: [UInt8(param.byte + 23), value])
-//       default:
-//         return nil
-//       }
-//       return [(.sysex(data), 0)]
-//       
-//     }, 
-//     patch: (editorVal, bodyData) => {
-//       guard let channel = editorVal[sysexChannel] as? Int else { return nil }
-//       return try map.compactMap {
-//         guard let b = bodyData[$0.0] else { return nil }
-//         return try $0.1.patchTransform(channel, b)
-//       }.reduce([], +)
-//     
-//     }, 
-//     name: (editorVal, bodyData, path, name) => {
-//       guard let b = bodyData[[.voice]],
-//             let channel = editorVal[sysexChannel] as? Int else { return nil }
-//       return try VCED.patchWerk.nameTransform(channel, b, path, name)
-//     },
-//   }
-// }
-
 const opOns = (4).map(i => ['extra', 'patch', ['voice', 'op', i, 'on']])
+
 
 // calc based on stored editor values and new incoming value
 const opOnByte = (dict, newOp, value) => {
@@ -157,73 +98,27 @@ const fetch = (cmdBytes) =>
 const fetchWithHeader = (header) => fetch([0x7e] + (`LM  ${header}`).sysexBytes())
 
 
+const paramData = (cmdByte) => ((channel, cmdBytes) => [
+  ['+', cmdByte, cmdBytes],
+  ['yamParm', channel, 'b']
+])
 
-const paramData = (cmdByte, channel, cmdBytes) => yamahaParamData(channel, ([cmdByte]).concat(cmdBytes))
 
 const patchWerk = (cmdByte, nameRange, sysexData) => {
   
-  const myParamData = (channel, cmdBytes) => paramData(cmdByte, channel, cmdBytes)
+  const myParamData = paramData(cmdByte)
   
   return {
     cmdByte: cmdByte,
     sysexData: sysexData,
-    
-    // truss: {
-    //   type: 'singlePatch',
-    //   id: `${synth}.${displayType}`,
-    //   bodyDataCount: bodyDataCount
-    //   namePackIso: namePack, 
-    //   parms: parms, 
-    //   initFile: initFile, 
-    //   createFileData: (bd) => sysexData(bd, 0),
-    //   parseOffset: parseOffset,
-    // }
-    // 
-    // if let compact = compact {
-    //   self.compactTruss = SinglePatchTruss(YamahaCompactTrussWerk.compactDisplayType(truss), compact.body, namePackIso: compact.namePack, params: compact.parms.params())
-    // }
-    // else {
-    //   self.compactTruss = nil
-    // }
-    
     paramData: myParamData,
-    paramSysex: (channel, cmdBytes) => ['syx', myParamData(channel, cmdBytes)],
-    patchTransform: (editorVal, bodyData) => [[['syx', sysexData(bodyData, editorVal)], 100]],
-    nameTransform: (editorVal, bodyData, path, name) => {
-      return nameRange.rangeMap(i => [['syx', myParamData(editorVal, [i, bodyData[i]])], 10])
-    },
-  
+    patchTransform: (editorVal) => [[sysexData(editorVal), 100]],
+    nameTransform: (editorVal, path, name) => nameRange.rangeMap(i => [[
+      ['+', i, ['byte', i]],
+      myParamData(editorVal, 'b'),
+    ], 10]),
   }
 }
-
-// extension Op4 {
-//   
-//   struct PatchWerk {
-//     
-//     let cmdByte: UInt8
-//     let sysexData: (_ bodyData: [UInt8], _ channel: Int) -> [UInt8]
-//     let truss: SinglePatchTruss
-//     let compactTruss: SinglePatchTruss?
-//     let patchTransform: MidiTransform.Fn<SinglePatchTruss,Int>.Whole
-//     let nameTransform: MidiTransform.Fn<SinglePatchTruss,Int>.Name
-//     
-//     init() 
-//     
-//     
-//     
-//     func parse(compactData: SinglePatchTruss.BodyData) -> SinglePatchTruss.BodyData {
-//       truss.parse(otherData: compactData, otherTruss: compactTruss!)
-//     }
-//     
-//     func transform(_ bodyData: SinglePatchTruss.BodyData, intoCompact compactData: inout SinglePatchTruss.BodyData) {
-//       truss.transform(bodyData, into: &compactData, using: compactTruss!)
-//     }
-//   }
-// }
-// 
-
-
-
 
 
 const freqRatio = (fixedMode, range, coarse, fine) => {
@@ -255,4 +150,5 @@ module.exports = {
   // microSysexMap: microSysexMap,
   editorTrussSetup: editorTrussSetup,
   createVoicePatchTruss: createVoicePatchTruss,
+  createVoiceBankTruss: createVoiceBankTruss,
 }

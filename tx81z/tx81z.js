@@ -1,6 +1,6 @@
 const Op4 = require('./op4.js')
 // const Op4micro = require('./op4micro.js')
-// const Perf = require('./tx81zPerf.js')
+const Perf = require('./tx81zPerf.js')
 const VCED = require('./vced.js')
 const ACED = require('./aced.js')
 
@@ -11,8 +11,14 @@ const voiceMap = [
   ["voice", VCED.patchTruss],
 ]
 
+const compactMap = [
+  ["extra", ACED.compactTruss],
+  ["voice", VCED.compactTruss],
+]
+
 const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "tx81z-init", [])
-// const voiceBankTruss = Op4.createVoiceBankTruss(patchTruss, 32, "tx81z-voice-bank-init", voiceMap)
+const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voice-bank-init", compactMap)
+
 // const voiceBankTransform = Op4.patchBankTransform(voiceMap)
 // 
 // const backupTruss = {
@@ -40,16 +46,62 @@ const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "tx81z-init",
 //   }
 // }
 
+/// For TX81z. Same as VCED only except send full patch (VCED and ACED) when there are multiple changes
+// const patchChangeTransform = truss => ({
+//   type: 'multiDictPatch',
+//   throttle: 100,
+//   editorVals: ([sysexChannel]).concat(opOns),
+//   param: (editorVals, bodyData, path, value) => {
+//     let isOpOn = path.first == 'voice' && path.last == 'on'
+//     let opOnParam = RangeParam(byte: 93)
+//     guard let param = isOpOn ? opOnParam : truss.param(path),
+//           let subpatch = bodyData[[path[0]]] else { return nil }
+//     const channel = editorVals[0]
+//     var data = []
+//     switch (path[0]) {
+//       case 'voice':
+//         let value = isOpOn ? opOnByte(editorVals, newOp: path.i(2) ?? 0, value: value) : subpatch[param.byte]
+//         data = VCED.patchWerk.paramData(channel, [param.byte, value])
+//         break
+//       case 'extra':
+//         let value = subpatch[param.byte]
+//         data = ACED.patchWerk.paramData(channel, [param.byte, value])
+//         break
+//       case 'aftertouch':
+//         // offset byte by 23 to get param address
+//         let value = subpatch[param.byte]
+//         data = ACED.patchWerk.paramData(channel, [param.byte + 23, value])
+//         break
+//       default:
+//         return null
+//     }
+//     return [[data, 0]]
+//     
+//   }, 
+//   patch: (editorVal, bodyData) => {
+//     guard let channel = editorVal[sysexChannel] as? Int else { return nil }
+//     return try map.compactMap {
+//       guard let b = bodyData[$0.0] else { return nil }
+//       return try $0.1.patchTransform(channel, b)
+//     }.reduce([], +)
+//   
+//   }, 
+//   name: (editorVal, bodyData, path, name) => {
+//     guard let b = bodyData[[.voice]],
+//           let channel = editorVal[sysexChannel] as? Int else { return nil }
+//     return try VCED.patchWerk.nameTransform(channel, b, path, name)
+//   },
+// })
 
 const editor = Object.assign(Op4.editorTrussSetup, {
   name: synth,
   trussMap: [
     ["global", 'channel'],
     ["patch", voicePatchTruss],
-    // ["bank", voiceBankTruss],
+    ["bank", voiceBankTruss],
   ].concat([] /* Op4.microSysexMap */).concat([
-    // ["perf", Perf.truss],
-    // ["bank/perf", Perf.bankTruss],
+    ["perf", Perf.patchTruss],
+    ["bank/perf", Perf.bankTruss],
     // ["backup", backupTruss],
   ]),
     
@@ -63,7 +115,7 @@ const editor = Object.assign(Op4.editorTrussSetup, {
   ],
 
   midiOuts: [
-    // ["patch", Op4.patchChangeTransform(truss: Voice.patchTruss, map: Voice.map)],
+    // ["patch", Op4.patchChangeTransform(voicePatchTruss)],
     // ["perf", Perf.patchTransform],
     // ["micro/octave", Op4micro.octWerk.patchChangeTransform],
     // ["micro/key", Op4micro.fullWerk.patchChangeTransform],
