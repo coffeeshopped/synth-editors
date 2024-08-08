@@ -123,21 +123,12 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   ],
 ])
 
-const cmdByte = 0x12
-
 const sysexData = channel => [
   ['yamCmd', [channel, 0x03, 0x00, 0x5d], "b"],
 ]
 
-const paramData = Op4.paramData(cmdByte)
-
 // const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
 const nameRange = [77, 87]
-
-const patchTransform = editorVal => [[sysexData(editorVal), 100]]
-const nameTransform = (editorVal, bodyData, path, name) => {
-  return nameRange.rangeMap(i => [paramData(editorVal, [i, bodyData[i]]), 10])
-}
 
 const patchTruss = {
   type: 'singlePatch',
@@ -147,11 +138,38 @@ const patchTruss = {
   parseBody: 6,
   createFile: sysexData(0),
   parms: parms,
-  namePack: {
-    basic: nameRange,
-  },
+  namePack: nameRange,
   randomize: () => [
     // TODO 
+    //      let algos = Self.algorithms()
+    //      let algoIndex = self[[.algo]] ?? 0
+    //
+    //      let algo = algos[algoIndex]
+    //
+    //      // make output ops audible
+    //      for outputId in algo.outputOps {
+    //        let op: SynthPath = [.op, .i(outputId)]
+    //        self[op + [.level]] = 90+(0...9).random()!
+    //        self[op + [.level, .scale]] = 0
+    //      }
+    //
+    //      self[[.transpose]] = 24
+    //      self[[.porta, .time]] = 0
+    //      self[[.modWheel, .pitch]] = 0
+    //      self[[.modWheel, .amp]] = 0
+    //      self[[.breath, .pitch]] = 0
+    //      self[[.breath, .amp]] = 0
+    //      self[[.breath, .pitch, .bias]] = 50
+    //      self[[.breath, .env, .bias]] = 0
+    //
+    //
+    //      // flat pitch env
+    //      for i in 0..<3 {
+    //        self[[.pitch, .env, .level, .i(i)]] = 50
+    //      }
+    //
+    //      // all ops on
+    //      for op in 0..<4 { self[[.op, .i(op), .on]] = 1 }
   ],
 }
 
@@ -159,9 +177,7 @@ const compactTruss = {
   type: 'singlePatch',
   id: 'tx81z.vced.compact',
   bodyDataCount: 128,
-  namePack: {
-    basic: [57, 67]
-  },
+  namePack: [57, 67],
   parms: compactParms,
 }
   
@@ -170,42 +186,6 @@ module.exports = {
   compactTruss: compactTruss,
   sysexData: sysexData,
   paramData: paramData,
-  patchWerk: Op4.patchWerk(cmdByte, nameRange, sysexData),
+  patchWerk: Op4.patchWerk(0x12, nameRange, sysexData),
 }
-
-//    open func randomize() {
-//
-//      let algos = Self.algorithms()
-//      let algoIndex = self[[.algo]] ?? 0
-//
-//      let algo = algos[algoIndex]
-//
-//      // make output ops audible
-//      for outputId in algo.outputOps {
-//        let op: SynthPath = [.op, .i(outputId)]
-//        self[op + [.level]] = 90+(0...9).random()!
-//        self[op + [.level, .scale]] = 0
-//      }
-//
-//      self[[.transpose]] = 24
-//      self[[.porta, .time]] = 0
-//      self[[.modWheel, .pitch]] = 0
-//      self[[.modWheel, .amp]] = 0
-//      self[[.breath, .pitch]] = 0
-//      self[[.breath, .amp]] = 0
-//      self[[.breath, .pitch, .bias]] = 50
-//      self[[.breath, .env, .bias]] = 0
-//
-//
-//      // flat pitch env
-//      for i in 0..<3 {
-//        self[[.pitch, .env, .level, .i(i)]] = 50
-//      }
-//
-//      // all ops on
-//      for op in 0..<4 { self[[.op, .i(op), .on]] = 1 }
-//    }
-    
-
-
 

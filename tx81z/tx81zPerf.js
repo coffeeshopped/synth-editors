@@ -59,27 +59,24 @@ const compactParms = [
   ["micro/key", { b: 65, bits: [3, 7] }],
 ]
 
-const patchChangeTransform = (patchWerk) => {
-  return {
-    type: 'singlePatch',
-    throttle: 30, 
-    editorVal: Op4.sysexChannel,
-    param: (editorVal, bodyData, parm, path, value) => {
-      if (path.last() == 'number') {
-        return [
-          [patchWerk.paramData(editorVal, [parm.b - 1, value.bit(7)]), 50],
-          [patchWerk.paramData(editorVal, [parm.b, value.bits(0, 7)]), 0],
-        ]
-      }
-      else {
-        return [[patchWerk.paramData(editorVal, [parm.b, bodyData[parm.b]]), 0]]
-      }
-    }, 
-    patch: patchWerk.patchTransform, 
-    name: patchWerk.nameTransform,
-  } 
-}
-
+const patchChangeTransform = (patchWerk) => ({
+  type: 'singlePatch',
+  throttle: 30, 
+  editorVal: Op4.sysexChannel,
+  param: (editorVal, bodyData, parm, path, value) => {
+    if (path.last() == 'number') {
+      return [
+        [patchWerk.paramData(editorVal, [parm.b - 1, value.bit(7)]), 50],
+        [patchWerk.paramData(editorVal, [parm.b, value.bits(0, 7)]), 0],
+      ]
+    }
+    else {
+      return [[patchWerk.paramData(editorVal, [parm.b, bodyData[parm.b]]), 0]]
+    }
+  }, 
+  patch: patchWerk.patchTransform, 
+  name: patchWerk.nameTransform,
+})
 const sysexData = channel => [
   ['+', ["enc", "LM  8976PE"], "b"],
   ['yamCmd', [channel, 0x7e, 0x00, 0x78]],
@@ -100,7 +97,7 @@ const compactTruss = {
   type: 'singlePatch',
   id: 'tx81z.perf.compact',
   bodyDataCount: 76,
-  namePackIso: [66, 76],
+  namePack: [66, 76],
   parms: compactParms,
 }
 
