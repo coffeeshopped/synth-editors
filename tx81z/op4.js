@@ -112,11 +112,14 @@ const patchWerk = (cmdByte, nameRange, sysexData) => {
     cmdByte: cmdByte,
     sysexData: sysexData,
     paramData: myParamData,
-    patchTransform: (editorVal) => [[sysexData(editorVal), 100]],
-    nameTransform: (editorVal, path, name) => nameRange.rangeMap(i => [[
-      ['+', i, ['byte', i]],
-      myParamData(editorVal, 'b'),
-    ], 10]),
+    patchTransform: editorVal => [[sysexData(editorVal), 100]],
+    nameTransform: {
+      range: nameRange,
+      fn: (editorVal, index, rangeElem, byte) => [[
+        ['+', i, ['byte', i]],
+        myParamData(editorVal, 'b'),
+      ], 10]
+    },
   }
 }
 

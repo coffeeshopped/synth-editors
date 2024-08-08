@@ -1,0 +1,200 @@
+{
+    "algorithms": [
+        [
+            
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                "outputs": [
+                    2
+                ]
+            },
+            {
+                "outputs": [
+                    3
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                "outputs": [
+                    2
+                ]
+            },
+            {
+                "outputs": [
+                    2
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                "outputs": [
+                    2
+                ]
+            },
+            {
+                "outputs": [
+                    1
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                "outputs": [
+                    3
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1
+                ]
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    3
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    1,
+                    2,
+                    3
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "outputs": [
+                    3
+                ],
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ],
+        [
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                
+            },
+            {
+                "feedbackOutputs": [
+                    4
+                ]
+            }
+        ]
+    ]
+}
