@@ -161,15 +161,15 @@ const parms = [
   ] },
 ]
 
-const sysexDataWithLocation = location => sysexDataWithHeader([0x01, location])
+const sysexDataWithLocation = location => sysexDataWithHeader(0x01, location)
 
 // returns: array of instructions for processing body data and returning sysex data
-const sysexDataWithHeader = header => [
+const sysexDataWithHeader = (cmd, location) => [
   ['+', 'nibblizeLSB', 'checksum'],
-  ['+', ([0xf0, 0x10, 0x06]).concat(header), 'b', 0xf7],
+  ['+', [0xf0, 0x10, 0x06], cmd, location, 'b', 0xf7],
 ]
 
-const patchOut = location => [[sysexDataWithLocation(location), 100]]
+const patchOut = [[sysexDataWithLocation('e'), 100]]
 
 const patchTruss = createPatchTruss(sysexDataWithLocation(0))
 
@@ -191,12 +191,12 @@ module.exports = {
     type: 'singlePatch',
     throttle: 200,
     editorVal: Matrix.tempPatch,
-    param: (v, parm, value) => {
+    param: (parm, value) => {
       if (!parm) { return null }
 
       if (parm.p < 0 || value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
         // MATRIX MOD SEND or buggy params
-        return patchOut(v)
+        return patchOut
       }
       else {
         // NORMAL PARAM SEND
@@ -207,8 +207,8 @@ module.exports = {
         ]
       }
     }, 
-    patch: (v) => patchOut(v), 
-    name: (v, path, name) => patchOut(v),
+    patch: patchOut, 
+    name: (path, name) => patchOut,
   },
 
   parms: parms,

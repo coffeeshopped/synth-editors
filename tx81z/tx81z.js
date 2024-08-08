@@ -51,26 +51,27 @@ const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voic
 //   type: 'multiDictPatch',
 //   throttle: 100,
 //   editorVals: ([sysexChannel]).concat(opOns),
-//   param: (editorVals, bodyData, path, value) => {
-//     let isOpOn = path.first == 'voice' && path.last == 'on'
-//     let opOnParam = RangeParam(byte: 93)
-//     guard let param = isOpOn ? opOnParam : truss.param(path),
-//           let subpatch = bodyData[[path[0]]] else { return nil }
+//   param: (editorVals, parm, value) => {
+//     const first = parm.path[0]
+//     const isOpOn = first == 'voice' && parm.path.last == 'on'
+//     const parmByte = isOpOn ? 93 : parm.b
 //     const channel = editorVals[0]
+//     const subval = [
+//       ['sub', first],
+//       ['byte', parmByte]
+//     ]
 //     var data = []
-//     switch (path[0]) {
+//     switch (parm.path[0]) {
 //       case 'voice':
-//         let value = isOpOn ? opOnByte(editorVals, newOp: path.i(2) ?? 0, value: value) : subpatch[param.byte]
-//         data = VCED.patchWerk.paramData(channel, [param.byte, value])
+//         const v = isOpOn ? opOnByte(editorVals, parm.path[2], value) : subval
+//         data = VCED.patchWerk.paramData(channel, [parmByte, v])
 //         break
 //       case 'extra':
-//         let value = subpatch[param.byte]
-//         data = ACED.patchWerk.paramData(channel, [param.byte, value])
+//         data = ACED.patchWerk.paramData(channel, [parmByte, subval])
 //         break
 //       case 'aftertouch':
 //         // offset byte by 23 to get param address
-//         let value = subpatch[param.byte]
-//         data = ACED.patchWerk.paramData(channel, [param.byte + 23, value])
+//         data = ACED.patchWerk.paramData(channel, [parmByte + 23, subval])
 //         break
 //       default:
 //         return null
@@ -78,18 +79,17 @@ const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voic
 //     return [[data, 0]]
 //     
 //   }, 
-//   patch: (editorVal, bodyData) => {
-//     guard let channel = editorVal[sysexChannel] as? Int else { return nil }
+//   patch: (editorVals) => {
+//     const channel = editorVals[0]
 //     return try map.compactMap {
 //       guard let b = bodyData[$0.0] else { return nil }
 //       return try $0.1.patchTransform(channel, b)
 //     }.reduce([], +)
 //   
 //   }, 
-//   name: (editorVal, bodyData, path, name) => {
-//     guard let b = bodyData[[.voice]],
-//           let channel = editorVal[sysexChannel] as? Int else { return nil }
-//     return try VCED.patchWerk.nameTransform(channel, b, path, name)
+//   name: (editorVals, bodyData, path, name) => {
+//     const channel = editorVals[0]
+//     return VCED.patchWerk.nameTransform(channel, ['sub', 'voice'], path, name)
 //   },
 // })
 

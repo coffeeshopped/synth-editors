@@ -1,7 +1,7 @@
 const Matrix = require('./matrix.js')
 const Matrix6Voice = require('./matrix6voice.js')
 
-const tempSysexData = Matrix6Voice.sysexDataWithHeader([0x0d, 0x00])
+const tempSysexData = Matrix6Voice.sysexDataWithHeader(0x0d, 0x00)
 
 const patchOut = [[tempSysexData, 100]]
 
@@ -13,7 +13,7 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    param: (editorVal, parm, value) => {
+    param: (parm, value) => {
       if (!parm) { return null }
 
       if (parm.p < 0) {
@@ -43,14 +43,14 @@ module.exports = {
       }
     
     }, 
-    patch: (editorVal) => patchOut,
-    name: (editorVal, path, name) => patchOut,
+    patch: patchOut,
+    name: (path, name) => patchOut,
   },
   bankTruss: Matrix6Voice.createBankTruss(patchTruss),
   bankTransform: bank => ({
     type: 'singleBank',
     throttle: 0,
-    bank: (editorVal, location) => [
+    bank: (location) => [
       [Matrix.bankSelect(bank), 100],
       [Matrix6Voice.sysexDataWithLocation(location), 50],
     ],
