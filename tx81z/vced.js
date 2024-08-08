@@ -22,48 +22,44 @@ const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
     ]
   }
 })).concat([
-  { 
-    inc: 1, b: 52, block: [
-      ["algo", { max: 7, dispOff: 1 }],
-      ["feedback", { max: 7 }],
-      ["lfo/speed", { max: 99 }],
-      ["lfo/delay", { max: 99 }],
-      ["pitch/mod/depth", { max: 99 }],
-      ["amp/mod/depth", { max: 99 }],
-      ["lfo/sync", { max: 1 }],
-      ["lfo/wave", { opts: ["Saw Up","Square","Triangle","S/Hold"] }],
-      ["pitch/mod/sens", { max: 7 }],
-      ["amp/mod/sens", { max: 3 }],
-      ["transpose", { max: 48, dispOff: -24 }],
-      ["poly", { max: 1 }],
-      ["bend", { max: 12 }],
-      ["porta/mode", { max: 1 }],
-      ["porta/time", { max: 99 }],
-      ["foot/volume", { max: 99 }],
-      ["sustain", { max: 1 }],
-      ["porta", { max: 1 }],
-      ["chorus", { max: 1 }],
-      ["modWheel/pitch", { max: 99 }],
-      ["modWheel/amp", { max: 99 }],
-      ["breath/pitch", { max: 99 }],
-      ["breath/amp", { max: 99 }],
-      ["breath/pitch/bias", { max: 99, dispOff: -50 }],
-      ["breath/env/bias", { max: 99 }],
-    ] 
-  },
-  { 
-    inc: 1, b: 87, block: {
-      prefix: "pitch/env", block: [
-        // Pitch env is on DX21
-        ["rate/0", { max: 99 }],
-        ["rate/1", { max: 99 }],
-        ["rate/2", { max: 99 }],
-        ["level/0", { max: 99 }],
-        ["level/1", { max: 99 }],
-        ["level/2", { max: 99 }],
-      ],
-    }
-  },
+  { inc: 1, b: 52, block: [
+    ["algo", { max: 7, dispOff: 1 }],
+    ["feedback", { max: 7 }],
+    ["lfo/speed", { max: 99 }],
+    ["lfo/delay", { max: 99 }],
+    ["pitch/mod/depth", { max: 99 }],
+    ["amp/mod/depth", { max: 99 }],
+    ["lfo/sync", { max: 1 }],
+    ["lfo/wave", { opts: ["Saw Up","Square","Triangle","S/Hold"] }],
+    ["pitch/mod/sens", { max: 7 }],
+    ["amp/mod/sens", { max: 3 }],
+    ["transpose", { max: 48, dispOff: -24 }],
+    ["poly", { max: 1 }],
+    ["bend", { max: 12 }],
+    ["porta/mode", { max: 1 }],
+    ["porta/time", { max: 99 }],
+    ["foot/volume", { max: 99 }],
+    ["sustain", { max: 1 }],
+    ["porta", { max: 1 }],
+    ["chorus", { max: 1 }],
+    ["modWheel/pitch", { max: 99 }],
+    ["modWheel/amp", { max: 99 }],
+    ["breath/pitch", { max: 99 }],
+    ["breath/amp", { max: 99 }],
+    ["breath/pitch/bias", { max: 99, dispOff: -50 }],
+    ["breath/env/bias", { max: 99 }],
+  ] },
+  { inc: 1, b: 87, block: {
+    prefix: "pitch/env", block: [
+      // Pitch env is on DX21
+      ["rate/0", { max: 99 }],
+      ["rate/1", { max: 99 }],
+      ["rate/2", { max: 99 }],
+      ["level/0", { max: 99 }],
+      ["level/1", { max: 99 }],
+      ["level/2", { max: 99 }],
+    ],
+  } },
 ])
 
     // note the order: 4, 2, 3, 1. wacky
@@ -123,21 +119,12 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   ],
 ])
 
-const cmdByte = 0x12
-
 const sysexData = channel => [
   ['yamCmd', [channel, 0x03, 0x00, 0x5d], "b"],
 ]
 
-const paramData = Op4.paramData(cmdByte)
-
 // const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
 const nameRange = [77, 87]
-
-const patchTransform = editorVal => [[sysexData(editorVal), 100]]
-const nameTransform = (editorVal, bodyData, path, name) => {
-  return nameRange.rangeMap(i => [paramData(editorVal, [i, bodyData[i]]), 10])
-}
 
 const patchTruss = {
   type: 'singlePatch',
@@ -168,9 +155,7 @@ const compactTruss = {
 module.exports = {
   patchTruss: patchTruss,
   compactTruss: compactTruss,
-  sysexData: sysexData,
-  paramData: paramData,
-  patchWerk: Op4.patchWerk(cmdByte, nameRange, sysexData),
+  patchWerk: Op4.patchWerk(0x12, nameRange, sysexData),
 }
 
 //    open func randomize() {
