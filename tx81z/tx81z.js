@@ -46,52 +46,59 @@ const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voic
 //   }
 // }
 
+const opOns = (4).map(i => ['extra', 'patch', ['voice', 'op', i, 'on']])
+
+// calc based on stored editor values and new incoming value
+const opOnByte = (dict, newOp, value) => {
+  (4).map(i => {
+    const isOn = i == newOp ? value > 0 : dict[transform] == 1
+    return isOn ? 1 << ((4 - 1) - i) : 0
+  }).sum()
+}
+
 /// For TX81z. Same as VCED only except send full patch (VCED and ACED) when there are multiple changes
-// const patchChangeTransform = truss => ({
-//   type: 'multiDictPatch',
-//   throttle: 100,
-//   editorVals: ([sysexChannel]).concat(opOns),
-//   param: (editorVals, parm, value) => {
-//     const first = parm.path[0]
-//     const isOpOn = first == 'voice' && parm.path.last == 'on'
-//     const parmByte = isOpOn ? 93 : parm.b
-//     const channel = editorVals[0]
-//     const subval = [
-//       ['sub', first],
-//       ['byte', parmByte]
-//     ]
-//     var data = []
-//     switch (parm.path[0]) {
-//       case 'voice':
-//         const v = isOpOn ? opOnByte(editorVals, parm.path[2], value) : subval
-//         data = VCED.patchWerk.paramData(channel, [parmByte, v])
-//         break
-//       case 'extra':
-//         data = ACED.patchWerk.paramData(channel, [parmByte, subval])
-//         break
-//       case 'aftertouch':
-//         // offset byte by 23 to get param address
-//         data = ACED.patchWerk.paramData(channel, [parmByte + 23, subval])
-//         break
-//       default:
-//         return null
-//     }
-//     return [[data, 0]]
-//     
-//   }, 
-//   patch: (editorVals) => {
-//     const channel = editorVals[0]
-//     return try map.compactMap {
-//       guard let b = bodyData[$0.0] else { return nil }
-//       return try $0.1.patchTransform(channel, b)
-//     }.reduce([], +)
-//   
-//   }, 
-//   name: (editorVals, bodyData, path, name) => {
-//     const channel = editorVals[0]
-//     return VCED.patchWerk.nameTransform(channel, ['sub', 'voice'], path, name)
-//   },
-// })
+const patchChangeTransform = truss => ({
+  type: 'multiDictPatch',
+  throttle: 100,
+  editorVal: ([sysexChannel]).concat(opOns),
+  param: (parm, value) => {
+    const first = parm.path[0]
+    const isOpOn = first == 'voice' && parm.path[parm.path.length - 1] == 'on'
+    const parmByte = isOpOn ? 93 : parm.b
+    const subval = [
+      ['sub', first],
+      ['byte', parmByte]
+    ]
+    var data = []
+    switch (first) {
+      case 'voice':
+        const v = isOpOn ? opOnByte(editorVal, parm.path[2], value) : subval
+        data = VCED.patchWerk.paramData([parmByte, v])
+        break
+      case 'extra':
+        data = ACED.patchWerk.paramData([parmByte, subval])
+        break
+      case 'aftertouch':
+        // offset byte by 23 to get param address
+        data = ACED.patchWerk.paramData([parmByte + 23, subval])
+        break
+      default:
+        return null
+    }
+    return [[data, 0]]
+    
+  }, 
+  patch: () => {
+    return map.compactMap {
+      guard let b = bodyData[$0.0] else { return nil }
+      return try $0.1.patchTransform('e', b)
+    }.reduce([], +)
+  
+  }, 
+  name: (path, name) => {
+    return VCED.patchWerk.nameTransform(['sub', 'voice'], path, name)
+  },
+})
 
 const editor = Object.assign(Op4.editorTrussSetup, {
   name: synth,

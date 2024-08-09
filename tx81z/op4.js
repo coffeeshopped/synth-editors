@@ -98,9 +98,9 @@ const fetch = (cmdBytes) =>
 const fetchWithHeader = (header) => fetch([0x7e] + (`LM  ${header}`).sysexBytes())
 
 
-const paramData = (cmdByte) => ((channel, cmdBytes) => [
+const paramData = cmdByte => (cmdBytes => [
   ['+', cmdByte, cmdBytes],
-  ['yamParm', channel, 'b']
+  ['yamParm', 'e', 'b']
 ])
 
 
@@ -112,12 +112,12 @@ const patchWerk = (cmdByte, nameRange, sysexData) => {
     cmdByte: cmdByte,
     sysexData: sysexData,
     paramData: myParamData,
-    patchTransform: editorVal => [[sysexData(editorVal), 100]],
+    patchTransform: [[sysexData('e'), 100]],
     nameTransform: {
       range: nameRange,
-      fn: (editorVal, index, rangeElem, byte) => [[
-        ['+', i, ['byte', i]],
-        myParamData(editorVal, 'b'),
+      fn: (index, rangeElem, byte) => [[
+        ['+', index, ['byte', index]],
+        myParamData('b'),
       ], 10]
     },
   }
