@@ -80,17 +80,6 @@ const patchBankTransform = map => {
   }
 }
 
-const opOns = (4).map(i => ['extra', 'patch', ['voice', 'op', i, 'on']])
-
-
-// calc based on stored editor values and new incoming value
-const opOnByte = (dict, newOp, value) => {
-  opOns.mapWithIndex((transform, i) => {
-    const isOn = i == newOp ? value > 0 : dict[transform] == 1
-    return isOn ? 1 << ((4 - 1) - i) : 0
-  }).sum()
-}
-
 
 const fetch = (cmdBytes) =>
   ['truss', sysexChannel, (c) => yamahaFetchRequestBytes(c, cmdBytes)]
