@@ -20,27 +20,14 @@ const createEditorTruss = name => ({
   ],
   
   fetchTransforms: [
-    ["patch", {
-      sequence: [
-        // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
-        { 
-          truss: editorVal => Matrix.fetchPatch(editorVal), 
-          editorVal: Matrix.tempPatch,
-        },
-        {
-          custom: (editorVals, x) => {
-            const channel = editorVals[0]
-            const tempPatch = editorVals[1]
-            return [["send", ['pgmChange', channel, tempPatch]]]
-          },
-          editorVals: ['basic', Matrix.tempPatch],
-        },
-      ],
-    }],
-    ["bank", {
-      // this seems wrong.
-      bankTruss: (editorVal, location) => Matrix.fetchPatch(loc),
-    }],
+    ["patch", ['sequence', [
+      // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
+      ['truss', Matrix.fetchPatch(Matrix.tempPatch)], 
+      ['custom', [
+        ["send", ['pgmChange', 'channel', Matrix.tempPatch]]
+      ]],
+    ]]],
+    ["bank", ['bankTruss', Matrix.fetchPatch('b')]],
   ],
   
   midiOuts: [

@@ -9,7 +9,6 @@ const patchTruss = Matrix6Voice.createPatchTruss(tempSysexData)
 
 module.exports = {
   patchTruss: patchTruss,
-  tempSysexData: tempSysexData,
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
@@ -44,7 +43,7 @@ module.exports = {
     
     }, 
     patch: patchOut,
-    name: (path, name) => patchOut,
+    name: patchOut,
   },
   bankTruss: Matrix6Voice.createBankTruss(patchTruss),
   bankTransform: bank => ({

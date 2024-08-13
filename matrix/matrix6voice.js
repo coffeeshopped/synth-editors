@@ -169,7 +169,7 @@ const sysexDataWithHeader = (cmd, location) => [
   ['+', [0xf0, 0x10, 0x06], cmd, location, 'b', 0xf7],
 ]
 
-const patchOut = [[sysexDataWithLocation('e'), 100]]
+const patchOut = [[sysexDataWithLocation(Matrix.tempPatch), 100]]
 
 const patchTruss = createPatchTruss(sysexDataWithLocation(0))
 
@@ -190,7 +190,6 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    editorVal: Matrix.tempPatch,
     param: (parm, value) => {
       if (!parm) { return null }
 
@@ -208,7 +207,7 @@ module.exports = {
       }
     }, 
     patch: patchOut, 
-    name: (path, name) => patchOut,
+    name: patchOut,
   },
 
   parms: parms,

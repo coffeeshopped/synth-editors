@@ -2,15 +2,13 @@ const Matrix = require('./matrix.js')
 const Voice = require('./matrix1000voice.js')
 const VoiceCtrlr = require('./matrix6voiceCtrlr.js')
 
-const bankFetch = bank => ({
-  sequence: [
-    { custom: (editorVals, x) => [
-      ["send", Matrix.bankSelect(bank)], // select bank
-      ["send", Matrix.sysex([0xc])], // turn off bank lock
-    ] },
-    { bankTruss: (editorVal, location) => Matrix.fetchPatch(location) },
-  ]
-})
+const bankFetch = bank => ['sequence', [
+  ['custom', [
+    ["send", Matrix.bankSelect(bank)], // select bank
+    ["send", Matrix.sysex(0xc)], // turn off bank lock
+  ]],
+  ['bankTruss', Matrix.fetchPatch('b')],
+]]
 
 const editor = {
   name: "Matrix-1000",
@@ -22,7 +20,7 @@ const editor = {
   ],
 
   fetchTransforms: [
-    ["patch", { truss: (editorVal) => Matrix.sysex([0x04, 0x04, 0x0]) }],
+    ["patch", ['truss', Matrix.sysex([0x04, 0x04, 0x0])]],
     ["bank/0", bankFetch(0)],
     ["bank/1", bankFetch(1)],
   ],

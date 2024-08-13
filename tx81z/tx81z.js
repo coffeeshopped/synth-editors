@@ -89,15 +89,17 @@ const patchChangeTransform = truss => ({
     
   }, 
   patch: () => {
-    return map.compactMap {
-      guard let b = bodyData[$0.0] else { return nil }
-      return try $0.1.patchTransform('e', b)
-    }.reduce([], +)
+    // truss.trussMap.map(pair => {
+    //   const path = pair[0]
+    //   
+    // })
+    // return map.compactMap {
+    //   guard let b = bodyData[$0.0] else { return nil }
+    //   return try $0.1.patchTransform('e', b)
+    // }.reduce([], +)
   
   }, 
-  name: (path, name) => {
-    return VCED.patchWerk.nameTransform(['sub', 'voice'], path, name)
-  },
+  name: (path, name) => VCED.patchWerk.nameTransform(['sub', 'voice'], path, name),
 })
 
 const editor = Object.assign(Op4.editorTrussSetup, {
