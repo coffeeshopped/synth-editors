@@ -1,82 +1,91 @@
+const Op4 = require('./op4.js')
+const Op4VoiceCtrlr = require('./op4voiceCtrlr.js')
+
+const opPath = Op4VoiceCtrlr.opPath
+
 const AllPaths = ["attack", "decay/0", "decay/1", "release", "decay/level", "level/scale", "rate/scale", "env/bias/sens", "amp/mod", "velo", "level", "coarse", "detune", "extra/wave", "extra/osc/mode", "extra/fixed/range", "extra/fine", "extra/shift"]
 
 
-const miniOpController = (index) => {
-  let modePath = Op4.opPath(index, "extra/osc/mode")
-  let rangePath = Op4.opPath(index, "extra/fixed/range")
-  let coarsePath = Op4.opPath(index, "coarse")
-  let finePath = Op4.opPath(index, "extra/fine")
-  let detunePath = Op4.opPath(index, "detune")
+const miniOpController = index => {
+  const modePath = opPath(index, "extra/osc/mode")
+  const rangePath = opPath(index, "extra/fixed/range")
+  const coarsePath = opPath(index, "coarse")
+  const finePath = opPath(index, "extra/fine")
+  const detunePath = opPath(index, "detune")
 
-  return Op4.MiniOp.controller(index: index, ratioEffect: .patchChange(paths: [modePath, rangePath, coarsePath, finePath, detunePath], { values in
-    guard let range = values[rangePath],
-      let coarse = values[coarsePath],
-      let fine = values[finePath],
-      let detune = values[detunePath] else { return [] }
-    let fixedMode = values[modePath] == 1
-    let valText = Op4.freqRatio(fixedMode: fixedMode, range: range, coarse: coarse, fine: fine)
-    let detuneOff = detune - 3
-    let detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? "\(detuneOff)" : "+\(detuneOff)")
+  return Op4VoiceCtrlr.miniOpController(index, ['patchChangeMulti', [modePath, rangePath, coarsePath, finePath, detunePath], values => {
+    const range = values[rangePath]
+    const coarse = values[coarsePath]
+    const fine = values[finePath]
+    const detune = values[detunePath]
+    const fixedMode = values[modePath] == 1
+    const valText = Op4.freqRatio(fixedMode, range, coarse, fine)
+    const detuneOff = detune - 3
+    const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? "\(detuneOff)" : "+\(detuneOff)")
     
     return [
-      .setCtrlLabel("osc/mode", fixedMode ? "\(valText) Hz" : "x \(valText)\(detuneString)"),
+      ['setCtrlLabel', "osc/mode", fixedMode ? `${valText} Hz` : `x ${valText}${detuneString}`],
     ]
-  }), "TX81ZOp", AllPaths)
+  }], "TX81ZOp", AllPaths)
 }
       
-const opController = (index: Int) -> PatchController {
+const opController = index => {
   
-  let modePath: SynthPath = Op4.opPath(index, "extra/osc/mode")
-  let rangePath: SynthPath = Op4.opPath(index, "extra/fixed/range")
-  let coarsePath: SynthPath = Op4.opPath(index, "coarse")
-  let finePath: SynthPath = Op4.opPath(index, "extra/fine")
+  const modePath = opPath(index, "extra/osc/mode")
+  const rangePath = opPath(index, "extra/fixed/range")
+  const coarsePath = opPath(index, "coarse")
+  const finePath = opPath(index, "extra/fine")
 
   return {
     builders: [
-      ['grid', Op4.opItems(index, [[
-        [{checkbox: "On"}, "on"],
-        .imgSelect("wave", "extra/wave", w: 75, h: 64),
-        [{switch: "Fixed"}, "extra/osc/mode"],
+      ['grid', Op4VoiceCtrlr.opItems(index, [[
+        [{t: 'checkbox', l: "On"}, "on"],
+        [{t: 'imgSelect', id: "wave", w: 75, h: 64}, "extra/wave"],
+        [{t: 'switch', l: "Fixed"}, "extra/osc/mode"],
       ],[
-        ["Range", "extra/fixed/range"],
-        ["Coarse", "coarse"],
-        ["Fine", "extra/fine"],
-        ["Detune", "detune"],
+        [{t: 'knob', l: "Range"}, "extra/fixed/range"],
+        [{t: 'knob', l: "Coarse"}, "coarse"],
+        [{t: 'knob', l: "Fine"}, "extra/fine"],
+        [{t: 'knob', l: "Detune"}, "detune"],
       ],[
-        Op4.envItem(index: index),
-        ["Level", "level"],
-        ["Velocity", "velo"],
+        Op4VoiceCtrlr.envItem(index),
+        [{t: 'knob', l: "Level"}, "level"],
+        [{t: 'knob', l: "Velocity"}, "velo"],
       ],[
-        ["Attack", "attack"],
-        ["Decay 1", "decay/0"],
-        ["Sustain", "decay/level"],
-        ["Decay 2", "decay/1"],
-        ["Release", "release"],
+        [{t: 'knob', l: "Attack"}, "attack"],
+        [{t: 'knob', l: "Decay 1"}, "decay/0"],
+        [{t: 'knob', l: "Sustain"}, "decay/level"],
+        [{t: 'knob', l: "Decay 2"}, "decay/1"],
+        [{t: 'knob', l: "Release"}, "release"],
       ],[
-        ["L Scale", "level/scale"],
-        ["Shift (dB)", "extra/shift"],
-        ["EBS", "env/bias/sens"],
-        [{checkbox: "Amp Mod"}, "amp/mod"],
-        ["R Scale", "rate/scale"],
-      ]]])
+        [{t: 'knob', l: "L Scale"}, "level/scale"],
+        [{t: 'knob', l: "Shift (dB)"}, "extra/shift"],
+        [{t: 'knob', l: "EBS"}, "env/bias/sens"],
+        [{t: 'checkbox', l: "Amp Mod"}, "amp/mod"],
+        [{t: 'knob', l: "R Scale"}, "rate/scale"],
+      ]])]
     ], 
     effects: [
-      .dimsOn(Op4.opPath(index, "on"), id: nil),
-      .patchChange(paths: [modePath, rangePath, coarsePath, finePath], { values in
-        guard let range = values[rangePath],
-          let coarse = values[coarsePath],
-          let fine = values[finePath] else { return [] }
-        let fixedMode = values[modePath] == 1
-        return [
-          .setCtrlLabel(modePath, fixedMode ? "Freq (Hz)" : "Ratio"),
-          .configCtrl(modePath, .opts(ParamOptions(optArray: [
-            Op4.freqRatio(fixedMode: false, range: range, coarse: coarse, fine: fine),
-            Op4.freqRatio(fixedMode: true, range: range, coarse: coarse, fine: fine)]))),
-          .dimItem(!fixedMode, "extra/fixed/range"),
-        ]
-      }),
+      ['dimsOn', opPath(index, "on")],
+      ['patchChange', {
+        paths: [modePath, rangePath, coarsePath, finePath],
+        fn: values => {
+          const range = values[rangePath]
+          const coarse = values[coarsePath]
+          const fine = values[finePath]
+          const fixedMode = values[modePath] == 1
+          return [
+            ['setCtrlLabel', modePath, fixedMode ? "Freq (Hz)" : "Ratio"],
+            ['configCtrl', modePath, { opts: [
+              Op4.freqRatio(false, range, coarse, fine),
+              Op4.freqRatio(true, range, coarse, fine),
+            ]}],
+            ['dimItem', !fixedMode, "extra/fixed/range"],
+          ]
+        },
+      }],
       ['editMenu', "env", {
-        paths: Op4.opPaths(index, ["attack", "decay/0", "decay/1", "decay/level", "release"]), 
+        paths: Op4VoiceCtrlr.opPaths(index, ["attack", "decay/0", "decay/1", "decay/level", "release"]), 
         type: "TX81ZEnvelope",
       }],
     ]
@@ -86,11 +95,11 @@ const opController = (index: Int) -> PatchController {
 
 module.exports = {
   builders: [
-    ['child', Op4.algoCtrlr(MiniOp.controller), "algo", { color: 2, clearBG: true }],
-    ['child', Op.controller(index: 0), "op0", { color: 1 }],
-    ['child', Op.controller(index: 1), "op1", { color: 1 }],
-    ['child', Op.controller(index: 2), "op2", { color: 1 }],
-    ['child', Op.controller(index: 3), "op3", { color: 1 }],
+    ['child', Op4VoiceCtrlr.algoCtrlr(miniOpController), "algo", { color: 2, clearBG: true }],
+    ['child', opController(0), "op0", { color: 1 }],
+    ['child', opController(1), "op1", { color: 1 }],
+    ['child', opController(2), "op2", { color: 1 }],
+    ['child', opController(3), "op3", { color: 1 }],
     ['panel', "algoKnob", { prefix: "voice", color: 1 }, [[
       ["Algorithm", "algo"],
     ],[

@@ -119,11 +119,8 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   ],
 ])
 
-const sysexData = channel => [
-  ['yamCmd', [channel, 0x03, 0x00, 0x5d], "b"],
-]
+const sysexData = ['yamCmd', ['channel', 0x03, 0x00, 0x5d], "b"]
 
-// const algorithms = DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
 const nameRange = [77, 87]
 
 const patchTruss = {
@@ -132,7 +129,7 @@ const patchTruss = {
   bodyDataCount: 93,
   initFile: "dx100-init",
   parseBody: 6,
-  createFile: sysexData(0),
+  createFile: sysexData,
   parms: parms,
   namePack: nameRange,
   randomize: () => [

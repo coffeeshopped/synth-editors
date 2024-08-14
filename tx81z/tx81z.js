@@ -1,8 +1,9 @@
 const Op4 = require('./op4.js')
-// const Op4micro = require('./op4micro.js')
+const Op4micro = require('./op4micro.js')
 const Perf = require('./tx81zPerf.js')
 const VCED = require('./vced.js')
 const ACED = require('./aced.js')
+const VoiceController = require('./tx81zVoiceCtrlr.js')
 
 const synth = "TX81Z"
 
@@ -16,10 +17,15 @@ const compactMap = [
   ["voice", VCED.compactTruss],
 ]
 
+const werkMap = [
+  ["extra", ACED.patchWerk],
+  ["voice", VCED.patchWerk],
+]
+
 const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "tx81z-init", [])
 const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voice-bank-init", compactMap)
 
-// const voiceBankTransform = Op4.patchBankTransform(voiceMap)
+const voiceBankTransform = Op4.patchBankTransform
 // 
 // const backupTruss = {
 //   type: 'backup',
@@ -57,10 +63,10 @@ const opOnByte = (dict, newOp, value) => {
 }
 
 /// For TX81z. Same as VCED only except send full patch (VCED and ACED) when there are multiple changes
-const patchChangeTransform = truss => ({
+const patchChangeTransform = werkMap => ({
   type: 'multiDictPatch',
   throttle: 100,
-  editorVal: ([sysexChannel]).concat(opOns),
+  editorVal: opOns,
   param: (parm, value) => {
     const first = parm.path[0]
     const isOpOn = first == 'voice' && parm.path[parm.path.length - 1] == 'on'
@@ -88,18 +94,18 @@ const patchChangeTransform = truss => ({
     return [[data, 0]]
     
   }, 
-  patch: () => {
-    // truss.trussMap.map(pair => {
-    //   const path = pair[0]
-    //   
-    // })
-    // return map.compactMap {
-    //   guard let b = bodyData[$0.0] else { return nil }
-    //   return try $0.1.patchTransform('e', b)
-    // }.reduce([], +)
-  
-  }, 
-  name: (path, name) => VCED.patchWerk.nameTransform(['sub', 'voice'], path, name),
+  patch: (['+']).concat(werkMap.map(pair => {
+    const path = pair[0]
+    const werk = pair[1]
+    return [
+      ['sub', path],
+      werk.patchTransform,
+    ]
+  })),
+  name: [
+    ['sub', 'voice'],
+    VCED.patchWerk.nameTransform,
+  ],
 })
 
 const editor = Object.assign(Op4.editorTrussSetup, {
@@ -108,28 +114,32 @@ const editor = Object.assign(Op4.editorTrussSetup, {
     ["global", 'channel'],
     ["patch", voicePatchTruss],
     ["bank", voiceBankTruss],
-  ].concat([] /* Op4.microSysexMap */).concat([
+  ].concat(Op4micro.trussMap).concat([
     ["perf", Perf.patchTruss],
     ["bank/perf", Perf.bankTruss],
     // ["backup", backupTruss],
   ]),
     
   fetchTransforms: [
-    // ["patch", Op4.fetchWithHeader("8976AE")],
-    // ["perf", Op4.fetchWithHeader("8976PE")],
-    // ["micro/octave", Op4.fetchWithHeader("MCRTE0")],
-    // ["micro/key", Op4.fetchWithHeader("MCRTE1")],
-    // ["bank", Op4.fetch([0x04])],
-    // ["bank/perf", Op4.fetchWithHeader("8976PM")],
+    ["patch", Op4.fetchWithHeader("8976AE")],
+    ["perf", Op4.fetchWithHeader("8976PE")],
+    ["micro/octave", Op4.fetchWithHeader("MCRTE0")],
+    ["micro/key", Op4.fetchWithHeader("MCRTE1")],
+    ["bank", Op4.fetch([0x04])],
+    ["bank/perf", Op4.fetchWithHeader("8976PM")],
   ],
 
   midiOuts: [
-    // ["patch", Op4.patchChangeTransform(voicePatchTruss)],
-    // ["perf", Perf.patchTransform],
-    // ["micro/octave", Op4micro.octWerk.patchChangeTransform],
-    // ["micro/key", Op4micro.fullWerk.patchChangeTransform],
-    // ["bank", voiceBankTransform),
-    // ["bank/perf", Perf.wholeBankTransform(Perf.bankTruss.patchCount, Perf.patchWerk)],
+    ["patch", patchChangeTransform(werkMap)],
+    ["perf", Perf.patchTransform],
+    ["micro/octave", Op4micro.octWerk.patchChangeTransform],
+    ["micro/key", Op4micro.fullWerk.patchChangeTransform],
+    ["bank", {
+      type: 'wholeBank',
+      throttle: 0,
+      multi: [[Op4.voiceBankSysexData, 100]]
+    }],
+    ["bank/perf", Perf.wholeBankTransform],
   ],
   
 })
@@ -143,7 +153,7 @@ const moduleTruss = {
   sections: [
     ['first', [
       'channel',
-      // ['voice', "Voice", Voice.Controller.controller],
+      ['voice', "Voice", VoiceController],
       // ['perf', Perf.Controller.controller(Perf.presetVoices)],
       // ['voice', "Micro Oct", Op4.Micro.Controller.octController, { path: "micro/octave" }],
       // ['voice', "Micro Full", Op4.Micro.Controller.fullController, { path: "micro/key" }],
@@ -154,12 +164,12 @@ const moduleTruss = {
     ]],
     // 'backup',
   ],
-  // dirMap: [
-  //     [.bank] : "Voice Bank",
-  //     [.micro, .octave] : "Micro Octave*",
-  //     [.micro, .key] : "Micro Full*",
-  //     [.bank, .perf] : "Perf Bank",
-  // ],
+  dirMap: [
+    ['bank', "Voice Bank"],
+    ['micro/octave', "Micro Octave*"],
+    ['micro/key', "Micro Full*"],
+    ['bank/perf', "Perf Bank"],
+  ],
   colorGuide: [
     "#a2cd50",
     "#f93d31",

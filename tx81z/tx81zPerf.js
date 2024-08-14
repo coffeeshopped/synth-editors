@@ -124,13 +124,6 @@ const createBankTruss = (patchCount, patchTruss, compactTruss, initFile) => ({
   parseBody: 16,
 })
 
-const wholeBankTransform = (patchCount, patchTruss, compactTruss) => ({
-  type: 'single',
-  throttle: 30,
-  editorVal: Op4.sysexChannel,
-  wholeBank: editorVal => [[bankSysexData(editorVal), 100]],
-})
-
 const presetVoices = ["A1. GrandPiano", "A2. Uprt Piano", "A3. Deep Grd", "A4. HonkeyTonk", "A5. Elec Grand", "A6. Fuzz Piano", "A7. SkoolPiano", "A8. Thump Pno", "A9. LoTine81Z", "A10. HiTine81Z", "A11. ElectroPno", "A12. NewElectro", "A13. DynomiteEP", "A14. DynoWurlie", "A15. Wood Piano", "A16. Reed Piano", "A17. PercOrgan", "A18. 16 8 4 2 F", "A19. PumpOrgan", "A20. <6 Tease>", "A21. Farcheeza", "A22. Small Pipe", "A23. Big Church", "A24. AnalogOrgn", "A25. Thin Clav", "A26. EZ Clav", "A27. Fuzz Clavi", "A28. LiteHarpsi", "A29. RichHarpsi", "A30. Celeste", "A31. BriteCelst", "A32. Squeezebox", "B1. Trumpet81Z", "B2. Full Brass", "B3. FlugelHorn", "B4. ChorusBras", "B5. French Horn", "B6. AtackBrass", "B7. SpitBoneBC", "B8. Horns BC", "B9. MelloTenor", "B10. RaspAlto", "B11. Flute", "B12. Pan Floot", "B13. Basson", "B14. Oboe", "B15. Clarinet", "B16. Harmonica", "B17. DoubleBass", "B18. BowCello", "B19. BoxCello", "B20. SoloViolin", "B21. HiString 1", "B22. LowString", "B23. Pizzicato", "B24. Harp", "B25. ReverbStrg", "B26. SynString", "B27. Voices", "B28. HarmoPad", "B29. FanfarTpts", "B30. HiString 2", "B31. PercFlute", "B32. BreathOrgn", "C1. NylonGuit", "C2. Guitar #1", "C3. TwelveStrg", "C4. Funky Pick", "C5. AllThatJaz", "C6. HeavyMetal", "C7. Old Banjo", "C8. Zither", "C9. ElecBass 1", "C10. SqncrBass", "C11. SynFunkBas", "C12. ElecBass 2", "C13. AnalogBass", "C14. Jaco Bass", "C15. LatelyBass", "C16. MonophBass", "C17. StadiumSol", "C18. TrumptSolo", "C19. BCSexyPhon", "C20. Lyrisyn", "C21. WarmSquare", "C22. Sync Lead", "C23. MellowSqar", "C24. Jazz Flute", "C25. HeavyLead", "C26. Java Jive", "C27. Xylophone", "C28. GreatVibes", "C29. Sitar", "C30. Bell Pad", "C31. PlasticHit", "C32. DigiAnnie", "D1. BaadBreath", "D2. VocalNuts", "D3. KrstlChoir", "D4. Metalimba", "D5. WaterGlass", "D6. BowedBell", "D7. >>WOW<<", "D8. Fuzzy Koto", "D9. Spc Midiot", "D10. Gurgle", "D11. Hole in 1", "D12. Birds", "D13. MalibuNite", "D14. Helicopter", "D15. Flight Sim", "D16. BrthBells", "D17. Storm Wind", "D18. Alarm Call", "D19. Racing Car", "D20. Whistling", "D21. Space Talk", "D22. Space Vibe", "D23. Timpani", "D24. FM Hi-Hats", "D25. Bass Drum", "D26. Tube Bells", "D27. Noise Shot", "D28. Snare 1", "D29. Snare 2", "D30. Hand Drum", "D31. Synballs", "D32. Efem Toms"]
 
 
@@ -139,5 +132,11 @@ module.exports = {
   compactTruss: compactTruss,
   bankTruss: createBankTruss(24, patchTruss, compactTruss, ""),
   patchTransform: patchChangeTransform(patchWerk),
+  patchWerk: patchWerk,
+  wholeBankTransform: {
+    type: 'wholeBank',
+    throttle: 30,
+    single: [[Op4.voiceBankSysexData, 100]],
+  },
 }
 

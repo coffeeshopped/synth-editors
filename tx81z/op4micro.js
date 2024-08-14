@@ -1,12 +1,13 @@
 const Op4 = require('./op4.js')
 
 const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexIndex) => {
-  const sysexData = (bd, channel) => 
-    yamahaSysexData(channel, [0x7e, 0x00, 0x22], `LM  MCRTE${sysexIndex}`.sysexBytes().concat(bd))
   
+  const sysexData = [
+    ['+', ["enc", `LM  MCRTE${sysexIndex}`], "b"],
+    ['yamCmd', ['channel', 0x7e, 0x00, 0x22], "b"],
+  ]
+
   const patchWerk = Op4.patchWerk(0x10, null, sysexData)
-  
-  const paramData = (key, note, fine, channel) => patchWerk.paramData(channel, [subCmdByte, key, note, fine])
 
   const truss = {
     type: 'singlePatch',
@@ -14,7 +15,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
     bodyDataCount: bodyDataCount,
     parms: parms, 
     initFile: initFile, 
-    createFileData: (bd) => sysexData(bd, 0),
+    createFile: sysexData,
     parseOffset: 16,
   }
   
@@ -27,21 +28,20 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
     patchChangeTransform: {
       type: 'singlePatch',
       throttle: 100, 
-      editorVal: sysexChannel, 
       coalesce: 10, 
-      param: (editorVal, bodyData, parm, path, value) => {
-        const key = path[0]
+      param: (parm, value) => {
+        const key = parm.path[0]
         var note = 0
         var fine = 0
-        if (path.last() == 'note') {
+        if (parm.path[parm.path.length - 1] == 'note') {
           note = Math.max(0, value)
-          fine = patchTrussGetValue(truss, bodyData, [key, 'fine'])
+          fine = ['trussValues', truss, [[key, 'fine']]]
         }
         else {
-          note = patchTrussGetValue(truss, bodyData, [key, 'note'])
+          note = ['trussValues', truss, [[key, 'note']]]
           fine = Math.max(0, value)
         }
-        return [['syx', paramData(key, note, fine, editorVal), 0]]
+        return [[patchWerk.paramData(['+', [subCmdByte, key], note, fine]), 0]]
       }, 
       patch: patchWerk.patchTransform,
     },
@@ -55,7 +55,7 @@ const noteIso = {
 
 const octParms = [
   {
-    prefix: [], count: 12, bx: 2, block: (i) => [
+    prefix: [], count: 12, bx: 2, block: [
       ["note", { b: 0, iso: noteIso, rng: [13, 109] }],
       ["fine", { b: 1, max: 63 }],
     ]
@@ -64,14 +64,21 @@ const octParms = [
 
 const fullParms = [
   {
-    prefix: [], count: 128, bx: 2, block: (i) => [
+    prefix: [], count: 128, bx: 2, block: [
       ["note", { b: 0, iso: noteIso, rng: [13, 109] }],
       ["fine", { b: 1, max: 63 }],
     ]
   },
 ]
 
+const octWerk = werk("micro.oct", 24, octParms, "", 0x7d, 0)
+const fullWerk = werk("micro.full", 256, fullParms, "", 0x7e, 1)
+
 module.exports = {
-  octWerk: werk("micro.oct", 24, octParms, "", 0x7d, 0),
-  fullWerk: werk("micro.full", 256, fullParms, "", 0x7e, 1),
+  octWerk: octWerk,
+  fullWerk: fullWerk,
+  trussMap: [
+    ["micro/octave", octWerk.truss],
+    ["micro/key", fullWerk.truss],
+  ],
 }

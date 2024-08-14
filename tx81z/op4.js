@@ -3,8 +3,6 @@ require('../core/NumberUtils.js')
 
 // static let synth = SynthWerk("Op4")
 
-const sysexChannel = 'basic'
-
 // const algorithms = Op4.VCED.algorithms()
 
 const editorTrussSetup = {
@@ -24,26 +22,6 @@ const editorTrussSetup = {
     ["micro/key", 'basic'],
   ],
 }
-
-// used by TX81Z VCED, Perf.
-const bankSysexData = (bodyData, channel, patchCount, truss, compactTruss, cmdBytes, headerString) => {
-  const patchBytes = bodyData.flatMap((d) => 
-    patchTrussTransform(compactTruss, truss, d)
-    // compactTruss.parse(otherData: d, otherTruss: truss)
-  )
-  // pad out to 32 patches
-  const remaining = 32 - patchCount
-  const padByteCount = remaining * compactTruss.bodyDataCount
-  patchBytes.push(...Array(padByteCount).fill(0))
-
-  const patchData = headerString.sysexBytes().concat(patchBytes)
-  return yamahaSysexData(channel, cmdBytes, patchData)
-}
-
-// const microSysexMap = [
-//   ["micro/octave", Op4micro.octWerk.truss],
-//   ["micro/key", Op4micro.fullWerk.truss],
-// ]
   
 
 const createVoicePatchTruss = (synthName, map, initFile, validSizes) => ({
@@ -63,33 +41,20 @@ const createVoiceBankTruss = (patchTruss, patchCount, initFile, compactTrussMap)
   initFile: initFile,
   fileDataCount: 4104,
   compactTrussMap: compactTrussMap,
-  createFile: voiceBankSysexData(0),
+  createFile: voiceBankSysexData,
   parseBody: 6, 
 })
 
-const voiceBankSysexData = channel => [
-  ['yamCmd', [channel, 0x04, 0x20, 0x00]],
-]
+const voiceBankSysexData = ['yamCmd', ['channel', 0x04, 0x20, 0x00]]
 
-const patchBankTransform = map => {
-  return {
-    type: 'multi',
-    throttle: 0,
-    editorVal: sysexChannel,
-    wholeBank: editorVal => [[voiceBankSysexData(editorVal), 100]]
-  }
-}
+const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
 
-
-const fetch = (cmdBytes) =>
-  ['truss', sysexChannel, (c) => yamahaFetchRequestBytes(c, cmdBytes)]
-
-const fetchWithHeader = (header) => fetch([0x7e] + (`LM  ${header}`).sysexBytes())
+const fetchWithHeader = header => fetch(['+', 0x7e, ['enc', `LM  ${header}`]])
 
 
 const paramData = cmdByte => (cmdBytes => [
   ['+', cmdByte, cmdBytes],
-  ['yamParm', 'e', 'b']
+  ['yamParm', 'channel', 'b']
 ])
 
 
@@ -101,14 +66,13 @@ const patchWerk = (cmdByte, nameRange, sysexData) => {
     cmdByte: cmdByte,
     sysexData: sysexData,
     paramData: myParamData,
-    patchTransform: [[sysexData('e'), 100]],
-    nameTransform: {
-      range: nameRange,
-      fn: (index, rangeElem, byte) => [[
-        ['+', index, ['byte', index]],
+    patchTransform: [[sysexData, 100]],
+    nameTransform: ['range', nameRange, [
+      [
+        ['+', 'b', ['byte', 'b']],
         myParamData('b'),
       ], 10]
-    },
+    ],
   }
 }
 
@@ -127,7 +91,7 @@ const freqRatio = (fixedMode, range, coarse, fine) => {
   }
 }
 
-const coarseRatio = (v) => v >= coarseRatioLookup.length ? 0 : coarseRatioLookup[v]
+const coarseRatio = v => v >= coarseRatioLookup.length ? 0 : coarseRatioLookup[v]
 
 
 const coarseRatioLookup = [ 0.5, 0.71, 0.78, 0.87, 1, 1.41, 1.57, 1.73, 2, 2.82, 3, 3.14, 3.46, 4, 4.24, 4.71, 5, 5.19, 5.65, 6, 6.28, 6.92, 7, 7.07, 7.85, 8, 8.48, 8.65, 9, 9.42, 9.89, 10, 10.38, 10.99, 11, 11.3, 12, 12.11, 12.56, 12.72, 13, 13.84, 14, 14.1, 14.13, 15, 15.55, 15.57, 15.7, 16.96, 17.27, 17.3, 18.37, 18.84, 19.03, 19.78, 20.41, 20.76, 21.2, 21.98, 22.49, 23.55, 24.22, 25.95 ]
@@ -143,4 +107,5 @@ module.exports = {
   editorTrussSetup: editorTrussSetup,
   createVoicePatchTruss: createVoicePatchTruss,
   createVoiceBankTruss: createVoiceBankTruss,
+  voiceBankSysexData: voiceBankSysexData,
 }

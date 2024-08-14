@@ -44,9 +44,9 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   },
 ]) 
 
-const sysexData = channel => [
+const sysexData = [
   ['+', ["enc", "LM  8976AE"], "b"],
-  ['yamCmd', [channel, 0x7e, 0x00, 0x21], "b"],
+  ['yamCmd', ['channel', 0x7e, 0x00, 0x21], "b"],
 ]
 
 const patchTruss = {
@@ -54,7 +54,7 @@ const patchTruss = {
   id: 'tx81z.aced',
   bodyDataCount: 23,
   parseBody: 16,
-  createFile: sysexData(0),
+  createFile: sysexData,
   parms: parms,
   randomize: () => [
     // TODO 
