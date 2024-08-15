@@ -131,7 +131,7 @@ module.exports = {
       [{t: 'checkbox', l: "Click"}, "osc/0/click"],
       [{t: 'switsch', l: "Sync"}, "osc/sync"],
       [{t: 'checkbox', l: "Porta"}, "osc/0/porta"],
-      'spacer',
+      '-',
       ],[
       [{t: 'switsch', l: "DCO2"}, "osc/1/wave"],
       ["Freq", "osc/1/freq"],

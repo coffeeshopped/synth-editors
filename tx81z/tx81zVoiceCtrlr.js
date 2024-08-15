@@ -13,19 +13,22 @@ const miniOpController = index => {
   const finePath = opPath(index, "extra/fine")
   const detunePath = opPath(index, "detune")
 
-  return Op4VoiceCtrlr.miniOpController(index, ['patchChangeMulti', [modePath, rangePath, coarsePath, finePath, detunePath], values => {
-    const range = values[rangePath]
-    const coarse = values[coarsePath]
-    const fine = values[finePath]
-    const detune = values[detunePath]
-    const fixedMode = values[modePath] == 1
-    const valText = Op4.freqRatio(fixedMode, range, coarse, fine)
-    const detuneOff = detune - 3
-    const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? "\(detuneOff)" : "+\(detuneOff)")
-    
-    return [
-      ['setCtrlLabel', "osc/mode", fixedMode ? `${valText} Hz` : `x ${valText}${detuneString}`],
-    ]
+  return Op4VoiceCtrlr.miniOpController(index, ['patchChange', {
+    paths: [modePath, rangePath, coarsePath, finePath, detunePath],
+    fn: values => {
+      const fixedMode = values[0] == 1
+      const range = values[1]
+      const coarse = values[2]
+      const fine = values[3]
+      const detune = values[4]
+      const valText = Op4.freqRatio(fixedMode, range, coarse, fine)
+      const detuneOff = detune - 3
+      const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? detuneOff : `+${detuneOff}`)
+      
+      return [
+        ['setCtrlLabel', "osc/mode", fixedMode ? `${valText} Hz` : `x ${valText}${detuneString}`],
+      ]
+    }
   }], "TX81ZOp", AllPaths)
 }
       
@@ -40,7 +43,7 @@ const opController = index => {
     builders: [
       ['grid', Op4VoiceCtrlr.opItems(index, [[
         [{t: 'checkbox', l: "On"}, "on"],
-        [{t: 'imgSelect', id: "wave", w: 75, h: 64}, "extra/wave"],
+        [{t: 'imgSelect', l: "Wave", id: "wave", w: 75, h: 64}, "extra/wave"],
         [{t: 'switch', l: "Fixed"}, "extra/osc/mode"],
       ],[
         [{t: 'knob', l: "Range"}, "extra/fixed/range"],
@@ -70,13 +73,13 @@ const opController = index => {
       ['patchChange', {
         paths: [modePath, rangePath, coarsePath, finePath],
         fn: values => {
-          const range = values[rangePath]
-          const coarse = values[coarsePath]
-          const fine = values[finePath]
-          const fixedMode = values[modePath] == 1
+          const fixedMode = values[0] == 1
+          const range = values[1]
+          const coarse = values[2]
+          const fine = values[3]
           return [
-            ['setCtrlLabel', modePath, fixedMode ? "Freq (Hz)" : "Ratio"],
-            ['configCtrl', modePath, { opts: [
+            ['setCtrlLabel', "extra/osc/mode", fixedMode ? "Freq (Hz)" : "Ratio"],
+            ['configCtrl', "extra/osc/mode", { opts: [
               Op4.freqRatio(false, range, coarse, fine),
               Op4.freqRatio(true, range, coarse, fine),
             ]}],
@@ -104,7 +107,7 @@ module.exports = {
       ["Algorithm", "algo"],
     ],[
       ["Feedback", "feedback"],
-      [{checkbox: "Mono"}, "poly"]
+      [{t: 'checkbox', l: "Mono"}, "poly"],
     ]]],
     ['panel', "transpose", { color: 2 }, [[
       ["Transpose", "voice/transpose"],
@@ -113,13 +116,13 @@ module.exports = {
       ["Reverb", "extra/reverb"],
     ],[
       ["Porta Time", "voice/porta/time"],
-      [{checkbox: "Fingered"}, "voice/porta/mode"],
+      [{t: 'checkbox', l: "Fingered"}, "voice/porta/mode"],
     ]]],
     ['panel', "lfo", { prefix: "voice", color: 2 }, [[
-      [{switch: "LFO Wave"}, "lfo/wave"],
+      [{t: 'switch', l: "LFO Wave"}, "lfo/wave"],
       ["Speed", "lfo/speed"],
     ],[
-      [{checkbox: "Key Sync"}, "lfo/sync"],
+      [{t: 'checkbox', l: "Key Sync"}, "lfo/sync"],
       ["Pitch Depth", "pitch/mod/depth"],
       ["Pitch Sens", "pitch/mod/sens"],
     ],[
@@ -130,13 +133,13 @@ module.exports = {
     ['panel', "mods", { color: 2 }, [[
       ["Mod→Amp", "voice/modWheel/amp"],
       ["Pitch", "voice/modWheel/pitch"],
-      {spacer: 2},
-      {spacer: 2},
+      '-',
+      '-',
     ],[
       ["Foot→Amp", "extra/foot/amp"],
       ["Pitch", "extra/foot/pitch"],
       ["Volume", "voice/foot/volume"],
-      {spacer: 2},
+      '-',
     ],[
       ["Breath→Amp", "voice/breath/amp"],
       ["Pitch", "voice/breath/pitch"],

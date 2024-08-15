@@ -108,4 +108,5 @@ module.exports = {
   createVoicePatchTruss: createVoicePatchTruss,
   createVoiceBankTruss: createVoiceBankTruss,
   voiceBankSysexData: voiceBankSysexData,
+  freqRatio: freqRatio,
 }

@@ -1,3 +1,4 @@
+const Algorithms = require('./algorithms.js')
 
 const opPathFn = i => (p => 
   p.startsWith('extra/') ? `extra/op/${i}/` + p.substring(6) : `voice/op/${i}/` + p
@@ -14,7 +15,7 @@ const opItems = (index, items) => {
   const p = opPathFn(index)
   return items.map(item => item.map(x => {
     // don't process env display
-    if (x.display) { return x }
+    if (x.env) { return x }
     
     var cfg = x[0]
     const path = x[1]
@@ -26,8 +27,7 @@ const opItems = (index, items) => {
 const envItem = i => {
   const opp = opPathFn(i)
   return {
-    display: 'env',
-    fn: envPathFn,
+    env: envPathFn,
     l: "", 
     maps: [
       ['u', opp('attack'), 31, 'attack'],
@@ -43,13 +43,14 @@ const envItem = i => {
 }
 
 const envPathFn = values => {
-  const shft = values['shift']
-  const a = values['attack']
-  const d1 = values['decay/0']
-  const d2 = values['decay/1']
-  const s = values['decay/level']
-  const r = values['release']
-  const level = values['level']
+  // must set default values as not all values may be present.
+  const shft = values['shift'] || 0
+  const a = values['attack'] || 0
+  const d1 = values['decay/0'] || 0
+  const d2 = values['decay/1'] || 0
+  const s = values['decay/level'] || 0
+  const r = values['release'] || 0
+  const level = values['level'] || 0
 
   var cmds = []
 
@@ -60,28 +61,28 @@ const envPathFn = values => {
   // move to 0 , shftHeight
   cmds.push(
     ['move', x, 0],
-    ['addLine', x, shftHeight]
+    ['line', x, shftHeight]
   )
   
   // ar
   x += a == 1 ? 0 : 1 / Math.tan((0.25 + 0.25 * a) * Math.PI)
-  cmds.push(['addLine', x, 1])
+  cmds.push(['line', x, 1])
   
   // d1r
   x += d1 == 1 ? 0 : 1 / Math.tan((0.25 + 0.25 * d1) * Math.PI)
-  cmds.push(['addLine', x, shftHeight + s])
+  cmds.push(['line', x, shftHeight + s])
   
   // d2r
   x += (1 - d2) * segWidth
   const y = shftHeight + (d2 == 0 ? 1 : 0.5) * s
-  cmds.push(['addLine', x, y])
+  cmds.push(['line', x, y])
   
   // sustain
   x += (1 - r) * segWidth
   cmds.push(
-    ['addLine', x, shftHeight],
-    ['addLine', 1, shftHeight],
-    ['addLine', 1, 0],
+    ['line', x, shftHeight],
+    ['line', 1, shftHeight],
+    ['line', 1, 0],
     ['scale', 1, level]
   )
   
@@ -89,22 +90,20 @@ const envPathFn = values => {
   return cmds
 }
 
-const algorithms = [] // DXAlgorithm.algorithmsFromPlist("TX81Z Algorithms")
-
 module.exports = {
   opPath: opPath,
   opPaths: opPaths,
   opItems: opItems,
   envItem: envItem,
-  algoCtrlr: miniOp => ['fm', algorithms, miniOp, {
+  algoCtrlr: miniOp => ['fm', Algorithms.algorithms, miniOp, {
     algo: 'voice/algo',
   }],
   miniOpController: (index, ratioEffect, opType, allPaths) => ({
     builders: [
       ['items', { color: 2 }, [
         [envItem(index), "env"],
-        ['label', "?", {align: 'leading', size: 11, id: "op"}, "op"],
-        ['label', "x", {align: 'trailing', size: 11, bold: false, id: "osc/mode"}, "freq"],
+        [{l: "?", align: 'leading', size: 11, id: "op"}, "op"],
+        [{l: "x", align: 'trailing', size: 11, bold: false, id: "osc/mode"}, "freq"],
       ]]
     ],
     effects: [
