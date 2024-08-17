@@ -12,7 +12,7 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    param: (parm, value) => {
+    param: (path, parm, value) => {
       if (!parm) { return null }
 
       if (parm.p < 0) {
@@ -31,7 +31,7 @@ module.exports = {
           ], 10]
         ]
       }
-      else if (value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+      else if (value < 0 || pathEq(path, "env/0/sustain") || pathEq(path, "amp/1/env/1/amt")) {
         return patchOut
       }
       else {
@@ -39,8 +39,7 @@ module.exports = {
         // if value is negative, do some bit twiddling
         const v = value < 0 ? value + 128 : value
         return [[Matrix.sysex([0x06, parm.p, v]), 10]]
-      }
-    
+      } 
     }, 
     patch: patchOut,
     name: patchOut,

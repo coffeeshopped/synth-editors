@@ -66,7 +66,6 @@ const patchWerk = (cmdByte, nameRange, sysexData) => {
     cmdByte: cmdByte,
     sysexData: sysexData,
     paramData: myParamData,
-    patchTransform: [[sysexData, 100]],
     nameTransform: ['range', nameRange, [
       [
         ['+', 'b', ['byte', 'b']],

@@ -63,7 +63,7 @@ const patchChangeTransform = (patchWerk) => ({
   type: 'singlePatch',
   throttle: 30, 
   editorVal: Op4.sysexChannel,
-  param: (editorVal, bodyData, parm, path, value) => {
+  param: (path, parm, value) => {
     if (path.last() == 'number') {
       return [
         [patchWerk.paramData(editorVal, [parm.b - 1, value.bit(7)]), 50],
@@ -74,7 +74,7 @@ const patchChangeTransform = (patchWerk) => ({
       return [[patchWerk.paramData(editorVal, [parm.b, bodyData[parm.b]]), 0]]
     }
   }, 
-  patch: patchWerk.patchTransform, 
+  patch: patchWerk.sysexData, 
   name: patchWerk.nameTransform,
 })
 const sysexData = channel => [

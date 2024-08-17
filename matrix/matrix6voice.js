@@ -190,10 +190,10 @@ module.exports = {
   patchTransform: {
     type: 'singlePatch',
     throttle: 200,
-    param: (parm, value) => {
+    param: (path, parm, value) => {
       if (!parm) { return null }
 
-      if (parm.p < 0 || value < 0 || pathEq(parm.path, "env/0/sustain") || pathEq(parm.path, "amp/1/env/1/amt")) {
+      if (parm.p < 0 || value < 0 || pathEq(path, "env/0/sustain") || pathEq(path, "amp/1/env/1/amt")) {
         // MATRIX MOD SEND or buggy params
         return patchOut
       }

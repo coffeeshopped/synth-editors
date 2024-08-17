@@ -67,9 +67,9 @@ const patchChangeTransform = werkMap => ({
   type: 'multiDictPatch',
   throttle: 100,
   editorVal: opOns,
-  param: (parm, value) => {
-    const first = parm.path[0]
-    const isOpOn = first == 'voice' && parm.path[parm.path.length - 1] == 'on'
+  param: (path, parm, value) => {
+    const first = path[0]
+    const isOpOn = first == 'voice' && path[path.length - 1] == 'on'
     const parmByte = isOpOn ? 93 : parm.b
     const subval = [
       ['sub', first],
@@ -78,15 +78,15 @@ const patchChangeTransform = werkMap => ({
     var data = []
     switch (first) {
       case 'voice':
-        const v = isOpOn ? opOnByte(editorVal, parm.path[2], value) : subval
-        data = VCED.patchWerk.paramData([parmByte, v])
+        const v = isOpOn ? opOnByte(editorVal, path[2], value) : subval
+        data = VCED.patchWerk.paramData(['+', parmByte, v])
         break
       case 'extra':
-        data = ACED.patchWerk.paramData([parmByte, subval])
+        data = ACED.patchWerk.paramData(['+', parmByte, subval])
         break
       case 'aftertouch':
         // offset byte by 23 to get param address
-        data = ACED.patchWerk.paramData([parmByte + 23, subval])
+        data = ACED.patchWerk.paramData(['+', parmByte + 23, subval])
         break
       default:
         return null
@@ -94,18 +94,8 @@ const patchChangeTransform = werkMap => ({
     return [[data, 0]]
     
   }, 
-  patch: (['+']).concat(werkMap.map(pair => {
-    const path = pair[0]
-    const werk = pair[1]
-    return [
-      ['sub', path],
-      werk.patchTransform,
-    ]
-  })),
-  name: [
-    ['sub', 'voice'],
-    VCED.patchWerk.nameTransform,
-  ],
+  patch: werkMap.map(pair => [[['sub', pair[0]], pair[1].sysexData], 100]),
+  name: [[['sub', 'voice'], VCED.patchWerk.nameTransform]],
 })
 
 const editor = Object.assign(Op4.editorTrussSetup, {

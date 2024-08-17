@@ -29,11 +29,11 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
       type: 'singlePatch',
       throttle: 100, 
       coalesce: 10, 
-      param: (parm, value) => {
-        const key = parm.path[0]
+      param: (path, parm, value) => {
+        const key = path[0]
         var note = 0
         var fine = 0
-        if (parm.path[parm.path.length - 1] == 'note') {
+        if (path[path.length - 1] == 'note') {
           note = Math.max(0, value)
           fine = ['trussValues', truss, [[key, 'fine']]]
         }
@@ -43,7 +43,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
         }
         return [[patchWerk.paramData(['+', [subCmdByte, key], note, fine]), 0]]
       }, 
-      patch: patchWerk.patchTransform,
+      patch: patchWerk.sysexData,
     },
   }
 }
