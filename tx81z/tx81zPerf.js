@@ -77,10 +77,7 @@ const patchChangeTransform = (patchWerk) => ({
   patch: patchWerk.sysexData, 
   name: patchWerk.nameTransform,
 })
-const sysexData = channel => [
-  ['+', ["enc", "LM  8976PE"], "b"],
-  ['yamCmd', [channel, 0x7e, 0x00, 0x78]],
-]
+const sysexData = ['yamCmd', ['channel', 0x7e, 0x00, 0x78], [["enc", "LM  8976PE"], "b"]]
 
 const patchTruss = {
   type: 'singlePatch',
@@ -89,7 +86,7 @@ const patchTruss = {
   namePack: [100, 110],
   parms: parms, 
   initFile: "tx81z-perf-init", 
-  createFile: sysexData(0),
+  createFile: sysexData,
   parseBody: 16,
 }
 
@@ -106,11 +103,7 @@ const createPatchWerk = (parms, compactParms) => Op4.patchWerk(0x10, patchTruss.
 
 const patchWerk = createPatchWerk(parms, compactParms)
 
-const bankSysexData = channel => [
-  ['+', ['enc', "LM  8976PM"], 'b'],
-  ['yamCmd', [channel, 0x7e, 0x13, 0x0a]],
-]
-
+const bankSysexData = ['yamCmd', ['channel', 0x7e, 0x13, 0x0a], [['enc', "LM  8976PM"], 'b']]
 
 const createBankTruss = (patchCount, patchTruss, compactTruss, initFile) => ({
   type: 'compactSingleBank',
@@ -120,7 +113,7 @@ const createBankTruss = (patchCount, patchTruss, compactTruss, initFile) => ({
   initFile: initFile,
   fileDataCount: 2450, 
   compactTruss: compactTruss, 
-  createFile: bankSysexData(0),
+  createFile: bankSysexData,
   parseBody: 16,
 })
 

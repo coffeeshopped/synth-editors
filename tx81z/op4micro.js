@@ -2,8 +2,8 @@ const Op4 = require('./op4.js')
 
 const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexIndex) => {
   
-  const sysexData = [
-    ['+', ["enc", `LM  MCRTE${sysexIndex}`], "b"],
+  const sysexData = ['>',
+    [["enc", `LM  MCRTE${sysexIndex}`], "b"],
     ['yamCmd', ['channel', 0x7e, 0x00, 0x22], "b"],
   ]
 
@@ -41,7 +41,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
           note = ['trussValues', truss, [[key, 'note']]]
           fine = Math.max(0, value)
         }
-        return [[patchWerk.paramData(['+', [subCmdByte, key], note, fine]), 0]]
+        return [[patchWerk.paramData([subCmdByte, key, note, fine]), 0]]
       }, 
       patch: patchWerk.sysexData,
     },

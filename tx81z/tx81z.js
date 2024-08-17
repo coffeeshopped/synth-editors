@@ -71,22 +71,19 @@ const patchChangeTransform = werkMap => ({
     const first = path[0]
     const isOpOn = first == 'voice' && path[path.length - 1] == 'on'
     const parmByte = isOpOn ? 93 : parm.b
-    const subval = [
-      ['sub', first],
-      ['byte', parmByte]
-    ]
-    var data = []
+    var data = [first, ['byte', parmByte]]
     switch (first) {
       case 'voice':
-        const v = isOpOn ? opOnByte(editorVal, path[2], value) : subval
-        data = VCED.patchWerk.paramData(['+', parmByte, v])
+        // TODO: opOn stuff
+        // const v = isOpOn ? opOnByte(editorVal, path[2], value) : subval
+        data.push(VCED.patchWerk.paramData([parmByte, 'b']))
         break
       case 'extra':
-        data = ACED.patchWerk.paramData(['+', parmByte, subval])
+        data.push(ACED.patchWerk.paramData([parmByte, 'b']))
         break
       case 'aftertouch':
         // offset byte by 23 to get param address
-        data = ACED.patchWerk.paramData(['+', parmByte + 23, subval])
+        data.push(ACED.patchWerk.paramData([parmByte + 23, 'b']))
         break
       default:
         return null
@@ -94,8 +91,10 @@ const patchChangeTransform = werkMap => ({
     return [[data, 0]]
     
   }, 
-  patch: werkMap.map(pair => [[['sub', pair[0]], pair[1].sysexData], 100]),
-  name: [[['sub', 'voice'], VCED.patchWerk.nameTransform]],
+  patch: werkMap.map(pair => [[pair[0], pair[1].sysexData], 100]),
+  name: VCED.patchTruss.namePack.rangeMap(i => [
+    ['voice', VCED.patchWerk.paramData([i, ['byte', i]])], 10
+  ]),
 })
 
 const editor = Object.assign(Op4.editorTrussSetup, {

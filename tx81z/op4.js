@@ -49,31 +49,16 @@ const voiceBankSysexData = ['yamCmd', ['channel', 0x04, 0x20, 0x00]]
 
 const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
 
-const fetchWithHeader = header => fetch(['+', 0x7e, ['enc', `LM  ${header}`]])
+const fetchWithHeader = header => fetch([0x7e, ['enc', `LM  ${header}`]])
 
 
-const paramData = cmdByte => (cmdBytes => [
-  ['+', cmdByte, cmdBytes],
-  ['yamParm', 'channel', 'b']
-])
+const paramData = cmdByte => (cmdBytes => ['yamParm', 'channel', [cmdByte, cmdBytes]])
 
-
-const patchWerk = (cmdByte, nameRange, sysexData) => {
-  
-  const myParamData = paramData(cmdByte)
-  
-  return {
-    cmdByte: cmdByte,
-    sysexData: sysexData,
-    paramData: myParamData,
-    nameTransform: ['range', nameRange, [
-      [
-        ['+', 'b', ['byte', 'b']],
-        myParamData('b'),
-      ], 10]
-    ],
-  }
-}
+const patchWerk = (cmdByte, nameRange, sysexData) => ({
+  cmdByte: cmdByte,
+  sysexData: sysexData,
+  paramData: paramData(cmdByte),
+})
 
 
 const freqRatio = (fixedMode, range, coarse, fine) => {

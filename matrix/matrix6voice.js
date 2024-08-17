@@ -23,7 +23,7 @@ const createPatchTruss = createFileData => ({
   id: "matrix6.voice",
   bodyDataCount: 134,
   initFile: "matrix1000-init",
-  parseBody: [
+  parseBody: ['>',
     ['bytes', 5, 268],
     'denibblizeLSB',
   ],
@@ -164,9 +164,9 @@ const parms = [
 const sysexDataWithLocation = location => sysexDataWithHeader(0x01, location)
 
 // returns: array of instructions for processing body data and returning sysex data
-const sysexDataWithHeader = (cmd, location) => [
-  ['+', 'nibblizeLSB', 'checksum'],
-  ['+', [0xf0, 0x10, 0x06], cmd, location, 'b', 0xf7],
+const sysexDataWithHeader = (cmd, location) => ['>',
+  ['nibblizeLSB', 'checksum'],
+  [0xf0, 0x10, 0x06, cmd, location, 'b', 0xf7],
 ]
 
 const patchOut = [[sysexDataWithLocation(Matrix.tempPatch), 100]]

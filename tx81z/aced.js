@@ -44,10 +44,7 @@ const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
   },
 ]) 
 
-const sysexData = [
-  ['+', ["enc", "LM  8976AE"], "b"],
-  ['yamCmd', ['channel', 0x7e, 0x00, 0x21], "b"],
-]
+const sysexData = ['yamCmd', ['channel', 0x7e, 0x00, 0x21], [["enc", "LM  8976AE"], "b"]]
 
 const patchTruss = {
   type: 'singlePatch',
