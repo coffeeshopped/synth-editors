@@ -5,6 +5,7 @@ const VCED = require('./vced.js')
 const ACED = require('./aced.js')
 const VoiceController = require('./tx81zVoiceCtrlr.js')
 const PerfController = require('./tx81zPerfCtrlr.js')
+const MicroController = require('./tx81zMicroCtrlr.js')
 
 const synth = "TX81Z"
 
@@ -145,8 +146,8 @@ const moduleTruss = {
       'channel',
       ['voice', "Voice", VoiceController],
       ['perf', PerfController.ctrlr(Perf.presetVoices)],
-      // ['voice', "Micro Oct", Op4.Micro.Controller.octController, { path: "micro/octave" }],
-      // ['voice', "Micro Full", Op4.Micro.Controller.fullController, { path: "micro/key" }],
+      ['voice', "Micro Oct", MicroController.octController, { path: "micro/octave" }],
+      ['voice', "Micro Full", MicroController.fullController, { path: "micro/key" }],
     ]],
     ['banks', [
       ['bank', "Voice Bank", "bank"],
