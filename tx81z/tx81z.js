@@ -146,8 +146,8 @@ const moduleTruss = {
       'channel',
       ['voice', "Voice", VoiceController],
       ['perf', PerfController.ctrlr(Perf.presetVoices)],
-      ['voice', "Micro Oct", MicroController.octController, { path: "micro/octave" }],
-      ['voice', "Micro Full", MicroController.fullController, { path: "micro/key" }],
+      ['voice', "Micro Oct", MicroController.octController, "micro/octave"],
+      ['voice', "Micro Full", MicroController.fullController, "micro/key"],
     ]],
     ['banks', [
       ['bank', "Voice Bank", "bank"],
