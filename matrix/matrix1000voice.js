@@ -7,6 +7,8 @@ const patchOut = [[tempSysexData, 100]]
 
 const patchTruss = Matrix6Voice.createPatchTruss(tempSysexData)
 
+const negMap = value => value < 0 ? value + 128 : value
+
 module.exports = {
   patchTruss: patchTruss,
   patchTransform: {
@@ -20,25 +22,22 @@ module.exports = {
         // mod number is encoded in params as negative parm value (1...10)
         const mod = (-parm.p) - 1
         
-        return [
-          [[
-            ['trussValues', patchTruss, [
-              ["mod", mod, "src"],
-              ["mod", mod, "amt"],
-              ["mod", mod, "dest"],
-            ], amt => amt < 0 ? amt + 128 : amt],
-            ['wrap', [0xf0, 0x10, 0x06, 0x0b, mod], [0xf7]]
-          ], 10]
-        ]
+        return [[[
+          '>', 
+          ['e.values', 'patch', [
+            ["mod", mod, "src"],
+            ["mod", mod, "amt"],
+            ["mod", mod, "dest"],
+          ], negMap],
+          [0xf0, 0x10, 0x06, 0x0b, mod, "b", 0xf7]
+        ], 10]]
       }
       else if (value < 0 || pathEq(path, "env/0/sustain") || pathEq(path, "amp/1/env/1/amt")) {
         return patchOut
       }
       else {
         // NORMAL PARAM SEND
-        // if value is negative, do some bit twiddling
-        const v = value < 0 ? value + 128 : value
-        return [[Matrix.sysex([0x06, parm.p, v]), 10]]
+        return [[Matrix.sysex([0x06, parm.p, negMap(v)]), 10]]
       } 
     }, 
     patch: patchOut,

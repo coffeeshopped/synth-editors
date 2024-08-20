@@ -131,5 +131,6 @@ module.exports = {
     throttle: 30,
     single: [[Op4.voiceBankSysexData, 100]],
   },
+  presetVoices: presetVoices,
 }
 

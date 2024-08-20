@@ -26,10 +26,6 @@ Array.prototype.rangeLength = function() {
   return this[1] - this[0]
 }
 
-Array.prototype.safeBytes = function(offset, count) {
-  return ([offset, offset + count]).rangeMap((i) => i < this.length ? this[i] : 0)
-}
-
 Array.prototype.sum = function() {
   return this.reduce((a, b) => a + b, 0)
 }

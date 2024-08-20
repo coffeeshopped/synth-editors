@@ -215,7 +215,7 @@ module.exports = {
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: (editorVal, location) => [(sysexDataWithLocation(location), 50)],
+    bank: location => [[sysexDataWithLocation(location), 50]],
   },
 
 }

@@ -51,10 +51,10 @@ const envPathFn = values => {
   const s = values['decay/level'] || 0
   const r = values['release'] || 0
   const level = values['level'] || 0
-
+  
   var cmds = []
 
-  const segWidth = 1 / 5
+  const segWidth = 0.2
   const shftHeight = shft // TODO: make it log not lin
   var x = 0
   
