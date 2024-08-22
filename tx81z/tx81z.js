@@ -91,7 +91,6 @@ const patchChangeTransform = werkMap => ({
         return null
     }
     return [[data, 0]]
-    
   }, 
   patch: werkMap.map(pair => [[pair[0], pair[1].sysexData], 100]),
   name: VCED.patchTruss.namePack.rangeMap(i => [
