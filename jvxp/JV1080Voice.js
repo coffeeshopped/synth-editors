@@ -135,381 +135,386 @@ const fxParams: [[Int:(String,Param)]] = [
   chorusAndFlangerParams,
   ]
 
-const eqParams: [Int:(String,Param)] = [
-  0 : Pairs.loFreq,
-  1 : Pairs.loGain,
-  2 : Pairs.hiFreq,
-  3 : Pairs.hiGain,
-  4 : ("P1-Freq", fx200to8kParam),
-  5 : ("P1-Q", fxQParam),
-  6 : ("P1-Gain", fxGainParam),
-  7 : ("P2-Freq", fx200to8kParam),
-  8 : ("P2-Q", fxQParam),
-  9 : ("P2-Gain", fxGainParam),
-  10 : ("Level", RangeParam())
+const eqParams = [
+  Pairs.loFreq,
+  Pairs.loGain,
+  Pairs.hiFreq,
+  Pairs.hiGain,
+  ("P1-Freq", fx200to8kParam),
+  ("P1-Q", fxQParam),
+  ("P1-Gain", fxGainParam),
+  ("P2-Freq", fx200to8kParam),
+  ("P2-Q", fxQParam),
+  ("P2-Gain", fxGainParam),
+  ("Level", RangeParam())
 ]
 
-const overdriveParams: [Int:(String,Param)] = [
-  0 : Pairs.drive,
-  1 : Pairs.pan,
-  2 : ("Amp-Type", fxAmpParam),
-  3 : Pairs.loGain,
-  4 : Pairs.hiGain,
-  5 : Pairs.level
+const overdriveParams = [
+  Pairs.drive,
+  Pairs.pan,
+  ("Amp-Type", fxAmpParam),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.level
 ]
-const distortionParams: [Int:(String,Param)] = [
-  0 : Pairs.drive,
-  1 : Pairs.pan,
-  2 : ("Amp-Type", fxAmpParam),
-  3 : Pairs.loGain,
-  4 : Pairs.hiGain,
-  5 : Pairs.level
+const distortionParams = [
+  Pairs.drive,
+  Pairs.pan,
+  ("Amp-Type", fxAmpParam),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.level
 ]
-const phaserParams: [Int:(String,Param)] = [
-  0 : ("Manual", RangeParam()),
-  1 : Pairs.phaserRate,
-  2 : Pairs.phaserDepth,
-  3 : ("Resonance", RangeParam()),
-  4 : ("Mix", RangeParam()),
-  5 : Pairs.pan,
-  6 : Pairs.level
+const phaserParams = [
+  ("Manual", RangeParam()),
+  Pairs.phaserRate,
+  Pairs.phaserDepth,
+  ("Resonance", RangeParam()),
+  ("Mix", RangeParam()),
+  Pairs.pan,
+  Pairs.level
 ]
-const spectrumParams: [Int:(String,Param)] = [
-  0 : ("Band-1", fxGainParam),
-  1 : ("Band-2", fxGainParam),
-  2 : ("Band-3", fxGainParam),
-  3 : ("Band-4", fxGainParam),
-  4 : ("Band-5", fxGainParam),
-  5 : ("Band-6", fxGainParam),
-  6 : ("Band-7", fxGainParam),
-  7 : ("Band-8", fxGainParam),
-  8 : ("Width", RangeParam(maxVal: 4, displayOffset: 1)),
-  9 : Pairs.pan,
-  10 : Pairs.level
+const spectrumParams = [
+  ("Band-1", fxGainParam),
+  ("Band-2", fxGainParam),
+  ("Band-3", fxGainParam),
+  ("Band-4", fxGainParam),
+  ("Band-5", fxGainParam),
+  ("Band-6", fxGainParam),
+  ("Band-7", fxGainParam),
+  ("Band-8", fxGainParam),
+  ("Width", RangeParam(maxVal: 4, displayOffset: 1)),
+  Pairs.pan,
+  Pairs.level
 ]
-const enhancerParams: [Int:(String,Param)] = [
-  0 : ("Sens", RangeParam()),
-  1 : ("Mix", RangeParam()),
-  2 : Pairs.loGain,
-  3 : Pairs.hiGain,
-  4 : Pairs.level
+const enhancerParams = [
+  ("Sens", RangeParam()),
+  ("Mix", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.level
 ]
-const autowahParams: [Int:(String,Param)] = [
-  0 : ("Filter-Type", OptionsParam(options: ["LPF","BPF"])),
-  1 : Pairs.lfoRate,
-  2 : Pairs.lfoDepth,
-  3 : ("Sens", RangeParam()),
-  4 : ("Manual", RangeParam()),
-  5 : ("Peak", RangeParam()),
-  6 : Pairs.level
+const autowahParams = [
+  ("Filter-Type", OptionsParam(options: ["LPF","BPF"])),
+  Pairs.lfoRate,
+  Pairs.lfoDepth,
+  ("Sens", RangeParam()),
+  ("Manual", RangeParam()),
+  ("Peak", RangeParam()),
+  Pairs.level
 ]
-const rotaryParams: [Int:(String,Param)] = [
-  0 : ("Hi-Slow", fxRateParam),
-  1 : ("Low-Slow", fxRateParam),
-  2 : ("Hi-Fast", fxRateParam),
-  3 : ("Low-Fast", fxRateParam),
-  4 : ("Speed", OptionsParam(options: ["Slow","Fast"])),
-  5 : ("Hi-Accl", RangeParam(maxVal: 15)),
-  6 : ("Low-Accl", RangeParam(maxVal: 15)),
-  7 : ("Hi-Level", RangeParam()),
-  8 : ("Low-Level", RangeParam()),
-  9 : ("Separation", RangeParam()),
-  10 : Pairs.level
+const rotaryParams = [
+  ("Hi-Slow", fxRateParam),
+  ("Low-Slow", fxRateParam),
+  ("Hi-Fast", fxRateParam),
+  ("Low-Fast", fxRateParam),
+  ("Speed", OptionsParam(options: ["Slow","Fast"])),
+  ("Hi-Accl", RangeParam(maxVal: 15)),
+  ("Low-Accl", RangeParam(maxVal: 15)),
+  ("Hi-Level", RangeParam()),
+  ("Low-Level", RangeParam()),
+  ("Separation", RangeParam()),
+  Pairs.level
 ]
-const compressorParams: [Int:(String,Param)] = [
-  0 : ("Sustain", RangeParam()),
-  1 : ("Attack", RangeParam()),
-  2 : Pairs.pan,
-  3 : ("Post-Gain", OptionsParam(options: ["x1","x2","x4","x8"])),
-  4 : Pairs.loGain,
-  5 : Pairs.hiGain,
-  6 : Pairs.level
+const compressorParams = [
+  ("Sustain", RangeParam()),
+  ("Attack", RangeParam()),
+  Pairs.pan,
+  ("Post-Gain", OptionsParam(options: ["x1","x2","x4","x8"])),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.level
 ]
-const limiterParams: [Int:(String,Param)] = [
-  0 : ("Threshold", RangeParam()),
-  1 : ("Release", RangeParam()),
-  2 : ("Ratio", OptionsParam(options: ["1.5:1","2:1","4:1","100:1"])),
-  3 : Pairs.pan,
-  4 : ("Post-Gain", OptionsParam(options: ["x1","x2","x4","x8"])),
-  5 : Pairs.loGain,
-  6 : Pairs.hiGain,
-  7 : Pairs.level
+const limiterParams = [
+  ("Threshold", RangeParam()),
+  ("Release", RangeParam()),
+  ("Ratio", OptionsParam(options: ["1.5:1","2:1","4:1","100:1"])),
+  Pairs.pan,
+  ("Post-Gain", OptionsParam(options: ["x1","x2","x4","x8"])),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.level
 ]
-const hexaChorusParams: [Int:(String,Param)] = [
-  0 : ("Pre-Delay", fxDelayTime100Param),
-  1 : Pairs.chorusRate,
-  2 : Pairs.chorusDepth,
-  3 : ("PreDelay-Dev", RangeParam()),
-  4 : ("Depth-Dev", RangeParam()),
-  5 : ("Pan-Dev", RangeParam()),
-  6 : Pairs.balance,
-  7 : Pairs.level
+const hexaChorusParams = [
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  ("PreDelay-Dev", RangeParam()),
+  ("Depth-Dev", RangeParam()),
+  ("Pan-Dev", RangeParam()),
+  Pairs.balance,
+  Pairs.level
 ]
-const tremChorusParams: [Int:(String,Param)] = [
-  0 : ("Pre-Delay", fxDelayTime100Param),
-  1 : Pairs.chorusRate,
-  2 : Pairs.chorusDepth,
-  3 : ("Tremolo-Rate", fxRateParam),
-  4 : ("Tremolo-Sep", RangeParam()),
-  5 : ("Phase", RangeParam()),
-  6 : Pairs.balance,
-  7 : Pairs.level
+const tremChorusParams = [
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  ("Tremolo-Rate", fxRateParam),
+  ("Tremolo-Sep", RangeParam()),
+  ("Phase", RangeParam()),
+  Pairs.balance,
+  Pairs.level
 ]
-const spaceDParams: [Int:(String,Param)] = [
-  0 : ("Pre-Delay", fxDelayTime100Param),
-  1 : Pairs.chorusRate,
-  2 : Pairs.chorusDepth,
-  3 : ("Phase", RangeParam()),
-  4 : Pairs.loGain,
-  5 : Pairs.hiGain,
-  6 : Pairs.balance,
-  7 : Pairs.level
+const spaceDParams = [
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  ("Phase", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const chorusParams: [Int:(String,Param)] = [
-  0 : Pairs.filterType,
-  1 : ("Cutoff", RangeParam()),
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : Pairs.chorusRate,
-  4 : Pairs.chorusDepth,
-  5 : ("Phase", RangeParam()),
-  7 : Pairs.loGain,
-  8 : Pairs.hiGain,
-  9 : Pairs.balance,
-  10 : Pairs.level
+const chorusParams = [
+  Pairs.filterType,
+  ("Cutoff", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  ("Phase", RangeParam()),
+  (),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const flangerParams: [Int:(String,Param)] = [
-  0 : Pairs.filterType,
-  1 : ("Cutoff", RangeParam()),
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : Pairs.lfoRate,
-  4 : Pairs.lfoDepth,
-  5 : ("Phase", RangeParam()),
-  6 : Pairs.feedback,
-  7 : Pairs.loGain,
-  8 : Pairs.hiGain,
-  9 : Pairs.balance,
-  10 : Pairs.level
+const flangerParams = [
+  Pairs.filterType,
+  ("Cutoff", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.lfoRate,
+  Pairs.lfoDepth,
+  ("Phase", RangeParam()),
+  Pairs.feedback,
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const stepFlangerParams: [Int:(String,Param)] = [
-  0 : ("Pre-Delay", fxDelayTime100Param),
-  1 : Pairs.lfoRate,
-  2 : Pairs.lfoDepth,
-  3 : Pairs.feedback,
-  4 : ("Step-Rate", RangeParam()),
-  5 : ("Phase", RangeParam()),
-  6 : Pairs.loGain,
-  7 : Pairs.hiGain,
-  8 : Pairs.balance,
-  9 : Pairs.level
+const stepFlangerParams = [
+  ("Pre-Delay", fxDelayTime100Param),
+  Pairs.lfoRate,
+  Pairs.lfoDepth,
+  Pairs.feedback,
+  ("Step-Rate", RangeParam()),
+  ("Phase", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const stDelayParams: [Int:(String,Param)] = [
-  0 : ("FBK-Mode", RangeParam()),
-  1 : ("Delay-Time-L", fxDelayTime500Param),
-  2 : ("Delay-Time-R", fxDelayTime500Param),
-  3 : ("Phase-L", RangeParam()),
-  4 : ("Phase-R", RangeParam()),
-  5 : Pairs.feedback,
-  6 : Pairs.hfDamp,
-  7 : Pairs.loGain,
-  8 : Pairs.hiGain,
-  9 : Pairs.balance,
-  10 : Pairs.level
+const stDelayParams = [
+  ("FBK-Mode", RangeParam()),
+  ("Delay-Time-L", fxDelayTime500Param),
+  ("Delay-Time-R", fxDelayTime500Param),
+  ("Phase-L", RangeParam()),
+  ("Phase-R", RangeParam()),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const modDelayParams: [Int:(String,Param)] = [
-  0 : ("FBK-Mode", RangeParam()),
-  1 : ("Delay-Time-L", fxDelayTime500Param),
-  2 : ("Delay-Time-R", fxDelayTime500Param),
-  3 : Pairs.feedback,
-  4 : Pairs.hfDamp,
-  5 : ("Mod-Rate", fxRateParam),
-  6 : ("Mod-Depth", RangeParam()),
-  7 : ("Phase", RangeParam()),
-  8 : Pairs.loGain,
-  9 : Pairs.hiGain,
-  10 : Pairs.balance,
-  11 : Pairs.level
+const modDelayParams = [
+  ("FBK-Mode", RangeParam()),
+  ("Delay-Time-L", fxDelayTime500Param),
+  ("Delay-Time-R", fxDelayTime500Param),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  ("Mod-Rate", fxRateParam),
+  ("Mod-Depth", RangeParam()),
+  ("Phase", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const tripleDelayParams: [Int:(String,Param)] = [
-  0 : ("Delay-Time-L", fxDelayTime1000NoteParam),
-  1 : ("Delay-Time-R", fxDelayTime1000NoteParam),
-  2 : ("Delay-C", fxDelayTime1000NoteParam),
-  3 : Pairs.feedback,
-  4 : Pairs.hfDamp,
-  5 : ("Level-L", RangeParam()),
-  6 : ("Level-R", RangeParam()),
-  7 : ("Level-C", RangeParam()),
-  8 : Pairs.loGain,
-  9 : Pairs.hiGain,
-  10 : Pairs.balance,
-  11 : Pairs.level
+const tripleDelayParams = [
+  ("Delay-Time-L", fxDelayTime1000NoteParam),
+  ("Delay-Time-R", fxDelayTime1000NoteParam),
+  ("Delay-C", fxDelayTime1000NoteParam),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  ("Level-L", RangeParam()),
+  ("Level-R", RangeParam()),
+  ("Level-C", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const quadDelayParams: [Int:(String,Param)] = [
-  0 : ("Delay-1", fxDelayTime1000NoteParam),
-  1 : ("Delay-2", fxDelayTime1000NoteParam),
-  2 : ("Delay-3", fxDelayTime1000NoteParam),
-  3 : ("Delay-4", fxDelayTime1000NoteParam),
-  4 : ("Level-1", RangeParam()),
-  5 : ("Level-2", RangeParam()),
-  6 : ("Level-3", RangeParam()),
-  7 : ("Level-4", RangeParam()),
-  8 : Pairs.feedback,
-  9 : Pairs.hfDamp,
-  10 : Pairs.balance,
-  11 : Pairs.level
+coquadDelayParams = [
+  ("Delay-1", fxDelayTime1000NoteParam),
+  ("Delay-2", fxDelayTime1000NoteParam),
+  ("Delay-3", fxDelayTime1000NoteParam),
+  ("Delay-4", fxDelayTime1000NoteParam),
+  ("Level-1", RangeParam()),
+  ("Level-2", RangeParam()),
+  ("Level-3", RangeParam()),
+  ("Level-4", RangeParam()),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  Pairs.balance,
+  Pairs.level
 ]
-const timeCtrlDelayParams: [Int:(String,Param)] = [
-  0 : ("Delay", fxDelayTime1000Param),
-  1 : Pairs.feedback,
-  2 : ("Accel", RangeParam()),
-  3 : Pairs.hfDamp,
-  4 : Pairs.pan,
-  5 : Pairs.loGain,
-  6 : Pairs.hiGain,
-  7 : Pairs.balance,
-  8 : Pairs.level
+const timeCtrlDelayParams = [
+  ("Delay", fxDelayTime1000Param),
+  Pairs.feedback,
+  ("Accel", RangeParam()),
+  Pairs.hfDamp,
+  Pairs.pan,
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const duoPitchShiftParams: [Int:(String,Param)] = [
-  0 : ("Mode", RangeParam(maxVal: 4, displayOffset: 1)),
-  1 : ("Coarse-A", fxCoarseParam),
-  2 : ("Coarse-B", fxCoarseParam),
-  3 : ("Fine-A", fxFineParam),
-  4 : ("Fine-B", fxFineParam),
-  5 : ("Pre-Delay-A", fxDelayTime500Param),
-  6 : ("Pre-Delay-B", fxDelayTime500Param),
-  7 : ("Pan-A", fxPanParam),
-  8 : ("Pan-B", fxPanParam),
-  9 : ("Level-Balance", RangeParam()),
-  10 : Pairs.balance,
-  11 : Pairs.level
+const duoPitchShiftParams = [
+  ("Mode", RangeParam(maxVal: 4, displayOffset: 1)),
+  ("Coarse-A", fxCoarseParam),
+  ("Coarse-B", fxCoarseParam),
+  ("Fine-A", fxFineParam),
+  ("Fine-B", fxFineParam),
+  ("Pre-Delay-A", fxDelayTime500Param),
+  ("Pre-Delay-B", fxDelayTime500Param),
+  ("Pan-A", fxPanParam),
+  ("Pan-B", fxPanParam),
+  ("Level-Balance", RangeParam()),
+  Pairs.balance,
+  Pairs.level
 ]
-const feedbackPitchShiftParams: [Int:(String,Param)] = [
-  0 : ("Mode", RangeParam(maxVal: 4, displayOffset: 1)),
-  1 : ("Coarse", fxCoarseParam),
-  2 : ("Fine", fxFineParam),
-  3 : ("Pre-Delay", fxDelayTime500Param),
-  4 : Pairs.feedback,
-  5 : Pairs.pan,
-  6 : Pairs.loGain,
-  7 : Pairs.hiGain,
-  8 : Pairs.balance,
-  9 : Pairs.level
+const feedbackPitchShiftParams = [
+  ("Mode", RangeParam(maxVal: 4, displayOffset: 1)),
+  ("Coarse", fxCoarseParam),
+  ("Fine", fxFineParam),
+  ("Pre-Delay", fxDelayTime500Param),
+  Pairs.feedback,
+  Pairs.pan,
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const reverbParams: [Int:(String,Param)] = [
-  0 : ("Type", RangeParam()),
-  1 : ("Pre-Delay", fxDelayTime100Param),
-  2 : ("Reverb-Time", RangeParam()),
-  3 : Pairs.hfDamp,
-  4 : Pairs.loGain,
-  5 : Pairs.hiGain,
-  6 : Pairs.balance,
-  7 : Pairs.level
+const reverbParams = [
+  ("Type", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Reverb-Time", RangeParam()),
+  Pairs.hfDamp,
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const gateVerbParams: [Int:(String,Param)] = [
-  0 : ("Type", RangeParam()),
-  1 : ("Pre-Delay", fxDelayTime100Param),
-  2 : ("Gate-Time", RangeParam()),
-  3 : Pairs.loGain,
-  4 : Pairs.hiGain,
-  5 : Pairs.balance,
-  6 : Pairs.level
+const gateVerbParams = [
+  ("Type", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Gate-Time", RangeParam()),
+  Pairs.loGain,
+  Pairs.hiGain,
+  Pairs.balance,
+  Pairs.level
 ]
-const odChorusParams: [Int:(String,Param)] = [
-  0 : Pairs.drive,
-  1 : Pairs.pan,
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : ("Rate", fxRateParam),
-  4 : ("Depth", RangeParam()),
-  6 : Pairs.balance,
-  7 : Pairs.level
+const odChorusParams = [
+  Pairs.drive,
+  Pairs.pan,
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Rate", fxRateParam),
+  ("Depth", RangeParam()),
+  (),
+  Pairs.balance,
+  Pairs.level
 ]
-const odFlangerParams: [Int:(String,Param)] = [
-  0 : Pairs.drive,
-  1 : Pairs.pan,
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : ("Rate", fxRateParam),
-  4 : ("Depth", RangeParam()),
-  5 : Pairs.feedback,
-  6 : Pairs.balance,
-  7 : Pairs.level
+const odFlangerParams = [
+  Pairs.drive,
+  Pairs.pan,
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Rate", fxRateParam),
+  ("Depth", RangeParam()),
+  Pairs.feedback,
+  Pairs.balance,
+  Pairs.level
 ]
-const odDelayParams: [Int:(String,Param)] = [
-  0 : Pairs.drive,
-  1 : Pairs.pan,
-  2 : ("Delay", fxDelayTime500Param),
-  3 : Pairs.feedback,
-  4 : Pairs.hfDamp,
-  5 : Pairs.balance,
-  6 : Pairs.level
+const odDelayParams = [
+  Pairs.drive,
+  Pairs.pan,
+  ("Delay", fxDelayTime500Param),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  Pairs.balance,
+  Pairs.level
 ]
-const distChorusParams: [Int:(String,Param)] = odChorusParams
-const distFlangerParams: [Int:(String,Param)] = odFlangerParams
-const distDelayParams: [Int:(String,Param)] = odDelayParams
-const enhanceChorusParams: [Int:(String,Param)] = [
-  0 : ("Sens", RangeParam()),
-  1 : ("Mix", RangeParam()),
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : ("Rate", fxRateParam),
-  4 : ("Depth", RangeParam()),
-  6 : Pairs.balance,
-  7 : Pairs.level
+const distChorusParams = odChorusParams
+const distFlangerParams = odFlangerParams
+const distDelayParams = odDelayParams
+const enhanceChorusParams = [
+  ("Sens", RangeParam()),
+  ("Mix", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Rate", fxRateParam),
+  ("Depth", RangeParam()),
+  (),
+  Pairs.balance,
+  Pairs.level
 ]
-const enhanceFlangerParams: [Int:(String,Param)] = [
-  0 : ("Sens", RangeParam()),
-  1 : ("Mix", RangeParam()),
-  2 : ("Pre-Delay", fxDelayTime100Param),
-  3 : ("Rate", fxRateParam),
-  4 : ("Depth", RangeParam()),
-  5 : Pairs.feedback,
-  6 : Pairs.balance,
-  7 : Pairs.level
+const enhanceFlangerParams = [
+  ("Sens", RangeParam()),
+  ("Mix", RangeParam()),
+  ("Pre-Delay", fxDelayTime100Param),
+  ("Rate", fxRateParam),
+  ("Depth", RangeParam()),
+  Pairs.feedback,
+  Pairs.balance,
+  Pairs.level
 ]
-const enhanceDelayParams: [Int:(String,Param)] = [
-  0 : ("Sens", RangeParam()),
-  1 : ("Mix", RangeParam()),
-  2 : ("Delay", fxDelayTime500Param),
-  3 : Pairs.feedback,
-  4 : Pairs.hfDamp,
-  6 : Pairs.balance,
-  7 : Pairs.level
+const enhanceDelayParams = [
+  ("Sens", RangeParam()),
+  ("Mix", RangeParam()),
+  ("Delay", fxDelayTime500Param),
+  Pairs.feedback,
+  Pairs.hfDamp,
+  (),
+  Pairs.balance,
+  Pairs.level
 ]
-const chorusDelayParams: [Int:(String,Param)] = [
-  0 : ("Cho-Delay", fxDelayTime100Param),
-  1 : Pairs.chorusRate,
-  2 : Pairs.chorusDepth,
-  4 : ("Cho-Balance", fxBalanceParam),
-  5 : ("Delay", fxDelayTime500Param),
-  6 : ("Delay-Fbk", fxFdbkParam),
-  7 : Pairs.hfDamp,
-  8 : ("Delay-Blc", fxBalanceParam),
-  9 : Pairs.level
+const chorusDelayParams = [
+  ("Cho-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  (),
+  ("Cho-Balance", fxBalanceParam),
+  ("Delay", fxDelayTime500Param),
+  ("Delay-Fbk", fxFdbkParam),
+  Pairs.hfDamp,
+  ("Delay-Blc", fxBalanceParam),
+  Pairs.level
 ]
-const flangerDelayParams: [Int:(String,Param)] = [
-  0 : ("Flg-Delay", fxDelayTime100Param),
-  1 : ("Flg-Rate", fxRateParam),
-  2 : ("Flg-Depth", RangeParam()),
-  3 : ("Flg-Feedback", fxFdbkParam),
-  4 : ("Flg-Balance", fxBalanceParam),
-  5 : ("Delay", fxDelayTime500Param),
-  6 : ("Delay-Fbk", fxFdbkParam),
-  7 : Pairs.hfDamp,
-  8 : ("Delay-Blc", fxBalanceParam),
-  9 : Pairs.level
+const flangerDelayParams = [
+  ("Flg-Delay", fxDelayTime100Param),
+  ("Flg-Rate", fxRateParam),
+  ("Flg-Depth", RangeParam()),
+  ("Flg-Feedback", fxFdbkParam),
+  ("Flg-Balance", fxBalanceParam),
+  ("Delay", fxDelayTime500Param),
+  ("Delay-Fbk", fxFdbkParam),
+  Pairs.hfDamp,
+  ("Delay-Blc", fxBalanceParam),
+  Pairs.level
 ]
-const chorusFlangerParams: [Int:(String,Param)] = [
-  0 : ("Cho-Delay", fxDelayTime100Param),
-  1 : Pairs.chorusRate,
-  2 : Pairs.chorusDepth,
-  3 : ("Cho-Bal", fxBalanceParam),
-  4 : ("Flg-Delay", fxDelayTime100Param),
-  5 : ("Flg-Rate", fxRateParam),
-  6 : ("Flg-Depth", RangeParam()),
-  7 : ("Flg-Feedback", fxFdbkParam),
-  8 : ("Flg-Blc", fxBalanceParam),
-  9 : Pairs.level
+const chorusFlangerParams = [
+  ("Cho-Delay", fxDelayTime100Param),
+  Pairs.chorusRate,
+  Pairs.chorusDepth,
+  ("Cho-Bal", fxBalanceParam),
+  ("Flg-Delay", fxDelayTime100Param),
+  ("Flg-Rate", fxRateParam),
+  ("Flg-Depth", RangeParam()),
+  ("Flg-Feedback", fxFdbkParam),
+  ("Flg-Blc", fxBalanceParam),
+  Pairs.level
 ]
-const chorusAndDelayParams: [Int:(String,Param)] = chorusDelayParams
-const flangerAndDelayParams: [Int:(String,Param)] = flangerDelayParams
-const chorusAndFlangerParams: [Int:(String,Param)] = chorusFlangerParams
+const chorusAndDelayParams = chorusDelayParams
+const flangerAndDelayParams = flangerDelayParams
+const chorusAndFlangerParams = chorusFlangerParams
 
 const fxControlSourceOptions = ["Off", "Sys Ctrl1", "Sys Ctrl2", "Modulation", "Breath", "Foot", "Volume", "Pan", "Expression", "Bender", "Aftertouch"]
 
