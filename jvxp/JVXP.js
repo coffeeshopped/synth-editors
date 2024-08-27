@@ -1,4 +1,5 @@
-
+require('../core/NumberUtils.js')
+require('../core/ArrayUtils.js')
   
 const sysexWerk = {
   rolandModelId: [0x6a], 
@@ -6,7 +7,17 @@ const sysexWerk = {
 } 
 
 /// MSB first. lower 4 bits of each byte used
-const multiPack = (byte) => Roland.msbMultiPackIso(2)(byte)
+// 2 bytes per value
+const multiPack = (byte) => ['splitter', (2).map(i => {
+  let loValBit = (2 - (i + 1)) * 4
+  let hiValBit = loValBit + 3
+  return {
+    byte: (byte + i), // RolandAddress(intValue: i)).intValue(), 
+    byteBits: [0, 4], 
+    valueBits: [loValBit, hiValBit + 1],
+  }
+})]
+// Roland.msbMultiPackIso(2)(byte)
 
 
 const mapItems = (global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank) => [
@@ -32,7 +43,7 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
   const werk = sysexWerk.editorWerk(name, deviceId, map)
   
   return {
-    displayId: werk.displayId
+    displayId: werk.displayId,
     trussMap: [['deviceId', RolandDeviceIdSettingsTruss]] + werk.sysexMap(),
     fetchTransforms: werk.defaultFetchTransforms(),
     
@@ -42,11 +53,12 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
     ] + (15).map(i => {
       const p = indexToPathPart(i)
       return [`part/${p}`, ['patchOut', "perf", (change, patch) => {
-        var out = SynthPathParam()
-        if let v = change.value("common/fx/src") {
-          out["common/fx/src"] = .p([], p: v)
-        }
-        return out
+        const v = change["common/fx/src"]
+        if (v == null) { return [] }
+        return [{
+          path: "common/fx/src",
+          p: change["common/fx/src"]
+        }]        
       }]]
     }),
     midiOuts: werk.midiOuts(),
@@ -56,9 +68,9 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
       [i == 9 ? "rhythm" : `part/${i}`, ['patch', "perf", `part/${i}/channel`]]
     )),
     slotTransforms: [
-      ["bank/patch/0", ['user', i => `US:${(i + 1).zPad(3)}`),
-      ["bank/perf/0", ['user', i => `US:${(i + 1).zPad(2)}`),
-      ["bank/rhythm/0", ['user', i => `US:${(i + 1)}`),
+      ["bank/patch/0", ['user', i => `US:${(i + 1).zPad(3)}`]],
+      ["bank/perf/0", ['user', i => `US:${(i + 1).zPad(2)}`]],
+      ["bank/rhythm/0", ['user', i => `US:${(i + 1)}`]],
     ],
   }
 }
@@ -87,7 +99,7 @@ const voicePatchWerk = (common, tone, initFile) => ({
 })
 
 const voiceBankWerk = patchWerk => ({
-  werk: sysexWerk
+  werk: sysexWerk,
   multiBank: patchWerk, 
   patchCount: 128, 
   start: 0x11000000, 
@@ -134,7 +146,7 @@ const perfCommonPatchWerk = (parms, size) => ({
     ["level", 127],
     ["pan", 64],
     ["fx/out/assign", 0],
-    ["fx/out/level", (90...127).rand()],
+    ["fx/out/level", Math.random(38) + 90],
     ["velo/range/on", 0],
     ["clock/src", 0],
     ["category", 0],
@@ -148,15 +160,15 @@ const perfPartPatchWerk = (parms, size) => ({
   size: size, 
   start: 0x1000, 
   randomize: () => {
-    const pgid = (1...6).rand()
+    const pgid = Math.random(6) + 1
     return [
-      [.patch, .group] : 0,
-      [.patch, .group, .id] : pgid == 2 ? 1 : pgid,
-      [.patch, .number] : (0...127).rand(),
+      ["patch/group", 0],
+      ["patch/group/id", pgid == 2 ? 1 : pgid],
+      ["patch/number", Math.random(128)],
     ]
-  })
-}
-)
+  }
+})
+
 const moduleTruss = (editorTruss, subid, sections) => ({
   editor: editorTruss,
   manu: Manufacturer.roland, 
@@ -189,7 +201,7 @@ const sections = (perf, clkSrc, cat) => {
     ].concat(
       (9).map(i => ['voice', `Buffer ${i + 1}`, voice(i), `part/${i}`])
     ).concat([
-      .custom("Rhythm", "rhythm", JV1080.Rhythm.Controller.controller()),
+      ['custom', "Rhythm", "rhythm", JV1080.Rhythm.Controller.controller()],
     ]).concat(
       (6).map(i => ['voice', `Buffer ${i + 11}`, voice(i + 10), `part/${i + 10}`])
     )],
@@ -199,4 +211,12 @@ const sections = (perf, clkSrc, cat) => {
       ['bank', "Rhythm Bank", "bank/rhythm/0"],
     ]],
   ]
+}
+
+module.exports = {
+  multiPack: multiPack,
+  globalPatchWerk: globalPatchWerk,
+  voicePatchWerk: voicePatchWerk,
+  voiceBankWerk: voiceBankWerk,
+  perfCommonPatchWerk: perfCommonPatchWerk,
 }

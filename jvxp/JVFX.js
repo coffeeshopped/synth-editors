@@ -18,33 +18,32 @@ const fxCoarseParam = { max: 36, dispOff: -24 }
 const fxFineParam = { opts: (101).map(i => `${i*2 - 100}`) }
 const fxFdbkParam = { opts: (99).map(i => `${i*2 - 98}`) }
 const fxBalanceParam = { opts: (101).map(i => `D${100-i}:${i}E`) }
-const fxDelayTime500Param = (() => {
-  var options = (50).map(i => `${i * 0.1}` )
-  options += ([50, 60]).rangeMap(i => `${5.0 + (i-50) * 0.5}` )
-  options += ([60, 90]).rangeMap(i => `${10 + (i-60) * 1}` )
-  options += ([90, 116]).rangeMap(i => `${40 + (i-90) * 10}` )
-  options += ([116, 127]).rangeMap(i => `${300 + (i-116) * 20}` )
-  return options
-})()
-const fxDelayTime100Param = (() => {
-  var options = ([0, 50]).rangeMap(i => `${i * 0.1}` )
-  options += ([50, 60]).rangeMap(i => `${5.0 + (i-50) * 0.5}` )
-  options += ([60, 100]).rangeMap(i => `${10 + (i-60) * 1}` )
-  options += ([100, 126]).rangeMap(i => `${50 + (i-90) * 2}` )
-  return options
-})()
+// "baseSwitch" is switcher but arg passed to iso fns is 0-based (adjusted based on range start)
+const fxDelayTime500Param = { max: 126, iso: ['baseSwitch', [
+  ['rng', 0, 50, ["*0.1"]],
+  ['rng', 50, 60, ["*0.5", "+5"]],
+  ['rng', 60, 90, ["*1", "+10"]],
+  ['rng', 90, 116, ["*10", "+40"]],
+  ['rng', 116, 127, ["*20", "+300"]],
+]] }
+const fxDelayTime100Param = { max: 125, iso: ['baseSwitch', [
+  ['rng', 0, 50, ["*0.1"]],
+  ['rng', 50, 60, ["*0.5", "+5"]],
+  ['rng', 60, 100, ["*1", "+10"]],
+  ['rng', 100, 126, ["*2", "+50"]],
+]] }
 
 // 200...1000ms, note
 const fxDelayTime1000NoteParam = { max: 125, iso: ['switcher', [
-  ['rng', 0, 70, i => `${200 + i * 5}`],
-  ['rng', 70, 116, i => `${550 + (i - 70) * 10}`],
-  ['rng', 116, 126, i => (["16th", "8th trip", "Dot 16th", "8th", "1/4 trip", "Dot 8th", "1/4", "1/2 trip", "Dot 1/4", "1/2"])[i-116]],
+  ['rng', 0, 70, ["*5", "+200"]],
+  ['rng', 70, 116, ["-70", "*10", "+550"]],
+  ['rng', 116, 126, ["-116", ["@", ["16th", "8th trip", "Dot 16th", "8th", "1/4 trip", "Dot 8th", "1/4", "1/2 trip", "Dot 1/4", "1/2"]]]],
 ], ""] }
 
 // 200...1000ms (no note)
 const fxDelayTime1000Param = { max: 120, iso: ['switcher', [
-  ['rng', 0, 80, i => `${200 + i * 5}`],
-  ['rng', 80, 121, i => `${600 + (i - 80) * 10}`],
+  ['rng', 0, 80, ["*5", "+200"]],
+  ['rng', 80, 121, ["-80", "*10", "+600"]],
 ], ""] }
 
 

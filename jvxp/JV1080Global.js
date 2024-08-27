@@ -1,56 +1,55 @@
+const JVXP = require('./JVXP.js')
 
-extension JV1080 {
-  
-  enum Global {
-    
-    static let patchWerk = JVXP.Global.patchWerk(parms.params(), size: 0x28, initFile: "jv1080-global-init")
+const tapSources = ["Off","Hold-1","Sustain","Soft","Hold-2"]
+const systemControls = (96).map(i => `CC ${i}`).concat(["Bender","Aftertouch"])
 
-    static let parms: [Parm] = [
-      // Switching to GM mode makes the synth stop responding to sysex!
-      .p([.mode], 0x00, .opts(["Performance","Patch"])), //,"GM"])
-      .p([.perf], 0x01),
-      .p([.patch, .group], 0x02, .opts(["User","PCM","Exp"])),
-      .p([.patch, .group, .id], 0x03),
-      .p([.patch, .number], 0x04, .max(254)),
-      .p([.tune], 0x06, .max(126)),
-      .p([.scale, .tune], 0x07, .max(1)),
-      .p([.fx], 0x08, .max(1)),
-      .p([.chorus], 0x09, .max(1)),
-      .p([.reverb], 0x0a, .max(1)),
-      .p([.patch, .remain], 0x0b, .max(1)),
-      .p([.clock], 0x0c, .opts(["Internal","Ext MIDI"])),
-      .p([.tap], 0x0d, .opts(tapSourceOptions)),
-      .p([.hold], 0x0e, .opts(tapSourceOptions)),
-      .p([.peak], 0x0f, .opts(tapSourceOptions)),
-      .p([.volume], 0x10, .opts(["Volume","Vol & Exp"])),
-      .p([.aftertouch], 0x11, .opts(["Channel After", "Poly After", "Ch & Poly"])),
-      .p([.ctrl, .i(0)], 0x12, .opts(systemControlOptions)),
-      .p([.ctrl, .i(1)], 0x13, .opts(systemControlOptions)),
-      .p([.rcv, .pgmChange], 0x14, .max(1)),
-      .p([.rcv, .bank, .select], 0x15, .max(1)),
-      .p([.rcv, .ctrl, .change], 0x16, .max(1)),
-      .p([.rcv, .mod], 0x17, .max(1)),
-      .p([.rcv, .volume], 0x18, .max(1)),
-      .p([.rcv, .hold], 0x19, .max(1)),
-      .p([.rcv, .bend], 0x1a, .max(1)),
-      .p([.rcv, .aftertouch], 0x1b, .max(1)),
-      .p([.ctrl, .channel], 0x1c, .opts(17.map { $0 == 16 ? "Off" : "\($0 + 1)" })),
-      .p([.patch, .channel], 0x1d, .max(15, dispOff: 1)),
-      .p([.rhythm, .edit], 0x1e, .opts(["Panel","Panel & MIDI"])),
-      .p([.preview, .mode], 0x1f, .opts(["Single","Chord"])),
-      .p([.preview, .key, .i(0)], 0x20),
-      .p([.preview, .velo, .i(0)], 0x21),
-      .p([.preview, .key, .i(1)], 0x22),
-      .p([.preview, .velo, .i(1)], 0x23),
-      .p([.preview, .key, .i(2)], 0x24),
-      .p([.preview, .velo, .i(2)], 0x25),
-      .p([.preview, .key, .i(3)], 0x26),
-      .p([.preview, .velo, .i(3)], 0x27),
-    ]
-    static let params = parms.params()
+const parms = [
+  // Switching to GM mode makes the synth stop responding to sysex! omit that option
+  { inc: true, b: 0x00, block: [
+    ["mode", { opts: ["Performance","Patch"] }],
+    ["perf", { }],
+    ["patch/group", { opts: ["User","PCM","Exp"] }],
+    ["patch/group/id", { }],
+    ["patch/number", { max: 254 }],
+  ]},
+  { inc: true, byte: 0x06, block: [
+    ["tune", { max: 126 }],
+    ["scale/tune", { max: 1 }],
+    ["fx", { max: 1 }],
+    ["chorus", { max: 1 }],
+    ["reverb", { max: 1 }],
+    ["patch/remain", { max: 1 }],
+    ["clock", { opts: ["Internal","Ext MIDI"] }],
+    ["tap", { opts: tapSources }],
+    ["hold", { opts: tapSources }],
+    ["peak", { opts: tapSources }],
+    ["volume", { opts: ["Volume","Vol & Exp"] }],
+    ["aftertouch", { opts: ["Channel After", "Poly After", "Ch & Poly"] }],
+    ["ctrl/0", { opts: systemControls }],
+    ["ctrl/1", { opts: systemControls }],
+    ["rcv/pgmChange", { max: 1 }],
+    ["rcv/bank/select", { max: 1 }],
+    ["rcv/ctrl/change", { max: 1 }],
+    ["rcv/mod", { max: 1 }],
+    ["rcv/volume", { max: 1 }],
+    ["rcv/hold", { max: 1 }],
+    ["rcv/bend", { max: 1 }],
+    ["rcv/aftertouch", { max: 1 }],
+    ["ctrl/channel", { opts: (17).map(i => i == 16 ? "Off" : `${i + 1}` ) }],
+    ["patch/channel", { max: 15, dispOff: 1 }],
+    ["rhythm/edit", { opts: ["Panel","Panel & MIDI"] }],
+    ["preview/mode", { opts: ["Single","Chord"] }],
+    ["preview/key/0", { }],
+    ["preview/velo/0", { }],
+    ["preview/key/1", { }],
+    ["preview/velo/1", { }],
+    ["preview/key/2", { }],
+    ["preview/velo/2", { }],
+    ["preview/key/3", { }],
+    ["preview/velo/3", { }],
+  ]}
+]
 
-    static let tapSourceOptions = ["Off","Hold-1","Sustain","Soft","Hold-2"]
-    static let systemControlOptions = 96.map { "CC \($0)" } + ["Bender","Aftertouch"]  
-  }
-  
+module.exports = {
+  patchWerk: JVXP.globalPatchWerk(parms, 0x28, "jv1080-global-init")
 }
