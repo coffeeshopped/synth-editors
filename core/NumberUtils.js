@@ -11,6 +11,15 @@ Number.prototype.map = function(mapFn) {
   return arr
 }
 
+Number.prototype.flatMap = function(mapFn) {
+  var arr = []
+  for(let i=0; i<this; ++i) {
+    arr = arr.concat(mapFn(i))
+  }
+  return arr
+}
+
+
 Number.prototype.forEach = function(mapFn) {
   for(let i=0; i<this; ++i) {
     mapFn(i)
