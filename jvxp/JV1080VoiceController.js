@@ -1,42 +1,6 @@
-
-const controller = (cfg) => ({
-  paged: true,
-  builders: [
-    ['switcher', label: nil, ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "Pan/Out"], color: 1],
-    ['panel', 'on', { color: 1, }, [[
-      [{checkbox: "Tone 1"}, "tone/0/on"],
-      [{checkbox: "2"}, "tone/1/on"],
-      [{checkbox: "3"}, "tone/2/on"],
-      [{checkbox: "4"}, "tone/3/on"],
-    ]]],
-  ], 
-  layout: [
-    ['row', [["switch", 12], ["on", 4]] ],
-    ['row', [["page",1]] ],
-    ['col', [["switch",1],["page",8]] ],
-  ], 
-  pages: ['map', [
-    "common",
-    "tone/0",
-    "tone/1",
-    "tone/2",
-    "tone/3",
-    "pitch",
-    "filter",
-    "amp",
-    "lfo",
-    "pan",
-  ], [
-    "common" : common(cfg),
-    "tone" : tone(),
-    "pitch" : fourPalettes("JVPitch", palettePitchWave()),
-    "filter" : fourPalettes("JVFilter", paletteFilter()),
-    "amp" : fourPalettes("JVAmp", paletteAmp()),
-    "lfo" : fourPalettes("JVLFO", paletteLFO()),
-    "pan" : fourPalettes("JVPan", palettePanOut()),
-  ]],
-})
-
+require('../core/NumberUtils.js')
+require('../core/ArrayUtils.js')
+  
 const common = (cfg) => {  
   var effects = []
   
@@ -49,15 +13,15 @@ const common = (cfg) => {
       ['dimPanel', true, "chorus"],
       ['dimPanel', true, "reverb"],
     ]])
-    effects.push(['paramChange', "common/fx/src", fnWithContext: (parm, state, locals) => 
-      [['dimPanel', parm.p - 1 != cfg.perfPart, "fx"]]
+    effects.push(['paramChange', "common/fx/src", { fnWithContext: (parm, state, locals) => 
+      [['dimPanel', parm.p - 1 != cfg.perfPart, "fx"]] }
     ])
   }
         
   return {
-    prefix: .fixed("common"), 
+    prefix: ['fixed', "common"], 
     builders: [
-      ['child', fx(), "fx"],
+      ['child', fx, "fx"],
       ['panel', 'tempo', { color: 1 }, [[
         ["Tempo", "tempo"],
         ["Level", "level"],
@@ -125,7 +89,7 @@ const common = (cfg) => {
     effects: effects, 
     layout: [
       ['row', [["tempo",6],["porta",3],["ctrl",1],["hold",5]] ],
-      ['row', [["fx",12], ["struct",4]] { opts: ['alignAllTop'] }],
+      ['row', [["fx",12], ["struct",4]], { opts: ['alignAllTop'] }],
       ['rowPart', [["clock", 3], ["chorus",6],["reverb",5]] ],
       ['col', [["tempo",2],["fx",2],["clock",1]] ],
       ['eq', ["reverb","struct"], 'bottom'],
@@ -162,12 +126,12 @@ const fx = {
       let info = JV1080.Voice.Common.fxParams[value]
       return (12).flatMap(i => {
         const path = `param/${i}`
-        guard let pair = info[i] else {
-          return [['hideItem', true, path]]
-        }
+        
+        const pair = info[i]
+        if (!pair) { return [['hideItem', true, path]] }
         return [
-          ['setCtrlLabel', path, pair.0],
-          ['configCtrl', path, .param(pair.1)],
+          ['setCtrlLabel', path, pair[0]],
+          ['configCtrl', path, pair[1]],
           ['hideItem', false, path],
         ]
       })
@@ -178,7 +142,8 @@ const fx = {
   ],
 }
 
-const allPaths = [SynthPath](JV1080.Voice.Tone.params.keys)
+const allPaths = JV1080.Voice.Tone.params.keys
+
 const tone = {
   prefix: ['index', "tone"], 
   builders: [
@@ -211,7 +176,7 @@ const tone = {
       [{checkbox: "Hold-1 Ctl"}, "hold/ctrl"],
       [{checkbox: "Bender Ctl"}, "bend/ctrl"],
       [{checkbox: "Pan Ctl"}, "pan/ctrl"]]
-    ]),
+    ]],
     ['panel', 'pan', { color: 3 }, [[
       ["Pan", "pan"],
       ["Key→Pan", "pan/keyTrk"],
@@ -239,10 +204,10 @@ const tone = {
   layout: [
     ['row', [["wave",5],["fxm",3],["delay",2],["button",1]] ],
     ['row', [["pitch",5],["filter",6],["amp",5]] ],
-    ['row', [["lfo",5],["range",5],["pan",3],["out",2]] { opts: ['alignAllTop'] }],
+    ['row', [["lfo",5],["range",5],["pan",3],["out",2]], { opts: ['alignAllTop'] }],
     ['row', [["ctrl",13]] ],
     ['col', [["wave",1],["pitch",4],["lfo",2],["ctrl",1]] ],
-    ['colPart', [["range",1],["rcv",1]] { opts: ['alignAllLeading', 'alignAllTrailing'] }],
+    ['colPart', [["range",1],["rcv",1]], { opts: ['alignAllLeading', 'alignAllTrailing'] }],
     ['eq', ["lfo","rcv","pan","out"], 'bottom'],
   ]
 }
@@ -253,50 +218,73 @@ const tone = {
 const wave = {
   builders: [
     ['grid', [[
-      "Wave Group", nil, id: "wave/group",
-      "Wave Number", nil, id: "wave/number",
+      [{ select: "Wave Group", id: "wave/group" }, null],
+      [{ select: "Wave Number", id: "wave/number"}, null],
       ["Wave Gain", "wave/gain"],
     ]]],
   ], 
   effects: [
     // wave group
     ['setup', [
-      ['configCtrl', "wave/group", { opts: SRJVBoard.boardNameOptions <<< [
-        -1 : "Int-A",
-         0 : "Int-B",
-      ]}],
+      ['configCtrl', "wave/group", { opts: SRJVBoard.boardNameOptions.concat([
+        [-1, "Int-A"],
+        [0, "Int-B"],
+      ]) }],
     ]],
     ['controlChange', "wave/group", (state, locals) => {
       const v = locals["wave/group"] || 0
-      return [
+      return {
         "wave/group" : v < 1 ? 0 : 2,
         // int-a is 1, int-b is 2
-        "wave/group/id" : v < 1 ? v + 2 : v
-      ]
+        "wave/group/id" : v < 1 ? v + 2 : v,
+      }
     }],
-    .patchChange(paths: ["wave/group", "wave/group/id"], { values in
-      guard let group = values["wave/group"],
-        let groupId = values["wave/group/id"] else { return [] }
-      let options: [Int:String]
-      if group == 0 {
-        options = groupId == 1 ? JV1080.Voice.Tone.intAWaveOptions : JV1080.Voice.Tone.intBWaveOptions
-      }
-      else if let waves = SRJVBoard.boards[groupId]?.waves {
-        options = OptionsParam.makeOptions(waves)
-      }
-      else {
-        options = JV1080.Voice.Tone.blankWaveOptions
-      }
-      
-      return [
-        ['configCtrl', "wave/number", .param(OptionsParam(options: options))],
-        ['setValue', "wave/group", group == 0 ? groupId - 2 : groupId],
-      ]
-    }),
+    ['patchChange', {
+      paths: ["wave/group", "wave/group/id"], 
+      fn: values => {
+        const group = values["wave/group"]
+        const groupId = values["wave/group/id"]
+        var options = []
+        if (group == 0) {
+          options = groupId == 1 ? JV1080.Voice.Tone.intAWaveOptions : JV1080.Voice.Tone.intBWaveOptions
+        }
+        else {
+          const board = SRJVBoard.boards[groupId]
+          if (board)  {
+            options = board.waves
+          }
+          else {
+            options = JV1080.Voice.Tone.blankWaveOptions
+          }
+        }
+        
+        return [
+          ['configCtrl', "wave/number", { opts: options }],
+          ['setValue', "wave/group", group == 0 ? groupId - 2 : groupId],
+        ]
+      },
+    }],
     // wave number
     ['basicControlChange', "wave/number"],
     ['basicPatchChange', "wave/number"],
-  ])
+  ],
+}
+
+const pitchEnvs = {
+  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: true}], "Pitch", (4).map(i => ['unit', `pitch/env/time/${i}`, `time/${i}`]) + (4).map(i => ['src', `pitch/env/level/${i}`, v => (v - 63) / 63, `level/${i}`]), {id: "env"}], 
+  effect: ['editMenu', "env", {
+    paths: [
+      "pitch/env/time/0",
+     "pitch/env/time/1",
+     "pitch/env/time/2",
+     "pitch/env/time/3",
+     "pitch/env/level/0",
+     "pitch/env/level/1",
+     "pitch/env/level/2",
+     "pitch/env/level/3",
+    ], 
+    type: "JV1080RateLevelEnvelope",
+  }],
 }
 
 const pitch = {
@@ -330,25 +318,26 @@ const pitch = {
   effects: [pitchEnvs.effect],
 }
 
-const pitchEnvs = {
-  env: .display(.timeLevelEnv(pointCount: 4, sustain: 2, bipolar: true), "Pitch", 4.map { .unit("pitch/env/time/$0", dest: "time/$0") } + 4.map { .src("pitch/env/level/$0", dest: "level/$0", { ($0 - 63) / 63 }) }, id: "env"), 
-  effect: .editMenu("env", paths: [
-    "pitch/env/time/0",
-   "pitch/env/time/1",
-   "pitch/env/time/2",
-   "pitch/env/time/3",
-   "pitch/env/level/0",
-   "pitch/env/level/1",
-   "pitch/env/level/2",
-   "pitch/env/level/3",
-  ], type: "JV1080RateLevelEnvelope", init: nil, rand: nil),
+
+const filterEnvs = {
+  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: false}], "Filter", (4).map(i => ['unit', `filter/env/time/${i}`, `time/${i}`]) + (4).map(i => ['src', `filter/env/level/${i}`, `level/${i}`]), {id: "env"}], 
+  effect: ['editMenu', "env", {
+    paths: [
+      "filter/env/time/0",
+      "filter/env/time/1",
+      "filter/env/time/2",
+      "filter/env/time/3",
+      "filter/env/level/0",
+      "filter/env/level/1",
+      "filter/env/level/2",
+      "filter/env/level/3",
+    ], 
+    type: "JV1080RateLevelEnvelope",
+  }],
 }
 
-
-const filter = () => {
-  let env = filterEnvs()
-  
-  return .patch([
+const filter = {
+  builders: [
     ['grid', [[
       [{select: "Filter"}, "filter/type"],
       ["Cutoff", "cutoff"],
@@ -356,7 +345,7 @@ const filter = () => {
       ["LFO 1", "lfo/0/filter"],
       ["LFO 2", "lfo/1/filter"],
     ],[
-      env.env,
+      filterEnvs.env,
       ["Env→Cutoff", "filter/env/depth"],
       ["Key→Env Time", "filter/env/time/keyTrk"],
       ["Velo→Env", "filter/env/velo/sens"],
@@ -376,28 +365,29 @@ const filter = () => {
       ["Velo→T4", "filter/env/velo/time/3"],
       ["Env Velo Crv", "filter/env/velo/curve"],
     ]]],
-  ], effects: [env.effect])
+  ], 
+  effects: [filterEnvs.effect],
 }
 
-const filterEnvs = () => {
-  let env: PatchController.PanelItem = .display(.timeLevelEnv(pointCount: 4, sustain: 2, bipolar: false), "Filter", 4.map { .unit("filter/env/time/$0", dest: "time/$0") } + 4.map { .unit("filter/env/level/$0", dest: "level/$0") }, id: "env")
-  let effect: PatchController.Effect = .editMenu("env", paths: [
-    "filter/env/time/0",
-   "filter/env/time/1",
-   "filter/env/time/2",
-   "filter/env/time/3",
-   "filter/env/level/0",
-   "filter/env/level/1",
-   "filter/env/level/2",
-   "filter/env/level/3",
-  ], type: "JV1080RateLevelEnvelope", init: nil, rand: nil)
-  return (env, effect)
+
+const ampEnvs = {
+  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: false}], "Amp", (4).map(i => ['unit', `amp/env/time/${i}`, `time/${i}`]) + (3).map(i => ['src', `amp/env/level/${i}`, `level/${i}`]), {id: "env"}], 
+  effect: ['editMenu', "env", {
+    paths: [
+      "amp/env/time/0",
+      "amp/env/time/1",
+      "amp/env/time/2",
+      "amp/env/time/3",
+      "amp/env/level/0",
+      "amp/env/level/1",
+      "amp/env/level/2",
+    ], 
+    type: "JV1080RateLevelEnvelope",
+  }],
 }
 
-const amp = () => {
-  let env = ampEnvs()
-
-  return .patch([
+const amp = {
+  builders: [
     ['grid', [[
       [{switsch: "Bias Dir"}, "bias/direction"],
       ["Bias Pt", "bias/pt"],
@@ -405,7 +395,7 @@ const amp = () => {
       ["LFO 1", "lfo/0/amp"],
       ["LFO 2", "lfo/1/amp"],
     ],[
-      env.env,
+      ampEnvs.env,
       ["Env Velo Crv", "amp/env/velo/curve"],
       ["Key→Env Time", "amp/env/time/keyTrk"],
       ["Velo→Env", "amp/env/velo/sens"],
@@ -422,82 +412,73 @@ const amp = () => {
       ["Tone Level", "tone/level"],
       ["Velo→T4", "amp/env/velo/time/3"],
     ]]]
-  ], effects: [env.effect])
+  ], 
+  effects: [ampEnvs.effect],
 }
 
-const ampEnvs = () => {
-  let env: PatchController.PanelItem = .display(.timeLevelEnv(pointCount: 4, sustain: 2, bipolar: false), "Amp", 4.map { .unit("amp/env/time/$0", dest: "time/$0") } + 3.map { .unit("amp/env/level/$0", dest: "level/$0") }, id: "env")
-  let effect: PatchController.Effect = .editMenu("env", paths: [
-    "amp/env/time/0",
-   "amp/env/time/1",
-   "amp/env/time/2",
-   "amp/env/time/3",
-   "amp/env/level/0",
-   "amp/env/level/1",
-   "amp/env/level/2",
-  ], type: "JV1080RateLevelEnvelope", init: nil, rand: nil)
-  return (env, effect)
+
+const lfo = { 
+  prefix: ['index', "lfo"], 
+  builders: [
+    ['grid', [[
+      ['switcher', "LFO", ["1","2"]],
+      [{select: "Wave"}, "wave"],
+      ["Rate", "rate"],
+      [{checkbox: "Key Trig"}, "key/trigger"],
+    ],[
+      ["Delay", "delay"],
+      [{select: "Fade Mode"}, "fade/mode"],
+      ["Fade Time", "fade/time"],
+      [{select: "Level Offset"}, "level/offset"],
+      [{switsch: "Ext Sync"}, "ext/sync"],
+    ]]],
+  ],
 }
 
-static let lfo: PatchController = .patch(prefix: .index("lfo"), [
-  ['grid', [[
-    ['switcher', label: "LFO", ["1","2"]],
-    [{select: "Wave"}, "wave"],
-    ["Rate", "rate"],
-    [{checkbox: "Key Trig"}, "key/trigger"],
-  ],[
-    ["Delay", "delay"],
-    [{select: "Fade Mode"}, "fade/mode"],
-    ["Fade Time", "fade/time"],
-    [{select: "Level Offset"}, "level/offset"],
-    [{switsch: "Ext Sync"}, "ext/sync"],
-  ]]],
-])
-
-static let control: PatchController = .patch(prefix: .index("ctrl"), [
-  ['grid', [[
-    ['switcher', label: "Controller", ["1","2","3"]],
-    [{select: "Dest 1"}, "dest/0"],
-    ["Amt 1", "depth/0"],
-    [{select: "Dest 2"}, "dest/1"],
-    ["Amt 2", "depth/1"],
-    [{select: "Dest 3"}, "dest/2"],
-    ["Amt 3", "depth/2"],
-    [{select: "Dest 4"}, "dest/3"],
-    ["Amt 4", "depth/3"],
-  ]]],
-])
+const control = {
+  prefix: ['index', "ctrl"], 
+  builders: [
+    ['grid', [[
+      ['switcher', "Controller", ["1","2","3"]],
+      [{select: "Dest 1"}, "dest/0"],
+      ["Amt 1", "depth/0"],
+      [{select: "Dest 2"}, "dest/1"],
+      ["Amt 2", "depth/1"],
+      [{select: "Dest 3"}, "dest/2"],
+      ["Amt 3", "depth/2"],
+      [{select: "Dest 4"}, "dest/3"],
+      ["Amt 4", "depth/3"],
+    ]]],
+  ],
+}
 
 
 
 // MARK: Palettes
 
-const fourPalettes = (pasteType: String, pal: PatchController) => {
-  .palettes(pal, 4, "tone", "Tone", pasteType: pasteType)
+const fourPalettes = (pasteType, pal) => ['palettes', pal, 4, "tone", "Tone", pasteType]
+
+const palettePitchWave = {
+  color: 1, 
+  builders: [
+    ['child', wave, "wave"],
+    ['child', palettePitch, "pitch"],
+  ], 
+  gridLayout: [
+    {row: [["wave", 1]], h: 1},
+    {row: [["pitch", 1]], h: 6},
+  ],
 }
 
-const palettePitchWave = () => {
-  return .patch(color: 1, [
-    ['child', wave(), "wave"],
-    ['child', palettePitch(), "pitch"],
-  ], layout: [
-    .grid([
-      (row: [("wave", 1)], height: 1),
-      (row: [("pitch", 1)], height: 6),
-    ]),
-  ])
-}
-
-const palettePitch = () => {
-  let env = pitchEnvs()
-  return .patch([
+const palettePitch = {
+  builders: [
     ['grid', [[
       ["Coarse", "coarse"],
       ["Fine", "fine"],
       ["Random Amt", "random/pitch"],
       ["Key→Pitch", "pitch/keyTrk"],
     ],[
-      env.env,
+      pitchEnvs.env,
       ["Env→Pitch", "pitch/env/depth"],
       ["Key→Env T", "pitch/env/time/keyTrk"],
     ],[
@@ -518,18 +499,19 @@ const palettePitch = () => {
       ["LFO 1", "lfo/0/pitch"],
       ["LFO 2", "lfo/1/pitch"],
     ]]],
-  ], effects: [env.effect])
+  ], 
+  effects: [pitchEnvs.effect],
 }
 
-const paletteFilter = () => {
-  let env = filterEnvs()
-  return .patch(color: 2, [
+const paletteFilter = {
+  color: 2, 
+  builders: [
     ['grid', [[
       [{select: "Filter"}, "filter/type"],
       ["Cutoff", "cutoff"],
       ["Reson", "reson"],
     ],[
-      env.env,
+      filterEnvs.env,
       ["Env→Cutoff", "filter/env/depth"],
       ["Key→Env Time", "filter/env/time/keyTrk"],
     ],[
@@ -554,19 +536,20 @@ const paletteFilter = () => {
       ["LFO 1", "lfo/0/filter"],
       ["LFO 2", "lfo/1/filter"],
     ]]]
-  ], effects: [env.effect])
+  ], 
+  effects: [filterEnvs.effect],
 }
 
-const paletteAmp = () => {
-  let env = ampEnvs()
-  return .patch(color: 3, [
+const paletteAmp = {
+  color: 3, 
+  builders: [
     ['grid', [[
       ["Level", "tone/level"],
       [{switsch: "Bias Dir"}, "bias/direction"],
       ["Bias Pt", "bias/pt"],
       ["Bias Level", "bias/level"],
     ],[
-      env.env,
+      ampEnvs.env,
       ["Velo Crv", "amp/env/velo/curve"],
       ["Key→Env T", "amp/env/time/keyTrk"],
     ],[
@@ -578,7 +561,7 @@ const paletteAmp = () => {
       ["L1", "amp/env/level/0"],
       ["L2", "amp/env/level/1"],
       ["L3", "amp/env/level/2"],
-      .spacer(2),
+      '-',
     ],[
       ["Velo→Env", "amp/env/velo/sens"],
       ["Velo→T1", "amp/env/velo/time/0"],
@@ -587,12 +570,14 @@ const paletteAmp = () => {
       ["LFO 1", "lfo/0/amp"],
       ["LFO 2", "lfo/1/amp"],
     ]]],
-  ], effects: [env.effect])
+  ], 
+  effects: [ampEnvs.effect],
 }
 
 
-const palettePanOut = () => {
-  return .patch(color: 3, [
+const palettePanOut = {
+  color: 3, 
+  builders: [
     ['panel', 'pan', { }, [[
       ["Pan", "pan"],
       ["Key→Pan", "pan/keyTrk"],
@@ -618,43 +603,85 @@ const palettePanOut = () => {
       [{select: "Delay"}, "delay/mode"],
       ["Time", "delay/time"],
     ]]],
-  ], effects: [
-  ], layout: [
-    .grid([
-      (row: [("pan", 1)], height: 2),
-      (row: [("fxm", 1)], height: 1),
-      (row: [("out", 1)], height: 2),
-      (row: [("delay", 1)], height: 1),
-    ])
-  ])
+  ], 
+  gridLayout: [
+    {row: [["pan", 1]], h: 2},
+    {row: [["fxm", 1]], h: 1},
+    {row: [["out", 1]], h: 2},
+    {row: [["delay", 1]], h: 1},
+  ],
 }
 
-const paletteLFO = () => {
-  let lfo: PatchController = .index("lfo", label: "wave", { "LFO \($0 + 1)" }, color: 1, [
-    ['grid', [[
-      [{select: "Wave"}, "wave"],
-      ["Rate", "rate"],
-      [{checkbox: "Key Trig"}, "key/trigger"],
-      [{switsch: "Ext Sync"}, "ext/sync"],
-    ],[
-      ["Delay", "delay"],
-      [{select: "Fade Mode"}, "fade/mode"],
-      ["Fade Time", "fade/time"],
-      [{select: "Level Offset"}, "level/offset"],
-    ],[
-      ["Pitch", "pitch"],
-      ["Filter", "filter"],
-      ["Amp", "amp"],
-      ["Pan", "pan"],
-    ]]]
-  ])
-  
-  return .patch([
-    ['children', 2, "lfo", lfo],
-  ], effects: [
-  ], layout: [
-    ['simpleGrid', [[("lfo0", 1)], [("lfo1", 1)]]]
-  ])
+const paletteLFO = {
+  builders: [
+    ['children', 2, "lfo", ['index', "lfo", "wave", i => `LFO \(${i} + 1)`, { 
+      color: 1, 
+      builders: [
+        ['grid', [[
+          [{select: "Wave"}, "wave"],
+          ["Rate", "rate"],
+          [{checkbox: "Key Trig"}, "key/trigger"],
+          [{switsch: "Ext Sync"}, "ext/sync"],
+        ],[
+          ["Delay", "delay"],
+          [{select: "Fade Mode"}, "fade/mode"],
+          ["Fade Time", "fade/time"],
+          [{select: "Level Offset"}, "level/offset"],
+        ],[
+          ["Pitch", "pitch"],
+          ["Filter", "filter"],
+          ["Amp", "amp"],
+          ["Pan", "pan"],
+        ]]]
+      ]
+    }]],
+  ], 
+  simpleGridLayout: [[
+    ["lfo0", 1],
+  ],[
+    ["lfo1", 1],
+  ]],
 }
 
 
+const controller = (cfg) => ({
+  paged: true,
+  builders: [
+    ['switcher', null, ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "Pan/Out"], {color: 1}],
+    ['panel', 'on', { color: 1, }, [[
+      [{checkbox: "Tone 1"}, "tone/0/on"],
+      [{checkbox: "2"}, "tone/1/on"],
+      [{checkbox: "3"}, "tone/2/on"],
+      [{checkbox: "4"}, "tone/3/on"],
+    ]]],
+  ], 
+  layout: [
+    ['row', [["switch", 12], ["on", 4]] ],
+    ['row', [["page",1]] ],
+    ['col', [["switch",1],["page",8]] ],
+  ], 
+  pages: ['map', [
+    "common",
+    "tone/0",
+    "tone/1",
+    "tone/2",
+    "tone/3",
+    "pitch",
+    "filter",
+    "amp",
+    "lfo",
+    "pan",
+  ], {
+    "common" : common(cfg),
+    "tone" : tone,
+    "pitch" : fourPalettes("JVPitch", palettePitchWave),
+    "filter" : fourPalettes("JVFilter", paletteFilter),
+    "amp" : fourPalettes("JVAmp", paletteAmp),
+    "lfo" : fourPalettes("JVLFO", paletteLFO),
+    "pan" : fourPalettes("JVPan", palettePanOut),
+  }],
+})
+
+module.exports = {
+  controller: controller,
+}
