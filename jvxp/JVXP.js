@@ -187,8 +187,8 @@ const moduleTruss = (editorTruss, subid, sections) => ({
   indexPath: [2, 0],
 })
 
-const sections = (perf, clkSrc, cat) => {
-  const voice = perfPart => JV1080.Voice.Controller.controller(clkSrc, cat, perfPart)
+const sections = cfg => {
+  const voice = perfPart => JV1080.Voice.Controller.controller(cfg, perfPart)
   
   return [
     ['first', [
@@ -197,7 +197,7 @@ const sections = (perf, clkSrc, cat) => {
       ['voice', "Patch", voice(null)],
     ]],
     ['basic', "Tones", [
-      ['perf', perf],
+      ['perf', cfg.perf],
     ].concat(
       (9).map(i => ['voice', `Buffer ${i + 1}`, voice(i), `part/${i}`])
     ).concat([

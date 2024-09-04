@@ -1,9 +1,13 @@
 const JVXP = require('./JVXP.js')
+const Voice = require('./JV1080Voice.js')
+const Global = require('./JV1080Global.js')
+const Perf = require('./JV1080Perf.js')
+const Rhythm = require('./JV1080Rhythm.js')
 
 const editor = JVXP.editorTruss("JV-1080", Global.patchWerk, Perf.patchWerk, Voice.patchWerk, Rhythm.patchWerk, Voice.bankWerk, Perf.bankWerk, Rhythm.bankWerk)
 
 const perf = PerfController.controller(showXP: false, show2080: false, config: PerfPart.config)
-const sections = JVXP.sections(perf: perf, clkSrc: false, cat: true)
+const sections = JVXP.sections({ perf: perf, clkSrc: false, cat: true })
   
 //  override func onSave(toBankPath bankPath: SynthPath, index: Int, fromPatchPath patchPath: SynthPath) {
 //    // side effect: if saving from a part editor, update performance patch
