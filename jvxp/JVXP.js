@@ -219,4 +219,5 @@ module.exports = {
   voicePatchWerk: voicePatchWerk,
   voiceBankWerk: voiceBankWerk,
   perfCommonPatchWerk: perfCommonPatchWerk,
+  perfPartPatchWerk: perfPartPatchWerk,
 }

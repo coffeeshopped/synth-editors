@@ -6,7 +6,7 @@ const Rhythm = require('./JV1080Rhythm.js')
 
 const editor = JVXP.editorTruss("JV-1080", Global.patchWerk, Perf.patchWerk, Voice.patchWerk, Rhythm.patchWerk, Voice.bankWerk, Perf.bankWerk, Rhythm.bankWerk)
 
-const perf = PerfController.controller(showXP: false, show2080: false, config: PerfPart.config)
+const perf = PerfController.controller({ showXP: false, show2080: false, config: PerfPart.config })
 const sections = JVXP.sections({ perf: perf, clkSrc: false, cat: true })
   
 //  override func onSave(toBankPath bankPath: SynthPath, index: Int, fromPatchPath patchPath: SynthPath) {
@@ -19,8 +19,8 @@ const sections = JVXP.sections({ perf: perf, clkSrc: false, cat: true })
 //    ]
 //    changePatch(forPath: [.perf], MakeParamsChange(params), transmit: true)
 //  }
-}
+// }
 
 module.exports = {
-  module: JVXP.moduleTruss(editor, subid: "jv1080", sections: sections),
+  module: JVXP.moduleTruss(editor, "jv1080", sections),
 }
