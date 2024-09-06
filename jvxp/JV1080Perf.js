@@ -89,22 +89,6 @@ const patchGroups = (() => {
   return pgo
 })()
 
-const blankPatches = (255).map(i => `${i+1}`)
-
-const voicePresetOptionMap = [
-  [3, presetAOptions],
-  [4, presetBOptions],
-  [5, presetCOptions],
-  [6, gmOptions],
-]
-
-const rhythmPresetOptionMap = [
-  [3, rhythmPresetAOptions],
-  [4, rhythmPresetBOptions],
-  [5, rhythmPresetCOptions],
-  [6, rhythmGMOptions],
-]
-
 const presetAOptions = ["1 64voicePiano", "2 Bright Piano", "3 Classique", "4 Nice Piano", "5 Piano Thang", "6 Power Grand", "7 House Piano", "8 E.Grand", "9 MIDIed Grand", "10 Piano Blend", "11 West Coast", "12 PianoStrings", "13 Bs/Pno+Brs", "14 Waterhodes", "15 S.A.E.P.", "16 SA Rhodes 1", "17 SA Rhodes 2", "18 Stiky Rhodes", "19 Dig Rhodes", "20 Nylon EPiano", "21 Nylon Rhodes", "22 Rhodes Mix", "23 PsychoRhodes", "24 Tremo Rhodes", "25 MK-80 Rhodes", "26 MK-80 Phaser", "27 Delicate EP", "28 Octa Rhodes1", "29 Octa Rhodes2", "30 JV Rhodes+", "31 EP+Mod Pad", "32 Mr.Mellow", "33 Comp Clav", "34 Klavinet", "35 Winger Clav", "36 Phaze Clav 1", "37 Phaze Clav 2", "38 Phuzz Clav", "39 Chorus Clav", "40 Claviduck", "41 Velo-Rez Clv", "42 Clavicembalo", "43 Analog Clav1", "44 Analog Clav2", "45 Metal Clav", "46 Full Stops", "47 Ballad B", "48 Mellow Bars", "49 AugerMentive", "50 Perky B", "51 The Big Spin", "52 Gospel Spin", "53 Roller Spin", "54 Rocker Spin", "55 Tone Wh.Solo", "56 Purple Spin", "57 60's LeadORG", "58 Assalt Organ", "59 D-50 Organ", "60 Cathedral", "61 Church Pipes", "62 Poly Key", "63 Poly Saws", "64 Poly Pulse", "65 Dual Profs 3", "66 Saw Mass 4", "67 Poly Split 4", "68 Poly Brass 3", "69 Stackoid 4", "70 Poly Rock 4", "71 D-50 Stack 4", "72 Fantasia JV 4", "73 Jimmee Dee 4", "74 Heavenals 4", "75 Mallet Pad 4", "76 Huff N Stuff 3", "77 Puff 1080 2", "78 BellVox 1080 4", "79 Fantasy Vox 4", "80 Square Keys 2", "81 Childlike 4", "82 Music Box 3", "83 Toy Box 2", "84 Wave Bells 4", "85 Tria Bells 4", "86 Beauty Bells 4", "87 Music Bells 2", "88 Pretty Bells 2", "89 Pulse Key 3", "90 Wide Tubular 4", "91 AmbienceVibe 4", "92 Warm Vibes 2", "93 Dyna Marimba 1", "94 Bass Marimba 4", "95 Nomad Perc 3", "96 Ethno Metals 4", "97 Islands Mlt 4", "98 Steelin Keys 3", "99 Steel Drums 1", "100 Voicey Pizz 3", "101 Sitar 2", "102 Drone Split 4", "103 Ethnopluck 4", "104 Jamisen 2", "105 Dulcimer 2", "106 East Melody 2", "107 MandolinTrem 4", "108 Nylon Gtr 1", "109 Gtr Strings 3", "110 Steel Away 3", "111 Heavenly Gtr 4", "112 12str Gtr 1 2", "113 12str Gtr 2 3", "114 Jz Gtr Hall 1", "115 LetterFrmPat 4", "116 Jazz Scat 3", "117 Lounge Gig 3", "118 JC Strat 1", "119 Twin Strats 3", "120 JV Strat 2", "121 Syn Strat 2", "122 Rotary Gtr 2", "123 Muted Gtr 1", "124 SwitchOnMute 2", "125 Power Trip 2", "126 Crunch Split 4", "127 Rezodrive 2", "128 RockYurSocks 4"]
 
 const presetBOptions = ["1 DistGtr1 3", "2 DistGtr2 3", "3 R&R Chunk", "4 Phripphuzz", "5 Grungeroni", "6 Black Widow", "7 Velo-Wah Gtr", "8 Mod-Wah Gtr", "9 Pick Bass", "10 Hip Bass", "11 Perc.Bass", "12 Homey Bass", "13 Finger Bass", "14 Nylon Bass", "15 Ac.Upright", "16 Wet Fretls", "17 Fretls Dry", "18 Slap Bass 1", "19 Slap Bass 2", "20 Slap Bass 3", "21 Slap Bass 4", "22 4 Pole Bass", "23 Tick Bass", "24 House Bass", "25 Mondo Bass", "26 Clk AnalogBs", "27 Bass In Face", "28 101 Bass", "29 Noiz Bass", "30 Super Jup Bs", "31 Occitan Bass", "32 Hugo Bass", "33 Multi Bass", "34 Moist Bass", "35 BritelowBass", "36 Untamed Bass", "37 Rubber Bass", "38 Stereoww Bs", "39 Wonder Bass", "40 Deep Bass", "41 Super JX Bs", "42 W<RED>-Bass", "43 HI-Ring Bass", "44 Euro Bass", "45 SinusoidRave", "46 Alternative", "47 Acid Line", "48 Auto TB-303", "49 Hihat Tekno", "50 Velo Tekno 1", "51 Raggatronic", "52 Blade Racer", "53 S&H Pad", "54 Syncrosonix", "55 Fooled Again", "56 Alive", "57 Velo Tekno 2", "58 Rezoid", "59 Raverborg", "60 Blow Hit", "61 Hammer Bell", "62 Seq Mallet", "63 Intentions", "64 Pick It", "65 Analog Seq", "66 Impact Vox", "67 TeknoSoloVox 2", "68 X-Mod Man 2", "69 Paz <==> Zap 1", "70 4 Hits 4 You 4", "71 Impact 4", "72 Phase Hit 3", "73 Tekno Hit 1 2", "74 Tekno Hit 2 2", "75 Tekno Hit 3 4", "76 Reverse Hit 3", "77 SquareLead 1 3", "78 SquareLead 2 2", "79 You and Luck 2", "80 Belly Lead 4", "81 WhistlinAtom 2", "82 Edye Boost 2", "83 MG Solo 4", "84 FXM Saw Lead 4", "85 Sawteeth 3", "86 Smoothe 2", "87 MG Lead 2", "88 MG Interval 4", "89 Pulse Lead 1 3", "90 Pulse Lead 2 4", "91 Little Devil 4", "92 Loud SynLead 4", "93 Analog Lead 2", "94 5th Lead 2", "95 Flute 2", "96 Piccolo 1", "97 VOX Flute 4", "98 Air Lead 2", "99 Pan Pipes 2", "100 Airplaaane 4", "101 Taj Mahal 1", "102 Raya Shaku 3", "103 Oboe mf 1", "104 Oboe Express 2", "105 Clarinet mp 1", "106 ClariExpress 2", "107 Mitzva Split 4", "108 ChamberWinds 4", "109 ChamberWoods 3", "110 Film Orch 4", "111 Sop.Sax mf 2", "112 Alto Sax 3", "113 AltoLead Sax 3", "114 Tenor Sax 3", "115 Baritone Sax 3", "116 Take A Tenor 4", "117 Sax Section 4", "118 Bigband Sax 4", "119 Harmonica 2", "120 Harmo Blues 2", "121 BluesHarp 1", "122 Hillbillys 4", "123 French Bags 4", "124 Majestic Tpt 1", "125 Voluntare 2", "126 2Trumpets 2", "127 Tpt Sect 4", "128 Mute TP mod"]
@@ -119,16 +103,31 @@ const rhythmPresetBOptions = ["1 PowerDrumSet", "2 RaveDrumSet"]
 const rhythmPresetCOptions = ["1 JazzDrumSet2", "2 OrchDrumSet"]
 const rhythmGMOptions = ["1 GM Drum Set", "2 BrushDrumSet"]
 
-const patchWerk = JVXP.Perf.patchWerk(commonPatchWerk, partPatchWerk, "jv1080-perf-init")
+const voicePresetOptionMap = Array.sparse([
+  [3, presetAOptions],
+  [4, presetBOptions],
+  [5, presetCOptions],
+  [6, gmOptions],
+])
+
+const rhythmPresetOptionMap = Array.sparse([
+  [3, rhythmPresetAOptions],
+  [4, rhythmPresetBOptions],
+  [5, rhythmPresetCOptions],
+  [6, rhythmGMOptions],
+])
+
+
+const patchWerk = JVXP.perfPatchWerk(commonPatchWerk, partPatchWerk, "jv1080-perf-init")
 
 module.exports = {
   patchWerk: patchWerk,
-  bankWerk: JVXP.Perf.bankWerk(patchWerk),
+  bankWerk: JVXP.perfBankWerk(patchWerk),
   config: {
     voicePresets: voicePresetOptionMap, 
     rhythmPresets: rhythmPresetOptionMap, 
-    blank: blankPatchOptions, 
-    patchGroups: patchGroupOptions, 
+    blank: (255).map(i => `${i+1}`), 
+    patchGroups: patchGroups, 
     hasOutSelect: false,
   },
 }

@@ -20,60 +20,55 @@ const multiPack = (byte) => ['splitter', (2).map(i => {
 // Roland.msbMultiPackIso(2)(byte)
 
 
-const mapItems = (global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank) => [
-  ['global', global.start, global],
-  ['perf', perf.start, perf],
-  ['patch', voice.start, voice],
-  ['rhythm', rhythm.start, rhythm],
-  ['bank/patch/0', voiceBank.start, voiceBank],
-  ['bank/perf/0', perfBank.start, perfBank],
-  ['bank/rhythm/0', rhythmBank.start, rhythmBank],
-] + (15).map(i => {
-  const p = indexToPathPart(i)
-  return [`part/${p}`, [0x02, p, 0, 0], voice]
-})
-
-
 const indexToPathPart = index => index < 9 ? index : index + 1
 const pathPartToIndex = part => part < 9 ? part : part - 1
 
 
-const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank) => {
-  const map = mapItems(global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank)
-  const werk = sysexWerk.editorWerk(name, deviceId, map)
+const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank) => ({
+  werk: sysexWerk,
+  displayId: name,
+  deviceId: deviceId,
+  werkMap: [
+    ['deviceId'],
+    ['global', global.start, global],
+    ['perf', perf.start, perf],
+    ['patch', voice.start, voice],
+    ['rhythm', rhythm.start, rhythm],
+    ['bank/patch/0', voiceBank.start, voiceBank],
+    ['bank/perf/0', perfBank.start, perfBank],
+    ['bank/rhythm/0', rhythmBank.start, rhythmBank],
+  ] + (15).map(i => {
+    const p = indexToPathPart(i)
+    return [`part/${p}`, [0x02, p, 0, 0], voice]
+  }),
+  // fetchTransforms: werk.defaultFetchTransforms(),
   
-  return {
-    displayId: werk.displayId,
-    trussMap: [['deviceId', RolandDeviceIdSettingsTruss]] + werk.sysexMap(),
-    fetchTransforms: werk.defaultFetchTransforms(),
-    
-    extraParamOuts: [
-      ['perf', ['bankNames', "bank/patch/0", 'patch/name']],
-      ['perf', ['bankNames', "bank/rhythm/0", 'rhythm/name']],
-    ] + (15).map(i => {
-      const p = indexToPathPart(i)
-      return [`part/${p}`, ['patchOut', "perf", (change, patch) => {
-        const v = change["common/fx/src"]
-        if (v == null) { return [] }
-        return [{
-          path: "common/fx/src",
-          p: change["common/fx/src"]
-        }]        
-      }]]
-    }),
-    midiOuts: werk.midiOuts(),
-    midiChannels: [
-     ["patch", ['patch', "global", "patch/channel"]],
-    ].concat((16).map(i =>
-      [i == 9 ? "rhythm" : `part/${i}`, ['patch', "perf", `part/${i}/channel`]]
-    )),
-    slotTransforms: [
-      ["bank/patch/0", ['user', i => `US:${(i + 1).zPad(3)}`]],
-      ["bank/perf/0", ['user', i => `US:${(i + 1).zPad(2)}`]],
-      ["bank/rhythm/0", ['user', i => `US:${(i + 1)}`]],
-    ],
-  }
-}
+  extraParamOuts: [
+    ['perf', ['bankNames', "bank/patch/0", 'patch/name']],
+    ['perf', ['bankNames', "bank/rhythm/0", 'rhythm/name']],
+  ] + (15).map(i => {
+    const p = indexToPathPart(i)
+    return [`part/${p}`, ['patchOut', "perf", (change, patch) => {
+      const v = change["common/fx/src"]
+      if (v == null) { return [] }
+      return [{
+        path: "common/fx/src",
+        p: change["common/fx/src"]
+      }]        
+    }]]
+  }),
+  // midiOuts: werk.midiOuts(),
+  midiChannels: [
+   ["patch", ['patch', "global", "patch/channel"]],
+  ].concat((16).map(i =>
+    [i == 9 ? "rhythm" : `part/${i}`, ['patch', "perf", `part/${i}/channel`]]
+  )),
+  slotTransforms: [
+    ["bank/patch/0", ['user', i => `US:${(i + 1).zPad(3)}`]],
+    ["bank/perf/0", ['user', i => `US:${(i + 1).zPad(2)}`]],
+    ["bank/rhythm/0", ['user', i => `US:${(i + 1)}`]],
+  ],
+})
 
 const globalPatchWerk = (parms, size, initFile) => ({
   werk: sysexWerk,
@@ -216,8 +211,14 @@ const sections = cfg => {
 module.exports = {
   multiPack: multiPack,
   globalPatchWerk: globalPatchWerk,
+
   voicePatchWerk: voicePatchWerk,
   voiceBankWerk: voiceBankWerk,
+  
+  perfPatchWerk: perfPatchWerk,
+  perfBankWerk: perfBankWerk,
   perfCommonPatchWerk: perfCommonPatchWerk,
   perfPartPatchWerk: perfPartPatchWerk,
+  
+  editorTruss: editorTruss,
 }

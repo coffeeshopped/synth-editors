@@ -201,7 +201,7 @@ const boardsById = (() => {
   return bs
 })()
 
-const boardNameOptions = (() => {
+const boardNames = (() => {
   const bs = []
   boards.forEach(b => bs[b.id] = b.name)
   return bs
@@ -210,5 +210,5 @@ const boardNameOptions = (() => {
 module.exports = {
   boards: boards,
   boardsById: boardsById,
-  boardNameOptions: boardNameOptions,
+  boardNames: boardNames,
 }

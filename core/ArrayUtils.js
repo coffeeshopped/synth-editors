@@ -70,3 +70,11 @@ Array.prototype.sysex = function() {
   
   return msgs  
 }
+
+// create a sparse array from an array of arrays.
+// each sub-array is two elements: [index, element]
+Array.sparse = (arr) => {
+  const a = Array()
+  arr.forEach(e => a[e[0]] = e[1])
+  return a
+}

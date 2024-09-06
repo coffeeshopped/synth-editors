@@ -4,7 +4,7 @@ const Global = require('./JV1080Global.js')
 const Perf = require('./JV1080Perf.js')
 const Rhythm = require('./JV1080Rhythm.js')
 
-const editor = JVXP.editorTruss("JV-1080", Global.patchWerk, Perf.patchWerk, Voice.patchWerk, Rhythm.patchWerk, Voice.bankWerk, Perf.bankWerk, Rhythm.bankWerk)
+const editor = JVXP.editorTruss("JV-1080", null, Global.patchWerk, Perf.patchWerk, Voice.patchWerk, Rhythm.patchWerk, Voice.bankWerk, Perf.bankWerk, Rhythm.bankWerk)
 
 const perf = PerfController.controller({ showXP: false, show2080: false, config: PerfPart.config })
 const sections = JVXP.sections({ perf: perf, clkSrc: false, cat: true })
