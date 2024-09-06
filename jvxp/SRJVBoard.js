@@ -1,47 +1,4 @@
 
-// numbers are the model (SRJV-?)
-const boards: [Int:RolandBoard] = [
-  1 : pop,
-  2 : orch,
-  3 : piano,
-  4 : vintage,
-  5 : world,
-  6 : dance,
-  7 : suuper,
-  8 : keys,
-  9 : session,
-  10 : bassDrums,
-  11 : techno,
-  12 : hipHop,
-  13 : vocal,
-  14 : asian,
-  15 : fx,
-  16 : orch2,
-  17 : country,
-  18 : latin,
-  19 : house,
-  98 : exp2,
-  99 : exp,
-]
-
-const boardNameOptions: [Int:String] = {
-  var options = [Int:String]()
-  SRJVBoard.boards.forEach { options[$0] = $1.name }
-  return options
-}()
-
-init(id :Int, name: String, waves: [String], patches: [String], rhythms: [String]) {
-  self.id = id
-  self.name = name
-  self.waves = waves
-  self.patches = patches
-  self.rhythms = rhythms
-  
-  waveOptions = OptionsParam.makeOptions(["Off"] + waves)
-  patchOptions = OptionsParam.makeOptions(patches)
-  rhythmOptions = OptionsParam.makeOptions(rhythms)
-}
-
 const pop = { 
   id: 1, 
   name: "Pop",
@@ -210,3 +167,48 @@ const exp = {
   rhythms: [] 
 }
 
+const boards = [
+  pop,
+  orch,
+  piano,
+  vintage,
+  world,
+  dance,
+  suuper,
+  keys,
+  session,
+  bassDrums,
+  techno,
+  hipHop,
+  vocal,
+  asian,
+  fx,
+  orch2,
+  country,
+  latin,
+  house,
+  exp2,
+  exp,
+]
+
+// add wave "off" option to every board
+boards.forEach(b => b.waves.unshift("Off"))
+
+// indices are the model (SRJV-?)
+const boardsById = (() => {
+  const bs = []
+  boards.forEach(b => bs[b.id] = b)
+  return bs
+})()
+
+const boardNameOptions = (() => {
+  const bs = []
+  boards.forEach(b => bs[b.id] = b.name)
+  return bs
+})()
+
+module.exports = {
+  boards: boards,
+  boardsById: boardsById,
+  boardNameOptions: boardNameOptions,
+}
