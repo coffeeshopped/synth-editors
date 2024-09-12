@@ -267,4 +267,5 @@ module.exports = {
   chorusOuts: chorusOuts,
   reverbTypes: reverbTypes,
   reverbHFDamps: reverbHFDamps,
+  toneParms: toneParms,
 }

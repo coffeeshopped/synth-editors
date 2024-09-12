@@ -1,5 +1,8 @@
 require('../core/NumberUtils.js')
 require('../core/ArrayUtils.js')
+
+const Voice = require('./JV1080Voice.js')
+const SRJVBoard = require('./SRJVBoard.js')
   
 const common = (cfg) => {  
   var effects = []
@@ -142,78 +145,7 @@ const fx = {
   ],
 }
 
-const allPaths = JV1080.Voice.Tone.params.keys
-
-const tone = {
-  prefix: ['index', "tone"], 
-  builders: [
-    ['child', wave, "wave", {color: 1}],
-    ['child', pitch, "pitch", {color: 1}],
-    ['child', filter, "filter", {color: 2}],
-    ['child', amp(), "amp", {color: 3}],
-    ['child', lfo, "lfo", {color: 1}],
-    ['child', control, "ctrl", {color: 1}],
-    ['panel', 'fxm', { color: 1 }, [[
-      [{checkbox: "FXM"}, "fxm/on"],
-      ["Color", "fxm/color"],
-      ["Depth", "fxm/depth"],
-    ]]],
-    ['panel', 'delay', { color: 1 }, [[
-      [{select: "Delay"}, "delay/mode"],
-      ["Time", "delay/time"],
-    ]]],
-    ['button', "Tone", {color: 1}],
-    ['panel', 'range', { color: 1 }, [[
-      ["Velo X Depth", "velo/fade/depth"],
-      ["Velo Range L", "velo/range/lo"],
-      ["Velo Range U", "velo/range/hi"],
-      ["Key Range L", "key/range/lo"],
-      ["Key Range U", "key/range/hi"],
-    ]]],
-    ['panel', 'rcv', { color: 1 }, [[
-      ["Redamp Ctl", "redamper/ctrl"],
-      [{checkbox: "Volume Ctl"}, "volume/ctrl"],
-      [{checkbox: "Hold-1 Ctl"}, "hold/ctrl"],
-      [{checkbox: "Bender Ctl"}, "bend/ctrl"],
-      [{checkbox: "Pan Ctl"}, "pan/ctrl"]]
-    ]],
-    ['panel', 'pan', { color: 3 }, [[
-      ["Pan", "pan"],
-      ["Key→Pan", "pan/keyTrk"],
-      ["Random Pan", "random/pan"],
-    ],[
-      ["Alt Pan", "alt/pan"],
-      ["LFO 1", "lfo/0/pan"],
-      ["LFO 2", "lfo/1/pan"],
-    ]]],
-    ['panel', 'out', { color: 3 }, [[
-      [{select: "Output"}, "out/assign"],
-      ["Level", "out/level"],
-    ],[
-      ["Chorus", "chorus"],
-      ["Reverb", "reverb"],
-    ]]],
-  ], 
-  effects: [
-    ['dimsOn', "on", null],
-    ['editMenu', "button", {
-      paths: allPaths, 
-      type: "JV1080Tone", 
-    }],
-  ], 
-  layout: [
-    ['row', [["wave",5],["fxm",3],["delay",2],["button",1]] ],
-    ['row', [["pitch",5],["filter",6],["amp",5]] ],
-    ['row', [["lfo",5],["range",5],["pan",3],["out",2]], { opts: ['alignAllTop'] }],
-    ['row', [["ctrl",13]] ],
-    ['col', [["wave",1],["pitch",4],["lfo",2],["ctrl",1]] ],
-    ['colPart', [["range",1],["rcv",1]], { opts: ['alignAllLeading', 'alignAllTrailing'] }],
-    ['eq', ["lfo","rcv","pan","out"], 'bottom'],
-  ]
-}
-//      override func randomize(_ sender: Any?) {
-//        pushPatchChange(.replace(JV1080TonePatch.random()))
-//      }
+const allPaths = Voice.toneParms
 
 const wave = {
   builders: [
@@ -226,7 +158,7 @@ const wave = {
   effects: [
     // wave group
     ['setup', [
-      ['configCtrl', "wave/group", { opts: SRJVBoard.boardNameOptions.concat([
+      ['configCtrl', "wave/group", { opts: SRJVBoard.boardNames.concat([
         [-1, "Int-A"],
         [0, "Int-B"],
       ]) }],
@@ -458,18 +390,6 @@ const control = {
 
 const fourPalettes = (pasteType, pal) => ['palettes', pal, 4, "tone", "Tone", pasteType]
 
-const palettePitchWave = {
-  color: 1, 
-  builders: [
-    ['child', wave, "wave"],
-    ['child', palettePitch, "pitch"],
-  ], 
-  gridLayout: [
-    {row: [["wave", 1]], h: 1},
-    {row: [["pitch", 1]], h: 6},
-  ],
-}
-
 const palettePitch = {
   builders: [
     ['grid', [[
@@ -501,6 +421,18 @@ const palettePitch = {
     ]]],
   ], 
   effects: [pitchEnvs.effect],
+}
+
+const palettePitchWave = {
+  color: 1, 
+  builders: [
+    ['child', wave, "wave"],
+    ['child', palettePitch, "pitch"],
+  ], 
+  gridLayout: [
+    {row: [["wave", 1]], h: 1},
+    {row: [["pitch", 1]], h: 6},
+  ],
 }
 
 const paletteFilter = {
@@ -643,6 +575,76 @@ const paletteLFO = {
   ]],
 }
 
+const tone = {
+  prefix: ['index', "tone"], 
+  builders: [
+    ['child', wave, "wave", {color: 1}],
+    ['child', pitch, "pitch", {color: 1}],
+    ['child', filter, "filter", {color: 2}],
+    ['child', amp, "amp", {color: 3}],
+    ['child', lfo, "lfo", {color: 1}],
+    ['child', control, "ctrl", {color: 1}],
+    ['panel', 'fxm', { color: 1 }, [[
+      [{checkbox: "FXM"}, "fxm/on"],
+      ["Color", "fxm/color"],
+      ["Depth", "fxm/depth"],
+    ]]],
+    ['panel', 'delay', { color: 1 }, [[
+      [{select: "Delay"}, "delay/mode"],
+      ["Time", "delay/time"],
+    ]]],
+    ['button', "Tone", {color: 1}],
+    ['panel', 'range', { color: 1 }, [[
+      ["Velo X Depth", "velo/fade/depth"],
+      ["Velo Range L", "velo/range/lo"],
+      ["Velo Range U", "velo/range/hi"],
+      ["Key Range L", "key/range/lo"],
+      ["Key Range U", "key/range/hi"],
+    ]]],
+    ['panel', 'rcv', { color: 1 }, [[
+      ["Redamp Ctl", "redamper/ctrl"],
+      [{checkbox: "Volume Ctl"}, "volume/ctrl"],
+      [{checkbox: "Hold-1 Ctl"}, "hold/ctrl"],
+      [{checkbox: "Bender Ctl"}, "bend/ctrl"],
+      [{checkbox: "Pan Ctl"}, "pan/ctrl"]]
+    ]],
+    ['panel', 'pan', { color: 3 }, [[
+      ["Pan", "pan"],
+      ["Key→Pan", "pan/keyTrk"],
+      ["Random Pan", "random/pan"],
+    ],[
+      ["Alt Pan", "alt/pan"],
+      ["LFO 1", "lfo/0/pan"],
+      ["LFO 2", "lfo/1/pan"],
+    ]]],
+    ['panel', 'out', { color: 3 }, [[
+      [{select: "Output"}, "out/assign"],
+      ["Level", "out/level"],
+    ],[
+      ["Chorus", "chorus"],
+      ["Reverb", "reverb"],
+    ]]],
+  ], 
+  effects: [
+    ['dimsOn', "on", null],
+    ['editMenu', "button", {
+      paths: allPaths, 
+      type: "JV1080Tone", 
+    }],
+  ], 
+  layout: [
+    ['row', [["wave",5],["fxm",3],["delay",2],["button",1]] ],
+    ['row', [["pitch",5],["filter",6],["amp",5]] ],
+    ['row', [["lfo",5],["range",5],["pan",3],["out",2]], { opts: ['alignAllTop'] }],
+    ['row', [["ctrl",13]] ],
+    ['col', [["wave",1],["pitch",4],["lfo",2],["ctrl",1]] ],
+    ['colPart', [["range",1],["rcv",1]], { opts: ['alignAllLeading', 'alignAllTrailing'] }],
+    ['eq', ["lfo","rcv","pan","out"], 'bottom'],
+  ]
+}
+//      override func randomize(_ sender: Any?) {
+//        pushPatchChange(.replace(JV1080TonePatch.random()))
+//      }
 
 const controller = (cfg) => ({
   paged: true,
@@ -684,4 +686,5 @@ const controller = (cfg) => ({
 
 module.exports = {
   controller: controller,
+  fx: fx,
 }

@@ -40,14 +40,14 @@ const controller = (showXP, show2080, config) => {
       ['row', [["page", 1]]],
       ['col', [["switch",1],["page",8]]],
     ], 
-    pages: ['map', [
+    pages: .map([
       "common",
       "part/0",
       "part/1",
     ], {
       "common" : common(show2080),
       "part" : parts(config),
-    }],
+    })
   }
 }
 
@@ -129,7 +129,7 @@ const common = show2080 => {
 
 const reserve = (() => {
   const ctrls = (16).map(i => `${i}/voice/reserve`)
-  const reservePaths = ctrls.map(c => `common/part/${c}`)
+  const reservePaths = ctrls.map(i => "common/part" + $0 })
   return {
     prefix: ['fixed', "common/part"],
     color: 1, 
@@ -137,7 +137,7 @@ const reserve = (() => {
       ['grid', [
         (16).map(i => [{ 
           knob: i == 0 ? "Voice Resrv" : `${i + 1}`,
-          id: ctrls[i],
+          id: "$0/voice/reserve",
         }, null])
       ]],
     ], 
@@ -289,12 +289,11 @@ const part = config => {
           else {
             return {opts: config.blank}
           }
-        }
-      }]
+        }]
     ])
   }
 }
 
 module.exports = {
-  controller: controller
+  controller: controller,
 }
