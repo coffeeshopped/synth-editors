@@ -164,50 +164,6 @@ const perfPartPatchWerk = (parms, size) => ({
   }
 })
 
-const moduleTruss = (editorTruss, subid, sections) => ({
-  editor: editorTruss,
-  manu: Manufacturer.roland, 
-  model: editorTruss.displayId, 
-  subid: subid, 
-  sections: sections, 
-  dirMap: [
-    ['part', "Patch"],
-  ], 
-  colorGuide: [
-    "#093aba",
-    "#a9dd36",
-    "#0303fd",
-    "#03ff0d",
-  ], 
-  indexPath: [2, 0],
-})
-
-const sections = cfg => {
-  const voice = perfPart => JV1080.Voice.Controller.controller(cfg, perfPart)
-  
-  return [
-    ['first', [
-      'deviceId',
-      ['global', JV1080.Global.controller],
-      ['voice', "Patch", voice(null)],
-    ]],
-    ['basic', "Tones", [
-      ['perf', cfg.perf],
-    ].concat(
-      (9).map(i => ['voice', `Buffer ${i + 1}`, voice(i), `part/${i}`])
-    ).concat([
-      ['custom', "Rhythm", "rhythm", JV1080.Rhythm.Controller.controller()],
-    ]).concat(
-      (6).map(i => ['voice', `Buffer ${i + 11}`, voice(i + 10), `part/${i + 10}`])
-    )],
-    ['banks', [
-      ['bank', "Patch Bank", "bank/patch/0"],
-      ['bank', "Perf Bank", "bank/perf/0"],
-      ['bank', "Rhythm Bank", "bank/rhythm/0"],
-    ]],
-  ]
-}
-
 module.exports = {
   multiPack: multiPack,
   globalPatchWerk: globalPatchWerk,
@@ -221,4 +177,5 @@ module.exports = {
   perfPartPatchWerk: perfPartPatchWerk,
   
   editorTruss: editorTruss,
+
 }

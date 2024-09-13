@@ -1,58 +1,58 @@
+const controller = {
+  color: 1,
+  builders: [
+    ['panel', 'modes', [[
+      [{ switsch: null }, 'mode'],
+      ['Tune', 'tune'],
+      [{ checkbox: null }, 'scale/tune'],
+      [{ checkbox: 'FX' }, 'fx'],
+      [{ checkbox: null }, 'chorus'],
+      [{ checkbox: null }, 'reverb'],
+      [{ checkbox: null }, 'patch/remain'],
+      [{ switsch: 'Clock Src' }, 'clock'],
+      [{ switsch: null }, 'rhythm/edit'],
+    ]]],
+    ['panel', 'src', [[
+      [{ select: 'Tap Ctrl' }, 'tap'],
+      [{ select: 'Hold Ctrl' }, 'hold'],
+      [{ select: 'Peak Ctrl' }, 'peak'],
+      [{ switsch: 'Vol Ctrl' }, 'volume'],
+      [{ switsch: 'Aftert Ctrl' }, 'aftertouch'],
+      ['Ctrl 1', 'ctrl/0'],
+      ['Ctrl 2', 'ctrl/1'],
+      ['Ctrl Channel', 'ctrl/channel'],
+      ['Patch Channel', 'patch/channel'],
+    ]]],
+    ['panel', 'rcv', [[
+      [{ checkbox: 'Rcv PgmCh' }, 'rcv/pgmChange'],
+      [{ checkbox: 'Rcv Bank Sel' }, 'rcv/bank/select'],
+      [{ checkbox: 'Rcv Ctrl Ch' }, 'rcv/ctrl/change'],
+      [{ checkbox: null }, 'rcv/mod'],
+      [{ checkbox: 'Rcv Vol' }, 'rcv/volume'],
+      [{ checkbox: null }, 'rcv/hold'],
+      [{ checkbox: null }, 'rcv/bend'],
+      [{ checkbox: 'Rcv After' }, 'rcv/aftertouch'],
+    ]]],
+    ['panel', 'prev', [[
+      [{ switsch: 'Preview' }, 'preview/mode'],
+      ['Key 1', 'preview/key/0'],
+      ['Velo 1', 'preview/velo/0'],
+      ['Key 2', 'preview/key/1'],
+      ['Velo 2', 'preview/velo/1'],
+      ['Key 3', 'preview/key/2'],
+      ['Velo 3', 'preview/velo/2'],
+      ['Key 4', 'preview/key/3'],
+      ['Velo 4', 'preview/velo/3'],
+    ]]],
+  ],
+  simpleGridLayout: [
+    [['modes', 1]],
+    [['src', 1]],
+    [['rcv', 1]],
+    [['prev', 1]],
+  ],
+}
 
-extension JV1080.Global {
-  
-  static var controller: PatchController {
-    return .patch(color: 1, [
-      .panel("modes", [[
-        .switsch([.mode]),
-        .knob([.tune]),
-        .checkbox([.scale, .tune]),
-        .checkbox("FX", [.fx]),
-        .checkbox([.chorus]),
-        .checkbox([.reverb]),
-        .checkbox([.patch, .remain]),
-        .switsch("Clock Src", [.clock]),
-        .switsch([.rhythm, .edit]),
-      ]]),
-      .panel("src", [[
-        .select("Tap Ctrl", [.tap]),
-        .select("Hold Ctrl", [.hold]),
-        .select("Peak Ctrl", [.peak]),
-        .switsch("Vol Ctrl", [.volume]),
-        .switsch("Aftert Ctrl", [.aftertouch]),
-        .knob("Ctrl 1", [.ctrl, .i(0)]),
-        .knob("Ctrl 2", [.ctrl, .i(1)]),
-        .knob([.ctrl, .channel]),
-        .knob([.patch, .channel])]
-        ]),
-      .panel("rcv", [[
-        .checkbox("Rcv PgmCh", [.rcv, .pgmChange]),
-        .checkbox("Rcv Bank Sel", [.rcv, .bank, .select]),
-        .checkbox("Rcv Ctrl Ch", [.rcv, .ctrl, .change]),
-        .checkbox([.rcv, .mod]),
-        .checkbox("Rcv Vol", [.rcv, .volume]),
-        .checkbox([.rcv, .hold]),
-        .checkbox([.rcv, .bend]),
-        .checkbox("Rcv After", [.rcv, .aftertouch])]
-        ]),
-      .panel("prev", [[
-        .switsch("Preview", [.preview, .mode]),
-        .knob("Key 1", [.preview, .key, .i(0)]),
-        .knob("Velo 1", [.preview, .velo, .i(0)]),
-        .knob("Key 2", [.preview, .key, .i(1)]),
-        .knob("Velo 2", [.preview, .velo, .i(1)]),
-        .knob("Key 3", [.preview, .key, .i(2)]),
-        .knob("Velo 3", [.preview, .velo, .i(2)]),
-        .knob("Key 4", [.preview, .key, .i(3)]),
-        .knob("Velo 4", [.preview, .velo, .i(3)])]
-        ])
-    ], layout: [
-      .simpleGrid([
-        [("modes",1)],
-        [("src",1)],
-        [("rcv",1)],
-        [("prev",1)],
-      ])
-    ])
-  }
+module.exports = {
+  controller,
 }

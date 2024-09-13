@@ -3,15 +3,16 @@ const SRJVBoard = require('./SRJVBoard.js')
 
 //    let showXP = PerfPart.self is XP50PerfPartPatch.Type
 //    let show2080 = PerfPart.self is JV2080PerfPartPatch.Type
-const controller = (showXP, show2080, config) => {
+const controller = (config) => {
+  
   const hides = []
-  if (!showXP) {
+  if (!config.showXP) {
     hides.push(
       ['hideItem', true, "key/mode"],
       ['hideItem', true, "clock/src"]
     )
   }
-  if (!show2080) {
+  if (!config.show2080) {
     hides.push(
       ['hideItem', true, "fx/1/src"],
       ['hideItem', true, "fx/2/src"]
@@ -27,7 +28,7 @@ const controller = (showXP, show2080, config) => {
         [{checkbox: "Key Range"}, "key/range"],
         [{switsch: "Key Mode"}, "key/mode"],
         [{switsch: "Clock Src"}, "clock/src"],
-        [{select: show2080 ? "FX A Src" : "FX Src"}, "fx/src"],
+        [{select: config.show2080 ? "FX A Src" : "FX Src"}, "fx/src"],
         [{select: "FX B Src"}, "fx/1/src"],
         [{select: "FX C Src"}, "fx/2/src"],
       ]]],
@@ -45,8 +46,8 @@ const controller = (showXP, show2080, config) => {
       "part/0",
       "part/1",
     ], {
-      "common" : common(show2080),
-      "part" : parts(config),
+      "common" : common(config.show2080),
+      "part" : parts(config.config),
     }],
   }
 }

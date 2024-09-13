@@ -687,4 +687,8 @@ const controller = (cfg) => ({
 module.exports = {
   controller: controller,
   fx: fx,
+  pitchEnvs: pitchEnvs,
+  filterEnvs: filterEnvs,
+  ampEnvs: ampEnvs,
+  wave: wave,
 }
