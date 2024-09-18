@@ -69,26 +69,26 @@ const controller = {
     ['child', pitch, 'pitch', { color: 1 }],
     ['child', filter, 'filter', { color: 2 }],
     ['child', amp, 'amp', { color: 3 }],
-    ['switcher', '', (64).map(i => {
+    ['switcher', (64).map(i => {
       const noteNum = i + 35
       const noteName = '?' // ParamHelper.noteName(noteNum)
       return `${noteName}: ${noteNum}`
     }), { cols: 12, color: 1 }],
-    ['panel', 'ctrl', { color: 1 }, [
+    ['panel', 'ctrl', { color: 1 }, [[
       ['Bend Range', 'bend/range'],
       ['Mute Group', 'mute/group'],
       [{ checkbox: 'Env Sustain' }, 'env/sustain'],
       [{ checkbox: 'Vol Ctrl' }, 'volume/ctrl'],
       [{ checkbox: 'Hold-1 Ctrl' }, 'hold/ctrl'],
       [{ switch: 'Pan Ctrl' }, 'pan/ctrl'],
-    ]],
+    ]]],
     ['button', 'Note', { color: 1 }],
-    ['panel', 'output', { color: 3 }, [
+    ['panel', 'output', { color: 3 }, [[
       [{ select: 'Output' }, 'out/assign'],
       ['Level', 'out/level'],
       ['Chorus', 'chorus'],
       ['Reverb', 'reverb'],
-    ]],
+    ]]],
   ],
   effects: [
     ['editMenu', 'button', { paths: allPaths, type: 'JV1080RhythmNote' }],

@@ -20,7 +20,6 @@ const controller = (config) => {
   }
   
   return {
-    paged: true,
     builders: [
       ['switcher', ["Common","Parts 1–8","Parts 9–16"], {color: 1}],
       ['panel', 'tempo', { prefix: "common", color: 1 }, [[
@@ -45,10 +44,10 @@ const controller = (config) => {
       "common",
       "part/0",
       "part/1",
-    ], {
-      "common" : common(config.show2080),
-      "part" : parts(config.config),
-    }],
+    ], [
+      ["common", common(config.show2080)],
+      ["part", parts(config.config)],
+    ]],
   }
 }
 
@@ -267,8 +266,7 @@ const part = config => {
       // patchNumber
       ['basicPatchChange', "patch/number"],
       ['basicControlChange', "patch/number"],
-      ['patchSelector', {
-        id: "patch/number", 
+      ['patchSelector', "patch/number", {
         bankValues: ["patch/group", "patch/group/id"], 
         paramMapWithContext: (values, state, locals) => {
           const group = values["patch/group"] || 0

@@ -1,0 +1,13 @@
+{
+  "name": "jvxp",
+  "version": "0.0.1",
+  "description": "Roland JV-1080, JV-2080, JV-1010, XPs...",
+  "modules": [
+    {
+      "name": "jv1080",
+      "manufacturer": "Roland",
+      "model": "JV-1080",
+      "module": "jv1080.js"
+    }
+  ]
+}

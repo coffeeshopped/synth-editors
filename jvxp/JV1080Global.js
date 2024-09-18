@@ -5,14 +5,14 @@ const systemControls = (96).map(i => `CC ${i}`).concat(["Bender","Aftertouch"])
 
 const parms = [
   // Switching to GM mode makes the synth stop responding to sysex! omit that option
-  { inc: true, b: 0x00, block: [
+  { inc: 1, b: 0x00, block: [
     ["mode", { opts: ["Performance","Patch"] }],
     ["perf", { }],
     ["patch/group", { opts: ["User","PCM","Exp"] }],
     ["patch/group/id", { }],
     ["patch/number", { max: 254 }],
-  ]},
-  { inc: true, byte: 0x06, block: [
+  ] },
+  { inc: 1, b: 0x06, block: [
     ["tune", { max: 126 }],
     ["scale/tune", { max: 1 }],
     ["fx", { max: 1 }],
@@ -47,7 +47,7 @@ const parms = [
     ["preview/velo/2", { }],
     ["preview/key/3", { }],
     ["preview/velo/3", { }],
-  ]}
+  ] }
 ]
 
 module.exports = {

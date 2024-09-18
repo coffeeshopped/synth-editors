@@ -62,10 +62,10 @@ const common = (cfg) => {
         [{switsch: "Ctrl 3"}, "ctrl/2/holdPeak"],
       ]]],
       ['panel', 'struct', { color: 1 }, [[
-        ['imgSelect', "Structure 1/2", "structure/0", {w: 200, h: 70}],
+        [{imgSelect: "Structure 1/2", w: 200, h: 70}, "structure/0"],
         ["Boost 1/2", "booster/0"],
       ],[
-        ['imgSelect', "Structure 3/4", "structure/1", {w: 200, h: 70}],
+        [{imgSelect: "Structure 3/4", w: 200, h: 70}, "structure/1"],
         ["Boost 3/4", "booster/1"],
       ]]],
       ['panel', 'chorus', { color: 1 }, [[
@@ -84,8 +84,8 @@ const common = (cfg) => {
         ["Feedback", "reverb/feedback"],
       ]]],
       ['panel', "clock", {color: 1}, [
-        (cfg.showCategory ? [{ select: "Category" }, 'category'] : []).concat(
-          [{switsch: "Clock Src"}, 'clock/src']
+        (cfg.showCategory ? [[{ select: "Category" }, 'category']] : []).concat(
+          [[{switsch: "Clock Src"}, 'clock/src']]
         )
       ]],
     ], 
@@ -106,7 +106,7 @@ const fx = {
   color: 2, 
   builders: [
     ['panel', "fx", [
-      ([{select: "FX Type"}, 'type']).concat((5).map(i => [{knob: `${i}`, id: `param/${i}`}, null])),
+      ([[{select: "FX Type"}, 'type']]).concat((5).map(i => [{knob: `${i}`, id: `param/${i}`}, null])),
       ([5, 12]).rangeMap(i => [{knob: `${i}`, id: `param/${i}`}, null])
     ]],
     ['panel', 'fxOut', { }, [[
@@ -203,7 +203,15 @@ const wave = {
 }
 
 const pitchEnvs = {
-  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: true}], "Pitch", (4).map(i => ['unit', `pitch/env/time/${i}`, `time/${i}`]) + (4).map(i => ['src', `pitch/env/level/${i}`, v => (v - 63) / 63, `level/${i}`]), {id: "env"}], 
+  env: {
+    display: 'timeLevelEnv',
+    pointCount: 4, 
+    sustain: 2, 
+    bipolar: true,
+    l: "Pitch",
+    maps: (4).map(i => ['u', `pitch/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['src', `pitch/env/level/${i}`, `level/${i}`, v => (v - 63) / 63])),
+    id: "env",
+  },
   effect: ['editMenu', "env", {
     paths: [
       "pitch/env/time/0",
@@ -252,7 +260,15 @@ const pitch = {
 
 
 const filterEnvs = {
-  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: false}], "Filter", (4).map(i => ['unit', `filter/env/time/${i}`, `time/${i}`]) + (4).map(i => ['src', `filter/env/level/${i}`, `level/${i}`]), {id: "env"}], 
+  env: {
+    display: 'timeLevelEnv',
+    pointCount: 4, 
+    sustain: 2, 
+    bipolar: false,
+    l: "Filter",
+    maps: (4).map(i => ['u', `filter/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['src', `filter/env/level/${i}`, `level/${i}`])),
+    id: "env",
+  },
   effect: ['editMenu', "env", {
     paths: [
       "filter/env/time/0",
@@ -303,7 +319,15 @@ const filter = {
 
 
 const ampEnvs = {
-  env: ['display', ['timeLevelEnv', {pointCount: 4, sustain: 2, bipolar: false}], "Amp", (4).map(i => ['unit', `amp/env/time/${i}`, `time/${i}`]) + (3).map(i => ['src', `amp/env/level/${i}`, `level/${i}`]), {id: "env"}], 
+  env: {
+    display: 'timeLevelEnv',
+    pointCount: 4, 
+    sustain: 2, 
+    bipolar: false,
+    l: "Amp",
+    maps: (4).map(i => ['u', `amp/env/time/${i}`, `time/${i}`]).concat((3).map(i => ['src', `amp/env/level/${i}`, `level/${i}`])),
+    id: "env",
+  },
   effect: ['editMenu', "env", {
     paths: [
       "amp/env/time/0",
@@ -353,7 +377,7 @@ const lfo = {
   prefix: ['index', "lfo"], 
   builders: [
     ['grid', [[
-      ['switcher', "LFO", ["1","2"]],
+      ['switcher', ["1","2"], { l: "LFO" }],
       [{select: "Wave"}, "wave"],
       ["Rate", "rate"],
       [{checkbox: "Key Trig"}, "key/trigger"],
@@ -371,7 +395,7 @@ const control = {
   prefix: ['index', "ctrl"], 
   builders: [
     ['grid', [[
-      ['switcher', "Controller", ["1","2","3"]],
+      ['switcher', ["1","2","3"], { l: "Controller" }],
       [{select: "Dest 1"}, "dest/0"],
       ["Amt 1", "depth/0"],
       [{select: "Dest 2"}, "dest/1"],
@@ -646,10 +670,9 @@ const tone = {
 //        pushPatchChange(.replace(JV1080TonePatch.random()))
 //      }
 
-const controller = (cfg) => ({
-  paged: true,
+const controller = cfg => ({
   builders: [
-    ['switcher', null, ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "Pan/Out"], {color: 1}],
+    ['switcher', ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "Pan/Out"], {color: 1}],
     ['panel', 'on', { color: 1, }, [[
       [{checkbox: "Tone 1"}, "tone/0/on"],
       [{checkbox: "2"}, "tone/1/on"],
@@ -673,15 +696,15 @@ const controller = (cfg) => ({
     "amp",
     "lfo",
     "pan",
-  ], {
-    "common" : common(cfg),
-    "tone" : tone,
-    "pitch" : fourPalettes("JVPitch", palettePitchWave),
-    "filter" : fourPalettes("JVFilter", paletteFilter),
-    "amp" : fourPalettes("JVAmp", paletteAmp),
-    "lfo" : fourPalettes("JVLFO", paletteLFO),
-    "pan" : fourPalettes("JVPan", palettePanOut),
-  }],
+  ], [
+    ["common", common(cfg)],
+    ["tone", tone],
+    ["pitch", fourPalettes("JVPitch", palettePitchWave)],
+    ["filter", fourPalettes("JVFilter", paletteFilter)],
+    ["amp", fourPalettes("JVAmp", paletteAmp)],
+    ["lfo", fourPalettes("JVLFO", paletteLFO)],
+    ["pan", fourPalettes("JVPan", palettePanOut)],
+  ]],
 })
 
 module.exports = {

@@ -21,7 +21,7 @@ const commonParms = [
   { prefix: "fx/param", count: 12, bx: 1, block: [
     ["fx/param", { b: 0x0d }],
   ] },
-  { inc: true, b: 0x19, block: [
+  { inc: 1, b: 0x19, block: [
     ["fx/out/assign", { opts: ["Mix","Output 1","Output 2"] }],
     ["fx/out/level", { }],
     ["fx/chorus", { }],
@@ -43,7 +43,7 @@ const commonParms = [
     ["reverb/feedback", { }],
     ["tempo", { packIso: JVXP.multiPack(0x2c), rng: [20, 251] }],
   ]},
-  { inc: true, b: 0x2e, block: [
+  { inc: 1, b: 0x2e, block: [
     ["level", { }],
     ["pan", { dispOff: -64 }],
     ["analogFeel", { }],
@@ -101,7 +101,7 @@ const toneParms = [
   ["wave/group", { b: 0x01, opts: ["Int","PCM","Exp"] }],
   ["wave/group/id", { b: 0x02 }],
   ["wave/number", { b: 0x03, packIso: JVXP.multiPack(0x03), max: 254 }],
-  { inc: true, b: 0x05, block: [
+  { inc: 1, b: 0x05, block: [
     ["wave/gain", { opts: ["-6","0","+6","+12"] }],
     ["fxm/on", { max: 1 }],
     ["fxm/color", { max: 3, dispOff: 1 }],
@@ -128,7 +128,7 @@ const toneParms = [
     },
   ] },
   { prefix: "lfo", count: 2, bx: 8, block: [
-    { inc: true, b: 0x2d, block: [
+    { inc: 1, b: 0x2d, block: [
       ["wave", { opts: lfoWaves }],
       ["key/trigger", { max: 1 }],
       ["rate", { }],
@@ -144,7 +144,7 @@ const toneParms = [
   ["random/pitch", { b: 0x3f, opts: randomPitchs }],
   ["pitch/keyTrk", { b: 0x40, opts: pitchKeyfollows }],  
   { prefix: "pitch/env", block: [
-    { inc: true, b: 0x41, block: [
+    { inc: 1, b: 0x41, block: [
       ["depth", { max: 24, dispOff: -12 }],
       ["velo/sens", { max: 125 }],
       ["velo/time/0", { opts: veloTSenss }],
@@ -168,7 +168,7 @@ const toneParms = [
   ["reson", { b: 0x53 }],
   ["reson/velo/sens", { b: 0x54, max: 125 }],
   { prefix: "filter/env", block: [
-    { inc: true, b: 0x55, block: [
+    { inc: 1, b: 0x55, block: [
       ["depth", { max: 126, dispOff: -63 }],
       ["velo/curve", { max: 6, dispOff: 1 }],
       ["velo/sens", { max: 125 }],
@@ -192,7 +192,7 @@ const toneParms = [
   ["bias/pt", { b: 0x67 }],
   ["bias/level", { b: 0x68, opts: veloTSenss }],
   { prefix: "amp/env", block: [
-    { inc: true, b: 0x69, block: [
+    { inc: 1, b: 0x69, block: [
       ["velo/curve", { max: 6, dispOff: 1 }],
       ["velo/sens", { max: 125 }],
       ["velo/time/0", { opts: veloTSenss }],
@@ -207,7 +207,7 @@ const toneParms = [
       ["level/2", { }],
     ] },
   ] },
-  { inc: true, b: 0x75, block: [
+  { inc: 1, b: 0x75, block: [
     ["lfo/0/amp", { max: 126, dispOff: -63 }],
     ["lfo/1/amp", { max: 126, dispOff: -63 }],
     ["pan", { dispOff: -64 }],
@@ -226,9 +226,8 @@ const toneParms = [
 
 
 const tonePatchWerk = {
-  werk: JVXP.sysexWerk,
   single: "Voice Tone", 
-  parm: toneParms, 
+  parms: toneParms, 
   size: 0x0101, 
   start: 0x1000, 
   initFile: "jv1080-tone-init", 

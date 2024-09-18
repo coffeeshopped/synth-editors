@@ -18,7 +18,7 @@ const commonParms = [
   ['fx/src', { b: 0x0c, opts: fxSrcOptions }],
   ['fx/type', { b: 0x0d, opts: Voice.fxTypes }],
   { prefix: "fx/param", count: 12, bx: 1, block: ['', { b: 0x0e }] },
-  { inc: true, b: 0x1a, block: [
+  { inc: 1, b: 0x1a, block: [
     ['fx/out/assign', { opts: ["Mix","Output 1","Output 2"] }],
     ['fx/out/level', { }],
     ['fx/chorus', { }],
@@ -55,7 +55,7 @@ const partParms = [
   ['patch/group', { b: 0x02, opts: ["User","PCM","Exp"] }],
   ['patch/group/id', { b: 0x03 }],
   ['patch/number', { b: 0x04, packIso: JVXP.multiPack(0x04), max: 254, dispOff: 1 }],
-  { inc: true, b: 0x06, block: [
+  { inc: 1, b: 0x06, block: [
     ['level', { }],
     ['pan', { dispOff: -64 }],
     ['coarse', { max: 96, dispOff: -48 }],

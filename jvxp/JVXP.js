@@ -1,11 +1,6 @@
 require('../core/NumberUtils.js')
 require('../core/ArrayUtils.js')
   
-const sysexWerk = {
-  rolandModelId: [0x6a], 
-  addressCount: 4,
-} 
-
 /// MSB first. lower 4 bits of each byte used
 // 2 bytes per value
 const multiPack = (byte) => ['splitter', (2).map(i => {
@@ -25,11 +20,12 @@ const pathPartToIndex = part => part < 9 ? part : part - 1
 
 
 const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, perfBank, rhythmBank) => ({
-  werk: sysexWerk,
-  displayId: name,
+  rolandModelId: [0x6a], 
+  addressCount: 4,
+  name: name,
   deviceId: deviceId,
-  werkMap: [
-    ['deviceId'],
+  map: ([
+    // ['deviceId'],
     ['global', global.start, global],
     ['perf', perf.start, perf],
     ['patch', voice.start, voice],
@@ -37,10 +33,10 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
     ['bank/patch/0', voiceBank.start, voiceBank],
     ['bank/perf/0', perfBank.start, perfBank],
     ['bank/rhythm/0', rhythmBank.start, rhythmBank],
-  ] + (15).map(i => {
+  ]).concat((15).map(i => {
     const p = indexToPathPart(i)
     return [`part/${p}`, [0x02, p, 0, 0], voice]
-  }),
+  })),
   // fetchTransforms: werk.defaultFetchTransforms(),
   
   extraParamOuts: [
@@ -71,7 +67,6 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
 })
 
 const globalPatchWerk = (parms, size, initFile) => ({
-  werk: sysexWerk,
   single: "Global", 
   parms: parms, 
   size: size, 
@@ -80,7 +75,6 @@ const globalPatchWerk = (parms, size, initFile) => ({
 })
 
 const voicePatchWerk = (common, tone, initFile) => ({
-  werk: sysexWerk,
   multi: "Voice", 
   map: [
     ['common', 0x0000, common],
@@ -94,7 +88,6 @@ const voicePatchWerk = (common, tone, initFile) => ({
 })
 
 const voiceBankWerk = patchWerk => ({
-  werk: sysexWerk,
   multiBank: patchWerk, 
   patchCount: 128, 
   start: 0x11000000, 
@@ -102,7 +95,6 @@ const voiceBankWerk = patchWerk => ({
 })
 
 const voiceCommonPatchWerk = (parms, size) => ({
-  werk: sysexWerk,
   single: "Voice Common", 
   parms: parms, 
   size: size, 
@@ -111,7 +103,6 @@ const voiceCommonPatchWerk = (parms, size) => ({
 })  
 
 const perfPatchWerk = (common, part, initFile) => ({
-  werk: sysexWerk,
   multi: "Perf", 
   map: [
     ["common", 0x0000, common],
@@ -123,15 +114,13 @@ const perfPatchWerk = (common, part, initFile) => ({
 })
 
 const perfBankWerk = patchWerk => ({
-  werk: sysexWerk,
-  multi: patchWerk, 
+  multiBank: patchWerk, 
   patchCount: 32,
   start: 0x10000000,
   initFile: "jv1080-perf-bank-init",
 })
 
 const perfCommonPatchWerk = (parms, size) => ({
-  werk: sysexWerk,
   single: "Perf Common", 
   parms: parms, 
   size: size, 
@@ -149,7 +138,6 @@ const perfCommonPatchWerk = (parms, size) => ({
 })
 
 const perfPartPatchWerk = (parms, size) => ({
-  werk: sysexWerk,
   single: "Perf Part", 
   parms: parms, 
   size: size, 
