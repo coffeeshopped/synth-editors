@@ -11,7 +11,7 @@ const env = label => {
 }
 
 const envController = (label, index) => ({
-  prefix: ['fixed', ["env", index]],
+  prefix: { fixed: ["env", index] },
   builders: [
     ["grid", [[
       env(label),
