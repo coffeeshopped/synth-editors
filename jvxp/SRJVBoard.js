@@ -208,7 +208,6 @@ const boardNames = (() => {
 })()
 
 module.exports = {
-  boards: boards,
-  boardsById: boardsById,
+  boards: boardsById,
   boardNames: boardNames,
 }

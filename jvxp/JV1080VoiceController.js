@@ -159,41 +159,34 @@ const wave = {
   effects: [
     // wave group
     ['setup', [
-      ['configCtrl', "wave/group", { opts: SRJVBoard.boardNames.concat([
-        [-1, "Int-A"],
-        [0, "Int-B"],
-      ]) }],
+      ['configCtrl', "wave/group", { opts: (["Int-A", "Int-B"]).concat(SRJVBoard.boardNames) }],
     ]],
     ['controlChange', "wave/group", (state, locals) => {
       const v = locals["wave/group"] || 0
-      return [
-        ["wave/group", v < 1 ? 0 : 2],
+      const opts = [
+        ["wave/group", v < 2 ? 0 : 2],
         // int-a is 1, int-b is 2
-        ["wave/group/id", v < 1 ? v + 2 : v],
+        ["wave/group/id", v < 2 ? v + 1 : v - 2],
       ]
+      return opts
     }],
     ['patchChange', {
       paths: ["wave/group", "wave/group/id"], 
       fn: values => {
-        const group = values["wave/group"] || 0
+        const internal = (values["wave/group"] || 0) == 0
         const groupId = values["wave/group/id"] || 0
         var options = []
-        if (group == 0) {
+        if (internal) {
           options = groupId == 1 ? Voice.intAWaves : Voice.intBWaves
         }
         else {
           const board = SRJVBoard.boards[groupId]
-          if (board)  {
-            options = board.waves
-          }
-          else {
-            options = Voice.blankWaves
-          }
+          options = board ? board.waves : Voice.blankWaves
         }
         
         return [
           ['configCtrl', "wave/number", { opts: options }],
-          ['setValue', "wave/group", group == 0 ? groupId - 2 : groupId],
+          ['setValue', "wave/group", internal ? groupId - 1 : groupId + 2],
         ]
       },
     }],
