@@ -3,6 +3,7 @@ require('../core/ArrayUtils.js')
 
 const Voice = require('./JV1080Voice.js')
 const SRJVBoard = require('./SRJVBoard.js')
+const FX = require('./JVFX.js')
   
 const common = (cfg) => {  
   var effects = []
@@ -22,7 +23,7 @@ const common = (cfg) => {
   }
         
   return {
-    prefix: ['fixed', "common"], 
+    prefix: {fixed: "common"}, 
     builders: [
       ['child', fx, "fx"],
       ['panel', 'tempo', { color: 1 }, [[
@@ -102,7 +103,7 @@ const common = (cfg) => {
 }
 
 const fx = {
-  prefix: ['fixed', "fx"], 
+  prefix: { fixed: "fx" }, 
   color: 2, 
   builders: [
     ['panel', "fx", [
@@ -126,7 +127,7 @@ const fx = {
     ['basicPatchChange', `param/${i}`],
   ]).concat([
     ['patchChange', "type", value => {
-      let info = JV1080.Voice.Common.fxParams[value]
+      let info = FX.fxParams[value]
       return (12).flatMap(i => {
         const path = `param/${i}`
         
@@ -165,20 +166,20 @@ const wave = {
     ]],
     ['controlChange', "wave/group", (state, locals) => {
       const v = locals["wave/group"] || 0
-      return {
-        "wave/group" : v < 1 ? 0 : 2,
+      return [
+        ["wave/group", v < 1 ? 0 : 2],
         // int-a is 1, int-b is 2
-        "wave/group/id" : v < 1 ? v + 2 : v,
-      }
+        ["wave/group/id", v < 1 ? v + 2 : v],
+      ]
     }],
     ['patchChange', {
       paths: ["wave/group", "wave/group/id"], 
       fn: values => {
-        const group = values["wave/group"]
-        const groupId = values["wave/group/id"]
+        const group = values["wave/group"] || 0
+        const groupId = values["wave/group/id"] || 0
         var options = []
         if (group == 0) {
-          options = groupId == 1 ? JV1080.Voice.Tone.intAWaveOptions : JV1080.Voice.Tone.intBWaveOptions
+          options = groupId == 1 ? Voice.intAWaves : Voice.intBWaves
         }
         else {
           const board = SRJVBoard.boards[groupId]
@@ -186,7 +187,7 @@ const wave = {
             options = board.waves
           }
           else {
-            options = JV1080.Voice.Tone.blankWaveOptions
+            options = Voice.blankWaves
           }
         }
         
@@ -374,7 +375,7 @@ const amp = {
 
 
 const lfo = { 
-  prefix: ['index', "lfo"], 
+  prefix: {index: "lfo"}, 
   builders: [
     ['grid', [[
       ['switcher', ["1","2"], { l: "LFO" }],
@@ -392,7 +393,7 @@ const lfo = {
 }
 
 const control = {
-  prefix: ['index', "ctrl"], 
+  prefix: {index: "ctrl"}, 
   builders: [
     ['grid', [[
       ['switcher', ["1","2","3"], { l: "Controller" }],
@@ -570,7 +571,7 @@ const palettePanOut = {
 
 const paletteLFO = {
   builders: [
-    ['children', 2, "lfo", ['index', "lfo", "wave", i => `LFO \(${i} + 1)`, { 
+    ['children', 2, "lfo", ['index', "lfo", "wave", i => `LFO ${i + 1}`, { 
       color: 1, 
       builders: [
         ['grid', [[
@@ -589,7 +590,7 @@ const paletteLFO = {
           ["Amp", "amp"],
           ["Pan", "pan"],
         ]]]
-      ]
+      ],
     }]],
   ], 
   simpleGridLayout: [[
@@ -600,7 +601,7 @@ const paletteLFO = {
 }
 
 const tone = {
-  prefix: ['index', "tone"], 
+  prefix: { index: "tone" }, 
   builders: [
     ['child', wave, "wave", {color: 1}],
     ['child', pitch, "pitch", {color: 1}],

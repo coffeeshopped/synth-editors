@@ -5,7 +5,7 @@ const ccFn = (state, locals) =>
 const noteLabel = i => (["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])[i % 12]
 
 const noteController = showOctave => ({
-  prefix: ['index', []],
+  prefix: {index: []},
   builders: [
     ['grid', {color: 1}, [[
       {l: "?", id: 'id'},

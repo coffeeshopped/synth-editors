@@ -63,7 +63,7 @@ const amp = {
 const allPaths = Rhythm.noteParms
 
 const controller = {
-  prefix: ['index', 'note'],
+  prefix: {index: 'note'},
   builders: [
     ['child', VoiceCtrlr.wave, 'wave', { color: 1 }],
     ['child', pitch, 'pitch', { color: 1 }],

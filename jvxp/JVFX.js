@@ -492,5 +492,9 @@ const fxParams = [
   chorusFlangerParams,
   chorusAndDelayParams,
   flangerAndDelayParams,
-chorusAndFlangerParams,
+  chorusAndFlangerParams,
 ]
+
+module.exports = {
+  fxParams: fxParams,
+}

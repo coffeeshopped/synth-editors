@@ -75,7 +75,7 @@ const common = show2080 => {
   return {
     builders: [
       ['child', {
-        prefix: ['fixed', "common"], 
+        prefix: {fixed: "common"}, 
         builders: [
           ['child', VoiceCtrlr.fx, "p"],
         ], 
@@ -131,7 +131,7 @@ const reserve = (() => {
   const ctrls = (16).map(i => `${i}/voice/reserve`)
   const reservePaths = ctrls.map(c => `common/part/${c}`)
   return {
-    prefix: ['fixed', "common/part"],
+    prefix: {fixed: "common/part"},
     color: 1, 
     builders: [
       ['grid', [

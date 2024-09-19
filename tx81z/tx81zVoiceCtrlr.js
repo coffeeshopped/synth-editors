@@ -16,11 +16,11 @@ const miniOpController = index => {
   return Op4VoiceCtrlr.miniOpController(index, ['patchChange', {
     paths: [modePath, rangePath, coarsePath, finePath, detunePath],
     fn: values => {
-      const fixedMode = values[0] == 1
-      const range = values[1]
-      const coarse = values[2]
-      const fine = values[3]
-      const detune = values[4]
+      const fixedMode = values[modePath] == 1
+      const range = values[rangePath]
+      const coarse = values[coarsePath]
+      const fine = values[finePath]
+      const detune = values[detunePath]
       const valText = Op4.freqRatio(fixedMode, range, coarse, fine)
       const detuneOff = detune - 3
       const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? detuneOff : `+${detuneOff}`)
@@ -73,10 +73,10 @@ const opController = index => {
       ['patchChange', {
         paths: [modePath, rangePath, coarsePath, finePath],
         fn: values => {
-          const fixedMode = values[0] == 1
-          const range = values[1]
-          const coarse = values[2]
-          const fine = values[3]
+          const fixedMode = values[modePath] == 1
+          const range = values[rangePath]
+          const coarse = values[coarsePath]
+          const fine = values[finePath]
           return [
             ['setCtrlLabel', "extra/osc/mode", fixedMode ? "Freq (Hz)" : "Ratio"],
             ['configCtrl', "extra/osc/mode", { opts: [
