@@ -5,19 +5,28 @@ const noteIso = {
   zeroNote: "C-2",
 }
 
-const voiceNumberPack = byte => ({
-  splitter: [
-    [byte, null, [0, 7]],
-    [byte - 1, null, [7, 8]],
-  ],
-})
+const voiceNumberPack = byte => ['splitter', [
+  {
+    byte: byte,
+    valueBits: [0, 7],
+  },
+  {
+    byte: byte - 1,
+    valueBits: [7, 8],
+  }
+]]
 
-const bankVoiceNumberPack = byte => ({
-  splitter: [
-    [byte, null, [0, 7]],
-    [byte - 1, [4, 5], [7, 8]],
-  ]
-})
+const bankVoiceNumberPack = byte => ['splitter', [
+  {
+    byte: byte,
+    valueBits: [0, 7],
+  },
+  {
+    byte: byte - 1,
+    byteBits: [4, 5],
+    valueBits: [7, 8],
+  }
+]]
 
 const parms = [
   { prefix: 'part', count: 8, bx: 12, block: i => [

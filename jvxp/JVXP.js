@@ -26,13 +26,13 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
   deviceId: deviceId,
   map: ([
     // ['deviceId'],
-    ['global', global.start, global],
-    ['perf', perf.start, perf],
-    ['patch', voice.start, voice],
-    ['rhythm', rhythm.start, rhythm],
-    ['bank/patch/0', voiceBank.start, voiceBank],
-    ['bank/perf/0', perfBank.start, perfBank],
-    ['bank/rhythm/0', rhythmBank.start, rhythmBank],
+    ['global', 0x0000, global],
+    ['perf', 0x01000000, perf],
+    ['patch', 0x03000000, voice],
+    ['rhythm', 0x02090000, rhythm],
+    ['bank/patch/0', 0x11000000, voiceBank],
+    ['bank/perf/0', 0x10000000, perfBank],
+    ['bank/rhythm/0', 0x10400000, rhythmBank],
   ]).concat((15).map(i => {
     const p = indexToPathPart(i)
     return [`part/${p}`, [0x02, p, 0, 0], voice]
@@ -70,7 +70,6 @@ const globalPatchWerk = (parms, size, initFile) => ({
   single: "Global", 
   parms: parms, 
   size: size, 
-  start: 0x0000, 
   initFile: initFile,
 })
 
@@ -83,14 +82,12 @@ const voicePatchWerk = (common, tone, initFile) => ({
     ['tone/2', 0x1400, tone],
     ['tone/3', 0x1600, tone],
   ], 
-  start: 0x03000000, 
   initFile: initFile,
 })
 
 const voiceBankWerk = patchWerk => ({
   multiBank: patchWerk, 
   patchCount: 128, 
-  start: 0x11000000, 
   initFile: "jv1080-voice-bank-init",
 })
 
@@ -98,7 +95,6 @@ const voiceCommonPatchWerk = (parms, size) => ({
   single: "Voice Common", 
   parms: parms, 
   size: size, 
-  start: 0x0000, 
   name: [0x00, 0x0c],
 })  
 
@@ -109,14 +105,12 @@ const perfPatchWerk = (common, part, initFile) => ({
   ].concat(
     (16).map(i => [`part/${i}`, [0x10 + i, 0x00], part])
   ), 
-  start: 0x01000000,
   initFile: initFile,
 })
 
 const perfBankWerk = patchWerk => ({
   multiBank: patchWerk, 
   patchCount: 32,
-  start: 0x10000000,
   initFile: "jv1080-perf-bank-init",
 })
 
@@ -124,7 +118,6 @@ const perfCommonPatchWerk = (parms, size) => ({
   single: "Perf Common", 
   parms: parms, 
   size: size, 
-  start: 0x0000, 
   name: [0x00, 0x0c],
   randomize: () => [
     ["level", 127],
@@ -141,7 +134,6 @@ const perfPartPatchWerk = (parms, size) => ({
   single: "Perf Part", 
   parms: parms, 
   size: size, 
-  start: 0x1000, 
   randomize: () => {
     const pgid = Math.random(6) + 1
     return [

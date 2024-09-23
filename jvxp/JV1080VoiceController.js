@@ -260,7 +260,7 @@ const filterEnvs = {
     sustain: 2, 
     bipolar: false,
     l: "Filter",
-    maps: (4).map(i => ['u', `filter/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['src', `filter/env/level/${i}`, `level/${i}`])),
+    maps: (4).map(i => ['u', `filter/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['u', `filter/env/level/${i}`, `level/${i}`])),
     id: "env",
   },
   effect: ['editMenu', "env", {
@@ -308,7 +308,9 @@ const filter = {
       ["Env Velo Crv", "filter/env/velo/curve"],
     ]]],
   ], 
-  effects: [filterEnvs.effect],
+  effects: [filterEnvs.effect].concat([
+    ['dimsOn', 'filter/type', null],
+  ]),
 }
 
 
@@ -319,7 +321,7 @@ const ampEnvs = {
     sustain: 2, 
     bipolar: false,
     l: "Amp",
-    maps: (4).map(i => ['u', `amp/env/time/${i}`, `time/${i}`]).concat((3).map(i => ['src', `amp/env/level/${i}`, `level/${i}`])),
+    maps: (4).map(i => ['u', `amp/env/time/${i}`, `time/${i}`]).concat((3).map(i => ['u', `amp/env/level/${i}`, `level/${i}`])),
     id: "env",
   },
   effect: ['editMenu', "env", {

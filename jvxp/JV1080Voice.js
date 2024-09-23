@@ -229,7 +229,6 @@ const tonePatchWerk = {
   single: "Voice Tone", 
   parms: toneParms, 
   size: 0x0101, 
-  start: 0x1000, 
   initFile: "jv1080-tone-init", 
   randomize: () => [
     ["wave/group", 0],

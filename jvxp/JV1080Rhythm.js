@@ -3,7 +3,6 @@ const JVXP = require('./JVXP.js')
 const commonPatchWerk = { 
   single: "Rhythm Common",
   size: 0xc, 
-  start: 0x0000, 
   name: [0, 0x0c],
   parms: [],
 }
@@ -86,7 +85,6 @@ const notePatchWerk = {
   single: "Rhythm Note", 
   parms: noteParms, 
   size: 0x3a, 
-  start: 0x2300, 
   initFile: "jv1080-rhythm-note-init", 
   // randomize: { [
   // "on" : 1,
@@ -107,7 +105,6 @@ const patchWerk = {
   ].concat(
     (64).map(i => [`note/${i}`, [0x23 + i, 0x00], notePatchWerk])
   ),
-  start: 0x02090000, 
   initFile: "jv1080-rhythm-init",
 }
 
@@ -116,7 +113,6 @@ module.exports = {
   bankWerk: {
     multiBank: patchWerk,
     patchCount: 2,
-    start: 0x10400000, 
     initFile: "jv1080-rhythm-bank-init",
     iso: {
       address: i => [i, 0, 0],
