@@ -83,17 +83,17 @@ const controller = {
       [{ switch: 'Pan Ctrl' }, 'pan/ctrl'],
     ]]],
     ['button', 'Note', { color: 1 }],
-    ['panel', 'output', { color: 3 }, [[
-      [{ select: 'Output' }, 'out/assign'],
-      ['Level', 'out/level'],
-      ['Chorus', 'chorus'],
-      ['Reverb', 'reverb'],
-    ]]],
+    ['panel', 'output', { color: 3 }, [
+      [[{ select: 'Output' }, 'out/assign']],
+      [['Level', 'out/level']],
+      [['Chorus', 'chorus']],
+      [['Reverb', 'reverb']],
+    ]],
   ],
   effects: [
     ['editMenu', 'button', { paths: allPaths, type: 'JV1080RhythmNote' }],
     ['indexChange', index => [
-      ['midiNote', { chan: 0, note: 35 + index, velo: 100, len: 500 }],
+      ['midiNote', { ch: 0, n: 35 + index, v: 100, l: 500 }],
     ]],
   ],
   layout: [

@@ -208,7 +208,7 @@ const chorusParams = [
   Pairs.chorusRate,
   Pairs.chorusDepth,
   ["Phase", { }],
-  [],
+  null,
   Pairs.loGain,
   Pairs.hiGain,
   Pairs.balance,
@@ -356,7 +356,7 @@ const odChorusParams = [
   ["Pre-Delay", fxDelayTime100Param],
   ["Rate", fxRateParam],
   ["Depth", { }],
-  [],
+  null,
   Pairs.balance,
   Pairs.level
 ]
@@ -388,7 +388,7 @@ const enhanceChorusParams = [
   ["Pre-Delay", fxDelayTime100Param],
   ["Rate", fxRateParam],
   ["Depth", { }],
-  [],
+  null,
   Pairs.balance,
   Pairs.level
 ]
@@ -408,7 +408,7 @@ const enhanceDelayParams = [
   ["Delay", fxDelayTime500Param],
   Pairs.feedback,
   Pairs.hfDamp,
-  [],
+  null,
   Pairs.balance,
   Pairs.level
 ]
@@ -416,7 +416,7 @@ const chorusDelayParams = [
   ["Cho-Delay", fxDelayTime100Param],
   Pairs.chorusRate,
   Pairs.chorusDepth,
-  [],
+  null,
   ["Cho-Balance", fxBalanceParam],
   ["Delay", fxDelayTime500Param],
   ["Delay-Fbk", fxFdbkParam],

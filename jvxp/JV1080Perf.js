@@ -76,17 +76,15 @@ const partPatchWerk = JVXP.perfPartPatchWerk(partParms, 0x13)
 
 
 const patchGroups = (() => {
-  var options = [
+  var options = Array.sparse([
     [1, "User"],
     [3, "Preset-A"],
     [4, "Preset-B"],
     [5, "Preset-C"],
     [6, "GM"],
-  ]
-  var pgo = []
-  options.forEach(p => pgo.push([p[0] - 100, p[1]]))
-  SRJVBoard.boardNames.forEach(p => pgo.push(p))
-  return pgo
+  ])
+  SRJVBoard.boardNames.forEachWithIndex((n, i) => options[i+100] = n)
+  return options
 })()
 
 const presetAOptions = ["1 64voicePiano", "2 Bright Piano", "3 Classique", "4 Nice Piano", "5 Piano Thang", "6 Power Grand", "7 House Piano", "8 E.Grand", "9 MIDIed Grand", "10 Piano Blend", "11 West Coast", "12 PianoStrings", "13 Bs/Pno+Brs", "14 Waterhodes", "15 S.A.E.P.", "16 SA Rhodes 1", "17 SA Rhodes 2", "18 Stiky Rhodes", "19 Dig Rhodes", "20 Nylon EPiano", "21 Nylon Rhodes", "22 Rhodes Mix", "23 PsychoRhodes", "24 Tremo Rhodes", "25 MK-80 Rhodes", "26 MK-80 Phaser", "27 Delicate EP", "28 Octa Rhodes1", "29 Octa Rhodes2", "30 JV Rhodes+", "31 EP+Mod Pad", "32 Mr.Mellow", "33 Comp Clav", "34 Klavinet", "35 Winger Clav", "36 Phaze Clav 1", "37 Phaze Clav 2", "38 Phuzz Clav", "39 Chorus Clav", "40 Claviduck", "41 Velo-Rez Clv", "42 Clavicembalo", "43 Analog Clav1", "44 Analog Clav2", "45 Metal Clav", "46 Full Stops", "47 Ballad B", "48 Mellow Bars", "49 AugerMentive", "50 Perky B", "51 The Big Spin", "52 Gospel Spin", "53 Roller Spin", "54 Rocker Spin", "55 Tone Wh.Solo", "56 Purple Spin", "57 60's LeadORG", "58 Assalt Organ", "59 D-50 Organ", "60 Cathedral", "61 Church Pipes", "62 Poly Key", "63 Poly Saws", "64 Poly Pulse", "65 Dual Profs 3", "66 Saw Mass 4", "67 Poly Split 4", "68 Poly Brass 3", "69 Stackoid 4", "70 Poly Rock 4", "71 D-50 Stack 4", "72 Fantasia JV 4", "73 Jimmee Dee 4", "74 Heavenals 4", "75 Mallet Pad 4", "76 Huff N Stuff 3", "77 Puff 1080 2", "78 BellVox 1080 4", "79 Fantasy Vox 4", "80 Square Keys 2", "81 Childlike 4", "82 Music Box 3", "83 Toy Box 2", "84 Wave Bells 4", "85 Tria Bells 4", "86 Beauty Bells 4", "87 Music Bells 2", "88 Pretty Bells 2", "89 Pulse Key 3", "90 Wide Tubular 4", "91 AmbienceVibe 4", "92 Warm Vibes 2", "93 Dyna Marimba 1", "94 Bass Marimba 4", "95 Nomad Perc 3", "96 Ethno Metals 4", "97 Islands Mlt 4", "98 Steelin Keys 3", "99 Steel Drums 1", "100 Voicey Pizz 3", "101 Sitar 2", "102 Drone Split 4", "103 Ethnopluck 4", "104 Jamisen 2", "105 Dulcimer 2", "106 East Melody 2", "107 MandolinTrem 4", "108 Nylon Gtr 1", "109 Gtr Strings 3", "110 Steel Away 3", "111 Heavenly Gtr 4", "112 12str Gtr 1 2", "113 12str Gtr 2 3", "114 Jz Gtr Hall 1", "115 LetterFrmPat 4", "116 Jazz Scat 3", "117 Lounge Gig 3", "118 JC Strat 1", "119 Twin Strats 3", "120 JV Strat 2", "121 Syn Strat 2", "122 Rotary Gtr 2", "123 Muted Gtr 1", "124 SwitchOnMute 2", "125 Power Trip 2", "126 Crunch Split 4", "127 Rezodrive 2", "128 RockYurSocks 4"]

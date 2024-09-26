@@ -84,7 +84,7 @@ const common = show2080 => {
         ]
       }, "fx"],
       ['child', reserve, "reserve"],
-      ['panel', 'chorus', { prefix: "common/chorus", color: 1, }, [[
+      ['panel', 'chorus', { prefix: "common/chorus", color: 1 }, [[
         ["Chorus", "level"],
         ["Rate", "rate"],
         ["Depth", "depth"],
@@ -92,14 +92,14 @@ const common = show2080 => {
         ["Feedback", "feedback"],
         [{switsch: "Output"}, "out/assign"],
       ]]],
-      ['panel', 'reverb', { prefix: "common/reverb", color: 1, }, [[
+      ['panel', 'reverb', { prefix: "common/reverb", color: 1 }, [[
         [{select: "Reverb"}, "type"],
         ["Level", "level"],
         ["Time", "time"],
         [{select: "HF Damp"}, "hfdamp"],
         ["Feedback", "feedback"],
       ]]],
-      ['panel', "range", {prefix: "part", color: 1}, [
+      ['panel', "range", {prefix: "part", color: 1 }, [
         (16).map(i => 
           [i == 0 ? "Key Lo" : `${i + 1}`, `${i}/key/range/lo`]),
         (16).map(i => 
@@ -213,17 +213,14 @@ const part = config => {
     ]
   }
   
-  return {
-    index: "part", 
-    label: "part", 
-    fn: i => `${i + 1}`, 
+  return ["index", 'part', 'part', i => `${i + 1}`, {
     color: 1, 
     builders: [
       ['grid', [[
         {l: "Part", align: 'center', id: "part", w: 1},
-        [{knob: "Patch Group", id: "patch/group"}, null],
+        [{select: "Patch Group", id: "patch/group"}, null],
       ],[
-        [{knob: "Patch", id: "patch/number"}, null],
+        [{select: "Patch", id: "patch/number"}, null],
       ],[
         ["Level", "level"],
         ["Pan", "pan"],
@@ -231,7 +228,7 @@ const part = config => {
         ["Tune", "coarse"],
         ["Fine", "fine"],
       ],[
-        [{knob: "Out Assign", id: "out/assign"}, null],
+        [{select: "Out Assign", id: "out/assign"}, null],
         ["Out Level", "out/level"],
       ],[
         ["Chorus", "chorus"],
@@ -248,20 +245,23 @@ const part = config => {
       ['setup', [
         ['configCtrl', "patch/group", {opts: config.patchGroups}],
       ]],
+      ['indexChange', i => [
+        ['setCtrlLabel', 'patch/number', i == 9 ? "Rhythm" : "Patch"]
+      ]],
       ['patchChange', {
         paths: ["patch/group", "patch/group/id"], 
         fn: values => {
           const group = values["patch/group"] || 0
           const groupId = values["patch/group/id"] || 0
-          return [['setValue', "patch/group", group == 0 ? groupId - 100 : groupId]]
+          return [['setValue', "patch/group", group == 0 ? groupId : groupId + 100]]
         }
       }],
       ['controlChange', "patch/group", (state, locals) => {
         const v = locals["patch/group"] || 0
-        return {
-          "patch/group" : v < 0 ? 0 : 2,
-          "patch/group/id" : (v < 0 ? v + 100 : v),
-        }
+        return [
+          ["patch/group", v < 100 ? 0 : 2],
+          ["patch/group/id", (v < 100 ? v : v - 100)],
+        ]
       }],
       // patchNumber
       ['basicPatchChange', "patch/number"],
@@ -291,7 +291,7 @@ const part = config => {
         }
       }]
     ])
-  }
+  }]
 }
 
 module.exports = {

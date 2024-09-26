@@ -37,12 +37,10 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
     const p = indexToPathPart(i)
     return [`part/${p}`, [0x02, p, 0, 0], voice]
   })),
-  // fetchTransforms: werk.defaultFetchTransforms(),
-  
-  extraParamOuts: [
+  extraParamOuts: ([
     ['perf', ['bankNames', "bank/patch/0", 'patch/name']],
     ['perf', ['bankNames', "bank/rhythm/0", 'rhythm/name']],
-  ] + (15).map(i => {
+  ]).concat((15).map(i => {
     const p = indexToPathPart(i)
     return [`part/${p}`, ['patchOut', "perf", (change, patch) => {
       const v = change["common/fx/src"]
@@ -52,8 +50,7 @@ const editorTruss = (name, deviceId, global, perf, voice, rhythm, voiceBank, per
         p: change["common/fx/src"]
       }]        
     }]]
-  }),
-  // midiOuts: werk.midiOuts(),
+  })),
   midiChannels: [
    ["patch", ['patch', "global", "patch/channel"]],
   ].concat((16).map(i =>
