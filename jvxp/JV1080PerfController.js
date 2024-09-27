@@ -67,8 +67,7 @@ const common = show2080 => {
     }]
   }
   else {
-    fxDim = ['dimsOn', "common/fx/src", { 
-      id: "fx", 
+    fxDim = ['dimsOn', "common/fx/src", "fx", { 
       dimWhen: i => i > 0 
     }]
   }
@@ -113,7 +112,7 @@ const common = show2080 => {
       ]],
     ], 
     effects: [
-      ['dimsOn', "common/key/range", {id: "range"}],
+      ['dimsOn', "common/key/range", "range"],
       fxDim,
     ], 
     layout: [

@@ -114,11 +114,7 @@ module.exports = {
     multiBank: patchWerk,
     patchCount: 2,
     initFile: "jv1080-rhythm-bank-init",
-    iso: {
-      address: i => [i, 0, 0],
-      // array of address bytes (count determined by werk addy count?)
-      location: arr => arr[1] - 0x40,
-    },
+    iso: ['lsbyte', 2, 0x40],
   },
   noteParms: noteParms,
 }

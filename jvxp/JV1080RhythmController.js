@@ -69,11 +69,10 @@ const controller = {
     ['child', pitch, 'pitch', { color: 1 }],
     ['child', filter, 'filter', { color: 2 }],
     ['child', amp, 'amp', { color: 3 }],
-    ['switcher', (64).map(i => {
-      const noteNum = i + 35
-      const noteName = '?' // ParamHelper.noteName(noteNum)
-      return `${noteName}: ${noteNum}`
-    }), { cols: 12, color: 1 }],
+    ['switcher', [64, ['>',
+      ['+', 35],
+      ['concat', ['noteName', "C-1"], ": ", ['str']],
+    ]], { cols: 12, color: 1 }],
     ['panel', 'ctrl', { color: 1 }, [[
       ['Bend Range', 'bend/range'],
       ['Mute Group', 'mute/group'],

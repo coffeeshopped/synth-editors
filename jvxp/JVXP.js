@@ -86,6 +86,7 @@ const voiceBankWerk = patchWerk => ({
   multiBank: patchWerk, 
   patchCount: 128, 
   initFile: "jv1080-voice-bank-init",
+  iso: ['lsbyte', 2],
 })
 
 const voiceCommonPatchWerk = (parms, size) => ({
@@ -109,6 +110,7 @@ const perfBankWerk = patchWerk => ({
   multiBank: patchWerk, 
   patchCount: 32,
   initFile: "jv1080-perf-bank-init",
+  iso: ['lsbyte', 2],
 })
 
 const perfCommonPatchWerk = (parms, size) => ({

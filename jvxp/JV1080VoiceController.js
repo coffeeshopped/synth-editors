@@ -9,7 +9,7 @@ const common = (cfg) => {
   var effects = []
   
   if (!cfg.showClockSource) {
-    effects.push(['setup', [['dimPanel', true, "clock", 0]]])
+    effects.push(['setup', [['hidePanel', true, "clock"]]])
   }
   
   if (cfg.perfPart >= 0) {
@@ -309,7 +309,7 @@ const filter = {
     ]]],
   ], 
   effects: [filterEnvs.effect].concat([
-    ['dimsOn', 'filter/type', null],
+    ['dimsOn', 'filter/type'],
   ]),
 }
 
@@ -646,7 +646,7 @@ const tone = {
     ]]],
   ], 
   effects: [
-    ['dimsOn', "on", null],
+    ['dimsOn', "on"],
     ['editMenu', "button", {
       paths: allPaths, 
       type: "JV1080Tone", 

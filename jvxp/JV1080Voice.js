@@ -18,9 +18,7 @@ const boosters = ["0", "+6", "+12", "+18"]
 
 const commonParms = [
   ["fx/type", { b: 0x0c, opts: fxTypes }],
-  { prefix: "fx/param", count: 12, bx: 1, block: [
-    ["fx/param", { b: 0x0d }],
-  ] },
+  { prefix: "fx/param", count: 12, bx: 1, block: ["", { b: 0x0d }] },
   { inc: 1, b: 0x19, block: [
     ["fx/out/assign", { opts: ["Mix","Output 1","Output 2"] }],
     ["fx/out/level", { }],
