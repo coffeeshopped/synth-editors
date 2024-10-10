@@ -329,10 +329,9 @@ module.exports = {
     }
     validBundle: bankValidBundle,
   },
-  patchChangeTransform: (part) => ({
+  patchTransform: (part) => ({
     type: 'singlePatch',
     throttle: 30,
-    deviceId, 
     param: (path, parm, value) => {
       // special check for fseq on/off for op, since that's a COMMON param...
       if (!(path.count == 4 && path[3] == 'fseq')) {
