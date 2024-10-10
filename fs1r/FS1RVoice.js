@@ -344,12 +344,9 @@ module.exports = {
       }
     }, 
     patch: [[tempSysexData(FS1R.deviceIdMap, part), 100]], 
-    name: { editorVal, bodyData, path, name in
-      let deviceId = deviceIdMap(editorVal)
-      return patchTruss.namePackIso?.byteRange.map {
-        (commonParamData(deviceId, bodyData: bodyData, part: part, paramAddress: $0), 30)
-      }
-    }
+    name: patchTruss.namePack.rangeMap(i => [
+      commonParamData(part, i), 30
+    ]),
   }),
   bankTransform: {
     type: 'singleBank',
