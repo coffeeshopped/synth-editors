@@ -55,6 +55,7 @@ module.exports = {
     parseBody: 9,
   },
   patchTransform: {
+    type: 'singlePatch',
     throttle: 100, 
     param: (path, parm, value) => [[FS1R.dataSetMsg(FS1R.deviceIdMap, [0x00, 0x00, parm.b], value), 30]], 
     patch: [[sysexData(FS1R.deviceIdMap), 100]],
