@@ -2,13 +2,9 @@ const FS1R = require('./FS1R.js')
 
 const sysexData = (deviceId) => FS1R.sysexData(deviceId, [0x00, 0x00, 0x00])
 
-const ctrlOptions: [Int:String] = {
-  var opts = [Int:String]()
-  (1...31).forEach { opts[$0] = "\($0)" }
-  opts[32] = "Invalid"
-  (33...95).forEach { opts[$0] = "\($0)" }
-  return opts
-}()
+const ctrlOptions = Array.sparse([
+  (95).map(i => [i+1, i == 31 ? "Invalid" : `${i + 1}`])
+])
 
 const channels = (16).map(i => `${i + 1}`)
 channels[0x10] = "All"
