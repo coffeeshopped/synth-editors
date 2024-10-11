@@ -1,22 +1,4 @@
-//
-//  FS1RFseqController.swift
-//  Yamaha
-//
-//  Created by Chadwick Wood on 11/6/20.
-//  Copyright © 2020 Coffeeshopped LLC. All rights reserved.
-//
 
-import Foundation
-import PBAPI
-
-extension FS1R.Fseq {
-  
-  enum Controller {
-
-  }
-  
-}
-  
 //  private let arrayCtrl = FS1RFseqControl(label: "")
 //  private let toolCtrl = PBGridSelectControl(label: "")
 //

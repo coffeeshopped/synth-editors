@@ -1,14 +1,4 @@
-////
-////  FS1RFseqControl.swift
-////  Yamaha
-////
-////  Created by Chadwick Wood on 11/6/20.
-////  Copyright © 2020 Coffeeshopped LLC. All rights reserved.
-////
-//
-//import Foundation
-//import PBAPI
-//
+
 //class FS1RFseqControl : PBLabeledControl, PBGestureRecognizerDelegate {
 //    
 //  private var pitch = [Int](repeating: 0, count: 512)
