@@ -36,8 +36,8 @@ const editor = {
   ],
 
   slotTransforms: [
-    ["bank/0", { user: location => `${location}` }],
-    ["bank/1", { user: location => `${location + 100}` }]
+    ["bank/0", ['user', location => `${location}`]],
+    ["bank/1", ['user', location => `${location + 100}`]]
   ],
 }
 

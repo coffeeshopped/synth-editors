@@ -1,3 +1,5 @@
+require('../core/NumberUtils.js')
+require('../core/ArrayUtils.js')
 const FS1R = require('./FS1R.js')
 const Global = require('./FS1RGlobal.js')
 const Voice = require('./FS1RVoice.js')
@@ -37,13 +39,13 @@ const editor = {
   ),
   
   fetchTransforms: ([
-    ["global", patchFetch([0x00, 0x00, 0x00]),
-    ["perf", patchFetch([0x10, 0x00, 0x00]),
-    ["fseq", patchFetch([0x60, 0x00, 0x00]),
-    ["bank/voice", bankFetch([0x51, 0x00, 'b']),
-    ["bank/perf" , bankFetch([0x11, 0x00, 'b']),
-    ["bank/fseq" , bankFetch([0x61, 0x00, 'b']),
-    ["bank/voice/extra", bankFetch([0x51, 0x00, 'b']),
+    ["global", patchFetch([0x00, 0x00, 0x00])],
+    ["perf", patchFetch([0x10, 0x00, 0x00])],
+    ["fseq", patchFetch([0x60, 0x00, 0x00])],
+    ["bank/voice", bankFetch([0x51, 0x00, 'b'])],
+    ["bank/perf" , bankFetch([0x11, 0x00, 'b'])],
+    ["bank/fseq" , bankFetch([0x61, 0x00, 'b'])],
+    ["bank/voice/extra", bankFetch([0x51, 0x00, 'b'])],
   ]).concat(
     (4).map(i => [["part", i], patchFetch([0x40 + i, 0x00, 0x00])])
   ),
@@ -80,7 +82,7 @@ const editor = {
   ),
   
   midiChannels: (4).map(p =>
-    [["part", p], ['patch', "perf", ["part", i, "channel"], map: chMap]]
+    [["part", p], ['patch', "perf", ["part", i, "channel"], {map: chMap}]]
   ),
   
   slotTransforms: (11).map(b =>

@@ -102,7 +102,7 @@ const parms = [
     ["attack/velo", { b: 0x6e, bits: [0, 3], max: 7}],
     ["time/scale", { b: 0x6e, bits: [3, 6], max: 7}],
   ]},
-  { b: 0x70, offset: { prefix: 'op', count: 8, bx: 62, block: { b2p: 
+  { b: 0x70, offset: { prefix: 'op', count: 8, bx: 62, block: { b2p: [
     { prefix: 'voiced', block: [
       ["key/sync", { b: 0x00, bit: 6}],
       ["transpose", { b: 0x00, bits: [0, 6], max: 48, dispOff: -24}],
@@ -179,7 +179,7 @@ const parms = [
       ["amp/env/velo", { b: 0x3c, bits: [0, 4], max: 14, dispOff: -7}],
       ["amp/env/bias/sens", { b: 0x3d, max: 14, dispOff: -7}],
     ] },
-  } } },
+  ] } } },
 ]
 
 /// sysex bytes for patch as temp voice
@@ -195,8 +195,8 @@ const patchTruss = {
   namePack: [0, 10], 
   parms: parms, 
   initFile: "fs1r-init", 
-  createFileData: tempSysexData(0, 0), 
-  parseBody: parseOffset,
+  createFile: tempSysexData(0, 0), 
+  parseBody: FS1R.parseOffset,
 }
 
 const bankValidBundle = { counts: [79232, 39616] }
@@ -258,12 +258,12 @@ const bankValidBundle = { counts: [79232, 39616] }
 //  }
 //
   
-  static func algorithms() -> [DXAlgorithm] { Algorithms.all }
+  // static func algorithms() -> [DXAlgorithm] { Algorithms.all }
 
 // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
 
 const commonParamData = (part, paramAddress) =>
-  FS1R.dataSetMsg(FS1R.deviceIdMap, [0x40 + part, 0x00, paramAddress], ['byte', paramAddress]])
+  FS1R.dataSetMsg(FS1R.deviceIdMap, [0x40 + part, 0x00, paramAddress], ['byte', paramAddress])
 
 const opParamData = (part, parm, op) =>
   FS1R.dataSetMsg(FS1R.deviceIdMap, [0x60 + part, op, parm.p], ['byte', parm.b])
@@ -307,12 +307,12 @@ module.exports = {
     patchCount: 128, 
     createFile: {
       locationMap: location => sysexData(0, location)
-    }
+    },
     parseBody: {
       locationIndex: 8,
       parseBody: patchTruss.parseBody,
       patchCount: 128,
-    }
+    },
     validBundle: bankValidBundle,
   },
   bank64Truss: {
@@ -321,12 +321,12 @@ module.exports = {
     patchCount: 64, 
     createFile: {
       locationMap: location => sysexData(0, location)
-    }
+    },
     parseBody: {
       locationIndex: 8,
       parseBody: patchTruss.parseBody,
       patchCount: 64,
-    }
+    },
     validBundle: bankValidBundle,
   },
   patchTransform: (part) => ({

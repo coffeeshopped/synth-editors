@@ -6,8 +6,8 @@ const FS1R = require('./FS1R.js')
 
 const parms = [
   { b2p: [
-    ["loop/start", { b: 0x10, extra: [0:2], max: 511 }],
-    ["loop/end", { b: 0x12, extra: [0:2], max: 511 }],
+    ["loop/start", { b: 0x10, extra: [[0, 2]], max: 511 }],
+    ["loop/end", { b: 0x12, extra: [[0, 2]], max: 511 }],
     ["loop/mode", { b: 0x14, opts: ["1-way", "Round"] }],
     ["speed", { b: 0x15 }],
     ["speed/velo", { b: 0x16, max: 7 }],
@@ -16,16 +16,16 @@ const parms = [
     ["detune", { b: 0x19, max: 126, displayOffset: -63 }],
     ["delay", { b: 0x1a, max: 99 }],
     ["form", { b: 0x1b, opts: ["128", "256", "384", "512"] }],
-    ["end", { b: 0x1e, extra: [0:2], max: 511 }],
+    ["end", { b: 0x1e, extra: [[0, 2]], max: 511 }],
   ] },
   { prefix: 'step', count: 512, bx: 50, block: { b: 16, offset: [
     { b2p: [
-      ["pitch", { b: 0x10, extra: [0:2], max: 16383 }],
+      ["pitch", { b: 0x10, extra: [[0, 2]], max: 16383 }],
       // step/0/trk/0/...
       { prefix: 'trk', count: 8, bx: 1, block: [
-        ["voiced/freq", { b: 0x12, extra: [0:2], max: 16383 }],
+        ["voiced/freq", { b: 0x12, extra: [[0, 2]], max: 16383 }],
         ["voiced/level", { b: 0x22 }],
-        ["unvoiced/freq", { b: 0x2a, extra: [0:2], max: 16383 }],
+        ["unvoiced/freq", { b: 0x2a, extra: [[0, 2]], max: 16383 }],
         ["unvoiced/level", { b: 0x3a }],
       ] },
     ] },
@@ -37,7 +37,7 @@ const sysexData = (deviceId) => FS1R.sysexData(deviceId, [0x60, 0x00, 0x00])
 /// sysex bytes for patch as stored in memory location
 const sysexDataWithLocation = (deviceId, location) =>
   FS1R.sysexData(deviceId, [0x61, 0x00, location])
-}
+
 
 const patchTruss = {
   type: 'singlePatch',
@@ -47,11 +47,11 @@ const patchTruss = {
   parms: parms, 
   createFileData: sysexData(0), 
   initFile: "fs1r-fseq-init", 
-  parseBodyData: {
-    // variable data length - 50 bytes per frame
-    guard $0.count > 11 else { return [] }
-    return [UInt8]($0.safeBytes(9..<($0.count - 2)))
-  }, 
+  // parseBodyData: {
+  //   // variable data length - 50 bytes per frame
+  //   guard $0.count > 11 else { return [] }
+  //   return [UInt8]($0.safeBytes(9..<($0.count - 2)))
+  // }, 
   validBundle: { counts: [6443, 12843, 19243, 25643] },
 } 
 
@@ -62,19 +62,19 @@ const presets = ["ShoobyDo", "2BarBeat", "D&B", "D&B Fill", "4BarBeat", "YouCanG
 const headerParamData = (deviceId, paramAddress, byteCount) => {
   // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
   let v = byteCount == 1 ? ['byte', paramAddress] : (['byte', paramAddress] << 7) + ['byte', paramAddress + 1]
-  let paramBytes = RolandAddress(intValue: paramAddress).sysexBytes(count: 2)
+  let paramBytes = []// TODO: RolandAddress(intValue: paramAddress).sysexBytes(count: 2)
   return FS1R.dataSetMsg(deviceId, [0x70, paramBytes], v)
 }
 
-const bankIsValid = (sysex: [UInt8]) -> Bool {
+const bankIsValid = (sysex) => {
   // smallest possible
-  guard sysex.count >= 6443 * 6 else { return false }
+  if (sysex.count < 6443 * 6) { return false }
 
-  let s = SysexData(data: Data(sysex))
-  guard s.count == 6 else { return false }
-  for msg in s {
-    guard patchTruss.isValidSize(msg.count) else { return false }
-  }
+  // let s = SysexData(data: Data(sysex))
+  // guard s.count == 6 else { return false }
+  // for msg in s {
+  //   guard patchTruss.isValidSize(msg.count) else { return false }
+  // }
   return true
 }
 
@@ -84,11 +84,17 @@ module.exports = {
     type: 'singleBank',
     patchTruss: patchTruss,
     patchCount: 6,
-    createFileData: bankCreateFileData(sysexData), 
-    parseBodyData: bankParseBodyData(patchTruss: patchTruss, patchCount: 128),
-    validSize: {
+    createFile: {
+      locationMap: location => sysexDataWithLocation(0, location)
+    }, 
+    parseBody: {
+      locationIndex: 8,
+      parseBody: patchTruss.parseBody,
+      patchCount: 128,
+    },
+    validSize: size => {
       // there are so many possibilities of valid file sizes, we're fudging.
-      $0 >= 6443 * 6
+      return size >= 6443 * 6
     },
     validData: bankIsValid,
     completeFetch: bankIsValid,

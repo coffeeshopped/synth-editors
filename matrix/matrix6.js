@@ -40,7 +40,7 @@ const createEditorTruss = name => ({
   ],
   
   slotTransforms: [
-    ["bank", { user: location => `${location}` }]
+    ["bank", ['user', location => `${location}`]]
   ],
 })
 
