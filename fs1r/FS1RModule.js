@@ -28,6 +28,18 @@ const Editor = require('./FS1REditor.js')
 //      }).disposed(by: module.templatedEditor.disposeBag)
 //    }
 
+const ctrlr = {
+  color: 1,
+  builders: [
+    ['panel', 'modes', [[
+      
+    ]]],
+  ],
+  simpleGridLayout: [
+    [['modes', 1]],
+  ]
+}
+
 module.exports = {
   module: {
     editor: Editor.editor,
@@ -36,12 +48,12 @@ module.exports = {
     subid: 'fs1r', 
     sections: [
       ['first', [
-        ['global', Global.Controller.controller],
-        ['perf', Perf.Controller.controller],
+        ['global', ctrlr], // Global.Controller.controller],
+        ['perf', ctrlr], // Perf.Controller.controller],
         // ['voice', "Fseq", path: [.fseq], PatchController.patch([])],
         // ['fullRef'],
         ]],
-      ['basic', "Parts", ['perfParts', 4, i => `Part ${i + 1}`, Voice.Controller.controller]],
+      ['basic', "Parts", ['perfParts', 4, i => `Part ${i + 1}`, ctrlr]], // Voice.Controller.controller]],
       ['banks', [
         ['bank', "Voice Bank", 'bank/voice'],
         ['bank', "Perf Bank", 'bank/perf'],

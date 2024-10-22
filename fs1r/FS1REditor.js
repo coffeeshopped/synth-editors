@@ -82,7 +82,7 @@ const editor = {
   ),
   
   midiChannels: (4).map(p =>
-    [["part", p], ['patch', "perf", ["part", i, "channel"], {map: chMap}]]
+    [["part", p], ['patch', "perf", ["part", p, "channel"], {map: chMap}]]
   ),
   
   slotTransforms: (11).map(b =>

@@ -6,6 +6,7 @@ module.exports = {
   sysexData: (deviceId, address) => [
     ['yamCmd', [deviceId, 0x5e], ['+', ['count', 'b', 'msBytes7bit', 2], address, 'b']]
   ],
+  // v should be 2 bytes
   dataSetMsg: (deviceId, address, v) =>
-    ['yamParm', deviceId, [0x5e, address, (v >> 7) & 0x7f, v & 0x7f]],
+    ['yamParm', deviceId, [0x5e, address, v]],
 }

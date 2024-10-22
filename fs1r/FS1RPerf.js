@@ -1,4 +1,5 @@
 const FS1R = require('./FS1R.js')
+const Voice = require('./FS1RVoice.js')
 
 // TODO: treat byte (b) values as RolandAddresses for the purposes of packing/unpacking
 // i.e. take b, make a RolandAddress from it, then get intValue(), and that's the actual byte address
@@ -14,6 +15,98 @@ const multiPack = (byte) => ['splitter', [
 
 const optionsDict = (range, options) =>
   Array.sparse(range.rangeMap(i => [i, options[i]]))
+
+
+const presetFseqNames = ["ShoobyDo", "2BarBeat", "D&B", "D&B Fill", "4BarBeat", "YouCanG", "EBSayHey", "RtmSynth", "VocalRtm", "WooWaPa", "UooLha", "FemRtm", "ByonRole", "WowYeah", "ListenVo", "YAMAHAFS", "Laugh", "Laugh2", "AreYouR", "Oiyai", "Oiaiuo", "UuWaUu", "Wao", "RndArp1", "FiltrArp", "RndArp2", "TechArp", "RndArp3", "Voco-Seq", "PopTech", "1BarBeat", "1BrBeat2", "Undo", "RndArp4", "VoclRtm2", "Reiyowha", "RndArp5", "VocalArp", "CanYouGi", "Pu-Yo", "Yaof", "MyaOh", "ChuckRtm", "ILoveYou", "Jan-On", "Welcome", "One-Two", "Edokko", "Everybdy", "Uwau", "YEEAAH", "4-3-2-1", "Test123", "CheckSnd", "ShavaDo", "R-M-H-R", "HiSchool", "M.Blastr", "L&G MayI", "Hellow", "ChowaUu", "Everybd2", "Dodidowa", "Check123", "BranNewY", "BoomBoom", "Hi=Woo", "FreeForm", "FreqPad", "YouKnow", "OldTech", "B/M", "MiniJngl", "EveryB-S", "IYaan", "Yeah", "ThankYou", "Yes=No", "UnWaEDon", "MouthPop", "Fire", "TBLine", "China", "Aeiou", "YaYeYiYo", "C7Seq", "SoundLib", "IYaan2", "Relax", "PSYAMAHA"]
+const presetFseqOptions = Array.sparse(presetFseqNames.mapWithIndex((e, i) => [i + 1, e]))
+
+const bankOptions = ["Off","Int","PrA","PrB","PrC", "PrD","PrE","PrF","PrG","PrH","PrI","PrJ","PrK"]
+
+var channelOptions = (16).map(i => `${i+1}`) 
+channelOptions[0x10] = "Pfm"
+channelOptions[0x7f] = "Off"
+
+var channelMaxOptions = (16).map(i => `${i+1}`)   
+channelMaxOptions[0x7f] = "Off"
+
+const fseqMidiSpeedOptions = ["Midi 1/4","Midi 1/2","Midi","Midi 2/1","Midi 4/1"]
+
+const panOptions = { iso: ['switch', [
+  [0, "Random"],
+  [[1, 128], ['-', 64]],
+]] }
+
+const destOptions = ["Off","Insert Param 1", "Insert Param 2", "Insert Param 3", "Insert Param 4", "Insert Param 5", "Insert Param 6", "Insert Param 7", "Insert Param 8", "Insert Param 9", "Insert Param 10", "Insert Param 11", "Insert Param 12", "Insert Param 13", "Insert Param 14", "Ins->Rev", "Ins->Vari", "Volume", "Pan", "Rev Send", "Var Send", "Flt Cutoff", "Flt Reson", "Flt EG Depth", "Attack", "Decay", "Release", "Pitch EG Init", "Pitch EG Attack", "Pitch EG Rel Level", "Pitch EG Rel Time", "V/N Balance", "Formant", "FM", "Pitch Bias", "Amp EG Bias", "Freq Bias", "Voiced BW", "Unvoiced BW", "LFO1 Pitch Mod", "LFO1 Amp Mod", "LFO1 Freq Mod", "LFO1 Filter Mod", "LFO1 Speed", "LFO2 Filter Mod", "LFO2 Speed", "Fseq Speed", "Formant Scratch"]
+
+const reverbOptions = ["None", "Hall 1", "Hall 2", "Room 1", "Room 2", "Room 3", "Stage 1", "Stage 2", "Plate", "White Room", "Tunnel", "Basement", "Canyon", "Delay LCR", "Delay L,R", "Echo", "Cross Delay",]
+
+const varyOptions = ["None", "Chorus", "Celeste", "Flanger", "Symphonic", "Phaser 1", "Phaser 2", "Ens Detune", "Rotary Sp", "Tremolo", "Auto Pan", "Auto Wah", "Touch Wah", "3-Band EQ", "HM Enhancer", "Noise Gate", "Compressor", "Distortion", "Overdrive", "Amp Sim", "Delay LCR", "Delay L,R", "Echo", "Cross Delay", "Karaoke", "Hall", "Room", "Stage", "Plate"]
+
+const insertOptions = ["Thru", "Chorus", "Celeste", "Flanger", "Symphonic", "Phaser 1", "Phaser 2", "Pitch Chng", "Ens Detune", "Rotary Sp", "2 Way Rotary", "Tremolo", "Auto Pan", "Ambience", "A-Wah+Dist", "A-Wah+Odrv", "T-Wah+Dist", "T-Wah+Odrv", "Wah+DS+Dly", "Wah+OD+Dly", "Lo-Fi", "3-Band EQ", "HM Enhncr", "Noise Gate", "Compressor", "Comp+Dist", "Cmp+DS+Dly", "Cmp+OD+Dly", "Distortion", "Dist+Dly", "Overdrive", "Ovdrv+Dly", "Amp Sim", "Delay LCR", "Delay L,R", "Echo", "CrossDelay", "ER 1", "ER 2", "Gate Rev", "Revrs Gate"]
+
+const eqShapeOptions = ["Shelv", "Peak"]
+const eqQOptions = { rng: [1, 121], iso: ['>'
+  ['*', 0.1],
+  ['str', "%.1f"],
+] }
+ 
+
+const reverbTimeParam = { rng: [0, 70], iso: ['switch', [
+  [[0, 47] , ['>', ['*', 0.1], ['+', 0.3]]],
+  [[47, 57], ['>', ['-', 47], ['*', 0.5], ['+', 5]]],
+  [[57, 67], ['>', ['-', 57], ['*', 1], ['+', 10]]],
+  [[67, 70], ['>', ['-', 67], ['*', 5], ['+', 20]]],
+]] } 
+  
+const delay200Param = { rng: [0, 128], iso: ['>',
+  ['/', 127],
+  ['*', 199.9],
+  ['+', 0.1],
+  ['str', "%.1f"],
+] }
+
+const revDelayParam = { rng: [0, 64], iso: ['>',
+  ['/', 63],
+  ['*', 99.2],
+  ['+', 0.1],
+  ['str', "%.1f"],
+] }
+
+const hiDampParam = { rng: [1, 11], iso: ['>',
+  ['*', 0.1],
+  ['str', "%.1f"],
+] }
+
+const gainParam = { rng: [52, 77], dispOff: -64 }
+
+const cutoffOptions = ["thru","22","25","28","32","36","40","45","50","56","63","70", "80","90","100","110","125","140","160","180","200","225","250","280","315","355","400","450","500","560", "630","700","800","900","1.0k","1.1k","1.2k","1.4k","1.6k","1.8k","2.0k","2.2k","2.5k", "2.8k","3.2k","3.6k","4.0k","4.5k","5.0k","5.6k","6.3k","7.0k","8.0k","9.0k", "10.0k", "11.0k", "12.0k", "14.0k", "16.0k", "18.0k", "thru"]
+
+
+const hpfCutoffParam = { opts: optionsDict([0, 53], cutoffOptions) }
+const lpfCutoffParam = { opts: optionsDict([34, 61], cutoffOptions) }
+const eqLoFreqParam = { opts: optionsDict([4, 41], cutoffOptions) }
+const eqHiFreqParam = { opts: optionsDict([28, 59], cutoffOptions) }
+const eqMidFreqParam = { opts: optionsDict([14, 55], cutoffOptions) }
+
+const qParam = { rng: [10, 121], iso: ['>',
+  ['*', 0.1],
+  ['str', "%.1f"],
+] }
+
+const erRevParam = { iso: ['switch', [
+  [[1, 64], ['>', ['*', -1], ['+', 64], ['str', "E%d>R"]]],
+  [64, "E=R"],
+  [[65, 128], ['>', ['-', 64], ['str', "E<R%d"]]],
+]] }
+
+const dimOptions = ["0.5", "0.8", "1.0", "1.3", "1.5", "1.8", "2.0", "2.3", "2.6", "2.8", "3.1", "3.3", "3.6", "3.9", "4.1", "4.4", "4.6", "4.9", "5.2", "5.4", "5.7", "5.9", "6.2", "6.5", "6.7", "7.0", "7.2", "7.5", "7.8", "8.0", "8.3", "8.6", "8.8", "9.1", "9.4", "9.6", "9.9", "10.2", "10.4", "10.7", "11.0", "11.2", "11.5", "11.8", "12.1", "12.3", "12.6", "12.9", "13.1", "13.4", "13.7", "14.0", "14.2", "14.5", "14.8", "15.1", "15.4", "15.6", "15.9", "16.2", "16.5", "16.8", "17.1", "17.3", "17.6", "17.9", "18.2", "18.5", "18.8", "19.1", "19.4", "19.7", "20.0", "20.2", "20.5", "20.8", "21.1", "21.4", "21.7", "22.0", "22.4", "22.7", "23.0", "23.3", "23.6", "23.9", "24.2", "24.5", "24.9", "25.2", "25.5", "25.8", "26.1", "26.5", "26.8", "27.1", "27.5", "27.8", "28.1", "28.5", "28.8", "29.2", "29.5", "29.9", "30.2"]
+
+const widthParam = { opts: optionsDict([0, 38], dimOptions) }
+const heightParam = { opts: optionsDict([0, 74], dimOptions) }
+const depthParam = { opts: optionsDict([0, 105], dimOptions) }
+
+const delay1365Param = { rng: [1, 13651], iso: ['>', ['*', 0.1], ['str', "%.1f"]] }
+
 
 const parms = [
   ["category", { b: 0x0e, opts: Voice.categoryOptions }],
@@ -180,24 +273,11 @@ const patchTruss = {
   parseBody: FS1R.parseOffset,
 }
 
-const bankTruss = {
-  type: 'singleBank',
-  patchTruss: patchTruss,
-  patchCount: 128, 
-  createFile: {
-    locationMap: location => sysexDataWithLocation(0, location)
-  },
-  parseBody: {
-    locationIndex: 8,
-    parseBody: patchTruss.parseBody,
-    patchCount: 128,
-  },
-}
-
 // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
-const commonParamData = (deviceId, paramAddress, byteCount) => {
-  let v = byteCount == 1 ? bodyData[paramAddress] : (bodyData[paramAddress] << 7) + bodyData[paramAddress + 1]
-  let paramBytes = RolandAddress(intValue: paramAddress).sysexBytes(count: 2)
+const commonParamData = (deviceId, address, byteCount) => {
+  // it's either 1 or 2 bytes holding the value
+  const v = byteCount == 1 ? [0, ['byte', address]] : ['+' ['byte', address], ['byte', address + 1]]
+  const paramBytes = ['msBytes7bit', address, 2]
   return FS1R.dataSetMsg(deviceId, [0x10, paramBytes], v)
 }
 
@@ -262,97 +342,6 @@ const partParamData = (deviceId, part, parm) =>
 // }
 
 
-const presetFseqNames = ["ShoobyDo", "2BarBeat", "D&B", "D&B Fill", "4BarBeat", "YouCanG", "EBSayHey", "RtmSynth", "VocalRtm", "WooWaPa", "UooLha", "FemRtm", "ByonRole", "WowYeah", "ListenVo", "YAMAHAFS", "Laugh", "Laugh2", "AreYouR", "Oiyai", "Oiaiuo", "UuWaUu", "Wao", "RndArp1", "FiltrArp", "RndArp2", "TechArp", "RndArp3", "Voco-Seq", "PopTech", "1BarBeat", "1BrBeat2", "Undo", "RndArp4", "VoclRtm2", "Reiyowha", "RndArp5", "VocalArp", "CanYouGi", "Pu-Yo", "Yaof", "MyaOh", "ChuckRtm", "ILoveYou", "Jan-On", "Welcome", "One-Two", "Edokko", "Everybdy", "Uwau", "YEEAAH", "4-3-2-1", "Test123", "CheckSnd", "ShavaDo", "R-M-H-R", "HiSchool", "M.Blastr", "L&G MayI", "Hellow", "ChowaUu", "Everybd2", "Dodidowa", "Check123", "BranNewY", "BoomBoom", "Hi=Woo", "FreeForm", "FreqPad", "YouKnow", "OldTech", "B/M", "MiniJngl", "EveryB-S", "IYaan", "Yeah", "ThankYou", "Yes=No", "UnWaEDon", "MouthPop", "Fire", "TBLine", "China", "Aeiou", "YaYeYiYo", "C7Seq", "SoundLib", "IYaan2", "Relax", "PSYAMAHA"]
-const presetFseqOptions = Array.sparse(presetFseqNames.mapWithIndex((e, i) => [i + 1, e]))
-
-const bankOptions = ["Off","Int","PrA","PrB","PrC", "PrD","PrE","PrF","PrG","PrH","PrI","PrJ","PrK"]
-
-var channelOptions = (16).map(i => `${i+1}`) 
-channelOptions[0x10] = "Pfm"
-channelOptions[0x7f] = "Off"
-
-var channelMaxOptions = (16).map(i => `${i+1}`)   
-channelMaxOptions[0x7f] = "Off"
-
-const fseqMidiSpeedOptions = ["Midi 1/4","Midi 1/2","Midi","Midi 2/1","Midi 4/1"]
-
-const panOptions = { iso: ['switch', [
-  [0, "Random"],
-  [[1, 128], ['-', 64]],
-]] }
-
-const destOptions = ["Off","Insert Param 1", "Insert Param 2", "Insert Param 3", "Insert Param 4", "Insert Param 5", "Insert Param 6", "Insert Param 7", "Insert Param 8", "Insert Param 9", "Insert Param 10", "Insert Param 11", "Insert Param 12", "Insert Param 13", "Insert Param 14", "Ins->Rev", "Ins->Vari", "Volume", "Pan", "Rev Send", "Var Send", "Flt Cutoff", "Flt Reson", "Flt EG Depth", "Attack", "Decay", "Release", "Pitch EG Init", "Pitch EG Attack", "Pitch EG Rel Level", "Pitch EG Rel Time", "V/N Balance", "Formant", "FM", "Pitch Bias", "Amp EG Bias", "Freq Bias", "Voiced BW", "Unvoiced BW", "LFO1 Pitch Mod", "LFO1 Amp Mod", "LFO1 Freq Mod", "LFO1 Filter Mod", "LFO1 Speed", "LFO2 Filter Mod", "LFO2 Speed", "Fseq Speed", "Formant Scratch"]
-
-const reverbOptions = ["None", "Hall 1", "Hall 2", "Room 1", "Room 2", "Room 3", "Stage 1", "Stage 2", "Plate", "White Room", "Tunnel", "Basement", "Canyon", "Delay LCR", "Delay L,R", "Echo", "Cross Delay",]
-
-const varyOptions = ["None", "Chorus", "Celeste", "Flanger", "Symphonic", "Phaser 1", "Phaser 2", "Ens Detune", "Rotary Sp", "Tremolo", "Auto Pan", "Auto Wah", "Touch Wah", "3-Band EQ", "HM Enhancer", "Noise Gate", "Compressor", "Distortion", "Overdrive", "Amp Sim", "Delay LCR", "Delay L,R", "Echo", "Cross Delay", "Karaoke", "Hall", "Room", "Stage", "Plate"]
-
-const insertOptions = ["Thru", "Chorus", "Celeste", "Flanger", "Symphonic", "Phaser 1", "Phaser 2", "Pitch Chng", "Ens Detune", "Rotary Sp", "2 Way Rotary", "Tremolo", "Auto Pan", "Ambience", "A-Wah+Dist", "A-Wah+Odrv", "T-Wah+Dist", "T-Wah+Odrv", "Wah+DS+Dly", "Wah+OD+Dly", "Lo-Fi", "3-Band EQ", "HM Enhncr", "Noise Gate", "Compressor", "Comp+Dist", "Cmp+DS+Dly", "Cmp+OD+Dly", "Distortion", "Dist+Dly", "Overdrive", "Ovdrv+Dly", "Amp Sim", "Delay LCR", "Delay L,R", "Echo", "CrossDelay", "ER 1", "ER 2", "Gate Rev", "Revrs Gate"]
-
-const eqShapeOptions = ["Shelv", "Peak"]
-const eqQOptions = { rng: [1, 121], iso: ['>'
-  ['*', 0.1],
-  ['str', "%.1f"],
-] }
- 
-
-const reverbTimeParam = { rng: [0, 70], iso: ['switch', [
-  [[0, 47] , ['>', ['*', 0.1], ['+', 0.3]]],
-  [[47, 57], ['>', ['-', 47], ['*', 0.5], ['+', 5]]],
-  [[57, 67], ['>', ['-', 57], ['*', 1], ['+', 10]]],
-  [[67, 70], ['>', ['-', 67], ['*', 5], ['+', 20]]],
-]] } 
-  
-const delay200Param = { rng: [0, 128], iso: ['>',
-  ['/', 127],
-  ['*', 199.9],
-  ['+', 0.1],
-  ['str', "%.1f"],
-] }
-
-const revDelayParam = { rng: [0, 64], iso: ['>',
-  ['/', 63],
-  ['*', 99.2],
-  ['+', 0.1],
-  ['str', "%.1f"],
-] }
-
-const hiDampParam = { rng: [1, 11], iso: ['>',
-  ['*', 0.1],
-  ['str', "%.1f"],
-] }
-
-const gainParam = { rng: [52, 77], dispOff: -64 }
-
-const cutoffOptions = ["thru","22","25","28","32","36","40","45","50","56","63","70", "80","90","100","110","125","140","160","180","200","225","250","280","315","355","400","450","500","560", "630","700","800","900","1.0k","1.1k","1.2k","1.4k","1.6k","1.8k","2.0k","2.2k","2.5k", "2.8k","3.2k","3.6k","4.0k","4.5k","5.0k","5.6k","6.3k","7.0k","8.0k","9.0k", "10.0k", "11.0k", "12.0k", "14.0k", "16.0k", "18.0k", "thru"]
-
-
-const hpfCutoffParam = { opts: optionsDict([0, 53], cutoffOptions) }
-const lpfCutoffParam = { opts: optionsDict([34, 61], cutoffOptions) }
-const eqLoFreqParam = { opts: optionsDict([4, 41], cutoffOptions) }
-const eqHiFreqParam = { opts: optionsDict([28, 59], cutoffOptions) }
-const eqMidFreqParam = { opts: optionsDict([14, 55], cutoffOptions) }
-
-const qParam = { rng: [10, 121], iso: ['>',
-  ['*', 0.1],
-  ['str', "%.1f"],
-] }
-
-const erRevParam = { iso: ['switch', [
-  [[1, 64], ['>', ['*', -1], ['+', 64], ['str', "E%d>R"]]],
-  [64, "E=R"],
-  [[65, 128], ['>', ['-', 64], ['str', "E<R%d"]]],
-]] }
-
-const dimOptions = ["0.5", "0.8", "1.0", "1.3", "1.5", "1.8", "2.0", "2.3", "2.6", "2.8", "3.1", "3.3", "3.6", "3.9", "4.1", "4.4", "4.6", "4.9", "5.2", "5.4", "5.7", "5.9", "6.2", "6.5", "6.7", "7.0", "7.2", "7.5", "7.8", "8.0", "8.3", "8.6", "8.8", "9.1", "9.4", "9.6", "9.9", "10.2", "10.4", "10.7", "11.0", "11.2", "11.5", "11.8", "12.1", "12.3", "12.6", "12.9", "13.1", "13.4", "13.7", "14.0", "14.2", "14.5", "14.8", "15.1", "15.4", "15.6", "15.9", "16.2", "16.5", "16.8", "17.1", "17.3", "17.6", "17.9", "18.2", "18.5", "18.8", "19.1", "19.4", "19.7", "20.0", "20.2", "20.5", "20.8", "21.1", "21.4", "21.7", "22.0", "22.4", "22.7", "23.0", "23.3", "23.6", "23.9", "24.2", "24.5", "24.9", "25.2", "25.5", "25.8", "26.1", "26.5", "26.8", "27.1", "27.5", "27.8", "28.1", "28.5", "28.8", "29.2", "29.5", "29.9", "30.2"]
-
-const widthParam = { opts: optionsDict([0, 38], dimOptions) }
-const heightParam = { opts: optionsDict([0, 74], dimOptions) }
-const depthParam = { opts: optionsDict([0, 105], dimOptions) }
-
-const delay1365Param = { rng: [1, 13651], iso: ['>', ['*', 0.1], ['str', "%.1f"]] }
-
-
 const Pairs = {
   loFreq: ["EQ LowFreq", eqLoFreqParam],
   loGain: ["EQ Low Gain", gainParam],
@@ -370,7 +359,7 @@ const Pairs = {
   mode: ["Mode", { }],
 
   delayOffset: ["Delay Ofst", { }],
-  phaseShift: ["Phase Shift", { }]
+  phaseShift: ["Phase Shift", { }],
 
   dryWet: ["Dry/Wet", { }],
 
@@ -378,11 +367,11 @@ const Pairs = {
   distLoGain: ["DS Low Gain", gainParam],
   distMidGain: ["DS Mid Gain", gainParam],
   lpfCutoff: ["LPF Cutoff", { }],
-  outLevel: ["Output Level", { }]
+  outLevel: ["Output Level", { }],
 
   cutoff: ["Cutoff", { }],
   reson: ["Reson", { }],
-  sens: ["Sensitivity", { }]
+  sens: ["Sensitivity", { }],
 
   delay: ["Delay", { }],
   leftDelay: ["LchDelay", delay1365Param],
@@ -599,23 +588,6 @@ const touchWahParams = [
   [8, Pairs.hiGain],
 ]
 
-const triBandEQParams = [
-  [5, Pairs.loFreq],
-  [0, Pairs.loGain],
-  [1, Pairs.midFreq],
-  [2, Pairs.midGain],
-  [3, Pairs.midQ],
-  [6, Pairs.hiFreq],
-  [4, Pairs.hiGain],
-  [14, Pairs.mode],
-]
-
-const hmEnhancerParams = [
-  [0, ["HPF Cutoff", { }]],
-  [1, ["Drive", { }]],
-  [2, ["Mix Level", { }]],
-]
-
 const noiseGateParams = [
   [0, ["Attack", { }]],
   [1, ["Release", { }]],
@@ -658,7 +630,7 @@ const karaokeParams = [
   [3, ["LPF Cutoff", { }]],
 ]
 
-const chorusParams = [
+const insertChorusParams = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [2, Pairs.fbLevel],
@@ -674,7 +646,7 @@ const chorusParams = [
   [9, Pairs.dryWet],
 ]
 
-const flangerParams = [
+const insertFlangerParams = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [2, Pairs.fbLevel],
@@ -690,7 +662,7 @@ const flangerParams = [
   [9, Pairs.dryWet],
 ]
 
-const symphParams = [
+const insertSymphParams = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [2, Pairs.delayOffset],
@@ -704,7 +676,7 @@ const symphParams = [
   [9, Pairs.dryWet],
 ]
 
-const phaser1Params = [
+const insertPhaser1Params = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [2, Pairs.phaseShift],
@@ -718,7 +690,7 @@ const phaser1Params = [
   [9, Pairs.dryWet],
 ]
 
-const phaser2Params = [
+const insertPhaser2Params = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [2, Pairs.phaseShift],
@@ -745,7 +717,7 @@ const pitchChangeParams = [
   [9, Pairs.dryWet],
 ]
 
-const ensDetuneParams = [
+const insertEnsDetuneParams = [
   [0, ["Detune",{ }]],
   [1, ["InitDelayL",{ }]],
   [2, ["InitDelayR",{ }]],
@@ -756,7 +728,7 @@ const ensDetuneParams = [
   [9, Pairs.dryWet],
 ]
 
-const rotarySpParams = [
+const insertRotarySpParams = [
   [0, Pairs.lfoFreq],
   [1, Pairs.lfoDepth],
   [5, Pairs.loFreq],
@@ -782,7 +754,7 @@ const twoWayRotaryParams = [
   [8, Pairs.hiGain],
 ]
 
-const tremoloParams = [
+const insertTremoloParams = [
   [0, Pairs.lfoFreq],
   [1, ["AM Depth", { }]],
   [2, ["PM Depth", { }]],
@@ -797,7 +769,7 @@ const tremoloParams = [
   [14, Pairs.mode],
 ]
 
-const autoPanParams = [
+const insertAutoPanParams = [
   [0, Pairs.lfoFreq],
   [1, ["L/R Depth", { }]],
   [2, ["F/R Depth", { }]],
@@ -931,7 +903,7 @@ const compDistDelayParams = [
   [9, Pairs.dryWet],
 ]
 
-const distortionParams = [
+const insertDistortionParams = [
   [0, Pairs.drive],
   [1, Pairs.loFreq],
   [2, Pairs.loGain],
@@ -957,7 +929,7 @@ const distDelayParams = [
   [9, Pairs.dryWet],
   ]
 
-const ampSimParams = [
+const insertAmpSimParams = [
   [0, Pairs.drive],
   [1, ["Amp Type", { }]],
   [2, Pairs.lpfCutoff],
@@ -966,7 +938,7 @@ const ampSimParams = [
   [9, Pairs.dryWet],
 ]
 
-const delayLCRParams = [
+const insertDelayLCRParams = [
   [0, Pairs.leftDelay],
   [1, Pairs.rightDelay],
   [2, Pairs.centerDelay],
@@ -981,7 +953,7 @@ const delayLCRParams = [
   [9, Pairs.dryWet],
 ]
 
-const delayLRParams = [
+const insertDelayLRParams = [
   [0, Pairs.leftDelay],
   [1, Pairs.rightDelay],
   [2, ["FBDelay1", { }]],
@@ -995,7 +967,7 @@ const delayLRParams = [
   [9, Pairs.dryWet],
 ]
 
-const echoParams = [
+const insertEchoParams = [
   [0, Pairs.leftDelay],
   [1, ["Lch FB Lvl", { }]],
   [2, Pairs.rightDelay],
@@ -1011,7 +983,7 @@ const echoParams = [
   [9, Pairs.dryWet],
 ]
 
-const crossDelayParams = [
+const insertCrossDelayParams = [
   [0, ["L>R Delay", { }]],
   [1, ["R>L Delay", { }]],
   [2, Pairs.fbLevel],
@@ -1106,18 +1078,18 @@ const varyParams = [
 
 const insertParams = [
   [],
-  chorusParams,
-  chorusParams, // celeste
-  flangerParams,
-  symphParams,
-  phaser1Params,
-  phaser2Params,
+  insertChorusParams,
+  insertChorusParams, // celeste
+  insertFlangerParams,
+  insertSymphParams,
+  insertPhaser1Params,
+  insertPhaser2Params,
   pitchChangeParams,
-  ensDetuneParams,
-  rotarySpParams,
+  insertEnsDetuneParams,
+  insertRotarySpParams,
   twoWayRotaryParams,
-  tremoloParams,
-  autoPanParams,
+  insertTremoloParams,
+  insertAutoPanParams,
   ambienceParams,
   autoWahDistParams,
   autoWahDistParams, // autowah/OD
@@ -1133,15 +1105,15 @@ const insertParams = [
   compDistParams,
   compDistDelayParams,
   compDistDelayParams, // comp/OD/delay
-  distortionParams,
+  insertDistortionParams,
   distDelayParams,
-  distortionParams, // overdrive
+  insertDistortionParams, // overdrive
   distDelayParams, // OD/delay
-  ampSimParams,
-  delayLCRParams,
-  delayLRParams,
-  echoParams,
-  crossDelayParams,
+  insertAmpSimParams,
+  insertDelayLCRParams,
+  insertDelayLRParams,
+  insertEchoParams,
+  insertCrossDelayParams,
   er1Params,
   er1Params, // ER 2
   gateRevParams,
@@ -1149,18 +1121,33 @@ const insertParams = [
 ]
 
 module.exports = {
+  patchTruss: patchTruss,
+  bankTruss: {
+    type: 'singleBank',
+    patchTruss: patchTruss,
+    patchCount: 128, 
+    createFile: {
+      locationMap: location => sysexDataWithLocation(0, location)
+    },
+    parseBody: {
+      locationIndex: 8,
+      parseBody: patchTruss.parseBody,
+      patchCount: 128,
+    },
+  },
   patchTransform: {
     type: 'singlePatch',
     throttle: 30,
     param: (path, parm, value) => {
-      if (let part = path[0] == .part ? path.i(1) : nil) {
+      const part = path[0] == 'part' ? path[1] : -1
+      if (part >= 0) {
         return [[partParamData(FS1R.deviceIdMap, part, parm), 30]]
       }
       else {
         // common params have param address stored in .byte
         var byte = parm.b
-        var byteCount = parm.packIso != nil ? 2 : 1
-        if (0x30..<0x40).contains(byte) {
+        var byteCount = parm.packIso != null ? 2 : 1
+        if (byte >= 0x30 && byte < 0x40) {
           // special treatment for src bits
           byte = byte - (byte % 2)
           byteCount = 2
