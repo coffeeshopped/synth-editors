@@ -24,7 +24,7 @@ const createPatchTruss = createFileData => ({
   bodyDataCount: 134,
   initFile: "matrix1000-init",
   parseBody: ['>',
-    ['bytes', 5, 268],
+    ['bytes', { start: 5, count: 268 }],
     'denibblizeLSB',
   ],
   createFile: createFileData,
@@ -59,11 +59,7 @@ const createBankTruss = patchTruss => ({
   createFile: {
     locationMap: sysexDataWithLocation,
   }, 
-  parseBody: {
-    locationIndex: 4, 
-    parseBody: patchTruss.parseBody, 
-    patchCount: 100,
-  }, 
+  locationIndex: 4, 
   validSizes: [30404], 
   includeFileDataCount: true,
 })

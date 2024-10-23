@@ -13,9 +13,8 @@ const fetch = address => ['yamFetch', FS1R.deviceIdMap(FS1R.deviceId), [0x5e, ad
 const patchFetch = address => ['truss', fetch(address)]
 const bankFetch = address => ['bankTruss', fetch(address)]
 
-const chMap = ch => ch > 15 ? 0 : ch
 const banks = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"]
-const userXform = { user: i => `Int-${i + 1}` }
+const userXform = ['user', i => `Int-${i + 1}`]
 
 const extra = path => {
   return i => { path + (i == 0 ? [] : "extra") } // mem > 0 -> voice bank of 64 (no fseqs)
@@ -82,11 +81,11 @@ const editor = {
   ),
   
   midiChannels: (4).map(p =>
-    [["part", p], ['patch', "perf", ["part", p, "channel"], {map: chMap}]]
+    [["part", p], ['patch', "perf", ["part", p, "channel"], ch => ch > 15 ? 0 : ch]]
   ),
   
   slotTransforms: (11).map(b =>
-    ["preset/voice/b", ['preset', i => `Pr${banks[b]}-${i}`, Voice.ramBanks[b]]]
+    [["preset", "voice", b], ['preset', i => `Pr${banks[b]}-${i}`, Voice.ramBanks[b]]]
   ).concat([
     ["preset/fseq", ['preset', i => `Pre-${i}`, Fseq.presets]],
     ["bank/voice", userXform],

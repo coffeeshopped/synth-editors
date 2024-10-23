@@ -47,11 +47,8 @@ const patchTruss = {
   parms: parms, 
   createFileData: sysexData(0), 
   initFile: "fs1r-fseq-init", 
-  // parseBodyData: {
-  //   // variable data length - 50 bytes per frame
-  //   guard $0.count > 11 else { return [] }
-  //   return [UInt8]($0.safeBytes(9..<($0.count - 2)))
-  // }, 
+  // variable data length - 50 bytes per frame
+  parseBody: ['bytes', { start: 9, end: -2 }],
   validBundle: { counts: [6443, 12843, 19243, 25643] },
 } 
 
@@ -87,11 +84,7 @@ module.exports = {
     createFile: {
       locationMap: location => sysexDataWithLocation(0, location)
     }, 
-    parseBody: {
-      locationIndex: 8,
-      parseBody: patchTruss.parseBody,
-      patchCount: 128,
-    },
+    locationIndex: 8,
     validSize: size => {
       // there are so many possibilities of valid file sizes, we're fudging.
       return size >= 6443 * 6

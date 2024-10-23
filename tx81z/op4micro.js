@@ -48,10 +48,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
   }
 }
 
-const noteIso = {
-  type: 'noteName',
-  zeroNote: "C-2",
-}
+const noteIso = ['noteName', "C-2"]
 
 const octParms = [
   {

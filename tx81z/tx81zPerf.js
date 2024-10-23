@@ -1,9 +1,6 @@
 const Op4 = require('./op4.js')
 
-const noteIso = {
-  type: 'noteName',
-  zeroNote: "C-2",
-}
+const noteIso = ['noteName', "C-2"]
 
 const voiceNumberPack = byte => ['splitter', [
   {

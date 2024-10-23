@@ -199,7 +199,7 @@ const patchTruss = {
   parseBody: FS1R.parseOffset,
 }
 
-const bankValidBundle = { counts: [79232, 39616] }
+const bankValidBundle = { sizes: [79232, 39616] }
 
 //  func randomize() {
 //    randomizeAllParams()
@@ -308,11 +308,7 @@ module.exports = {
     createFile: {
       locationMap: location => sysexData(0, location)
     },
-    parseBody: {
-      locationIndex: 8,
-      parseBody: patchTruss.parseBody,
-      patchCount: 128,
-    },
+    locationIndex: 8,
     validBundle: bankValidBundle,
   },
   bank64Truss: {
@@ -322,11 +318,7 @@ module.exports = {
     createFile: {
       locationMap: location => sysexData(0, location)
     },
-    parseBody: {
-      locationIndex: 8,
-      parseBody: patchTruss.parseBody,
-      patchCount: 64,
-    },
+    locationIndex: 8,
     validBundle: bankValidBundle,
   },
   patchTransform: (part) => ({

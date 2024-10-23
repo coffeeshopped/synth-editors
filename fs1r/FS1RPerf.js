@@ -1129,11 +1129,7 @@ module.exports = {
     createFile: {
       locationMap: location => sysexDataWithLocation(0, location)
     },
-    parseBody: {
-      locationIndex: 8,
-      parseBody: patchTruss.parseBody,
-      patchCount: 128,
-    },
+    locationIndex: 8,
   },
   patchTransform: {
     type: 'singlePatch',
