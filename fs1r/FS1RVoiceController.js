@@ -238,55 +238,53 @@ const ampController = {
       }
       return changes.concat(['paramsChange', [["amp/env/level", level]]])
     }],
+    paletteEffect,
   ],
 }
 
-const voicedAmpController = {
+const spectralFormEffect = ['patchChange', "spectral/form", v => {
+  const isSine = v == 0
+  const isFormant = v == 7
+  return [
+    ['hideItem', isFormant, "osc/mode"],
+    ['hideItem', v < 5, "freq/ratio/spectral"],
+    ['setCtrlLabel', "freq/ratio/spectral", isFormant ? "BW" : "Reson"],
+    ['hideItem', isFormant, "key/sync"],
+    ['hideItem', isSine, "spectral/skirt"],
+    // these next are only present in the bigger op controller
+    ['hideItem', !isFormant, "bw/bias/sens"],
+    ['hideItem', !isFormant, "note/scale"],
+    ['hideItem', !isFormant, "freq/velo"],
+    ['hideItem', !isFormant, "freq/mod/sens"],
+    ['hideItem', !isFormant, "freq/bias/sens"],
+  ]
+}]
+
+const oscModeEffect = ['patchChange', {
+  paths: ["osc/mode", "spectral/form", "coarse", "fine"],
+  fn: values => {
+    const oscMode = values["osc/mode"] || 0
+    const specForm = values["spectral/form"] || 0
+    const coarse = values["coarse"] || 0
+    const fine = values["fine"] || 0
+    return [
+      ['setCtrlLabel', "ratio", (oscMode == 0 && specForm < 7) ? "Ratio" : "Fixed"],
+      ['configCtrl', "ratio", { opts: [
+        voicedFreq(oscMode, specForm, coarse, fine)
+      ] }],
+    ]
+  },
+}]
+
+
+const voicedOscController = {
   prefix: voicedPrefix, 
   color: 2, 
   border: 2, 
-  builders: [ampController.builder], 
-  effects: ampController.effects.concat([paletteEffect]),
-}
-
-const spectralFormEffect = .patchChange("spectral/form", { value in
-  let isSine = value == 0
-  let isFormant = value == 7
-  return [
-    ['dimItem', isFormant, "osc/mode", dimAlpha: 0],
-    ['dimItem', value < 5, "freq/ratio/spectral", dimAlpha: 0],
-    ['setCtrlLabel', "freq/ratio/spectral", isFormant ? "BW" : "Reson"],
-    ['dimItem', isFormant, "key/sync", dimAlpha: 0],
-    ['dimItem', isSine, "spectral/skirt", dimAlpha: 0],
-    // these next are only present in the bigger op controller
-    ['dimItem', !isFormant, "bw/bias/sens", dimAlpha: 0],
-    ['dimItem', !isFormant, "note/scale", dimAlpha: 0],
-    ['dimItem', !isFormant, "freq/velo", dimAlpha: 0],
-    ['dimItem', !isFormant, "freq/mod/sens", dimAlpha: 0],
-    ['dimItem', !isFormant, "freq/bias/sens", dimAlpha: 0],
-  ]
-})
-
-static let oscModeEffect: PatchController.Effect = .patchChange(paths: ["osc/mode", "spectral/form", "coarse", "fine"], { values in
-  guard let oscMode = values["osc/mode"],
-    let specForm = values["spectral/form"],
-    let coarse = values["coarse"],
-    let fine = values["fine"] else { return [] }
-  return [
-    ['setCtrlLabel', "ratio", (oscMode == 0 && specForm < 7) ? "Ratio" : "Fixed"],
-    .configCtrl("ratio", .opts(ParamOptions(optArray: [
-      String(String(format: "%5.3f", voicedFreq(oscMode: oscMode, spectralForm: specForm, coarse: coarse, fine: fine)).prefix(5))
-    ]))),
-  ]
-})
-
-
-
-static var voicedOscController: PatchController {
-  return .patch(prefix: voicedPrefix, color: 2, border: 2, [
+  builders: [
     ['grid', [[
-      [{switsch: "Mode"}, "osc/mode"],
-      "Ratio", nil, id: "ratio",
+      [{switch: "Mode" }, "osc/mode"],
+      [{switch: "Ratio", id: "ratio" }, null],
     ], [
       ["Coarse", "coarse"],
       ["Fine", "fine"],
@@ -302,29 +300,39 @@ static var voicedOscController: PatchController {
       ["BW", "freq/ratio/spectral"],
       [{checkbox: "Key Sync"}, "key/sync"],
     ]]],
-  ], effects: [
+  ], 
+  effects: [
     paletteEffect,
     spectralFormEffect,
     oscModeEffect,
-  ])
+  ],
 }
 
-static let freqEnv: PatchController.PanelItem = {
-  let env: PatchController.Display = .timeLevelEnv(pointCount: 2, sustain: 999, bipolar: true)
-  return .display(env, "Freq EG", [
-    .src("freq/env/innit", dest: "start/level", { ($0 - 50) / 50 }),
-    .src("freq/env/attack/level", dest: "level/0", { ($0 - 50) / 50 }),
-    .src("freq/env/attack", dest: "time/0", { $0 / 99 }),
-    .src("freq/env/decay", dest: "time/1", { $0 / 99 }),
-  ], id: "env")
-}()
+const freqEnv = {
+  display: 'timeLevelEnv',
+  pointCount: 2, 
+  sustain: 999, 
+  bipolar: true,
+  l: "Freq EG", 
+  maps: [
+    ['src', "freq/env/innit", "start/level", v => (v - 50) / 50 )],
+    ['src', "freq/env/attack/level", "level/0", v => (v - 50) / 50 )],
+    ['u', "freq/env/attack", "time/0", 99],
+    ['u', "freq/env/decay", "time/1", 99],
+  ], 
+  id: "env",
+}
 
-static let freqEnvMenu: PatchController.Effect = ['editMenu', "env", paths: ["freq/env/innit", "freq/env/attack/level", "freq/env/attack", "freq/env/decay"], type: "FS1RFreqEnvelope", init: [0, 0, 20, 20], rand: { 4.map { _ in (0..<100).random()! } }]
+
+const freqEnvMenu = ['editMenu', "env", {
+  paths: ["freq/env/innit", "freq/env/attack/level", "freq/env/attack", "freq/env/decay"], 
+  type: "FS1RFreqEnvelope", 
+  init: [0, 0, 20, 20], 
+  rand: () => (4).map(i => ([0, 100]).random()),
+}]
 
 
-const freqController = (fseqTrk: Bool) => {
-  
-  let builder: PatchController.Builder = ['grid', [[
+const freqController = fseqTrk => ['grid', [[
     freqEnv,
   ],[
     ["Initial", "freq/env/innit"],
@@ -338,73 +346,64 @@ const freqController = (fseqTrk: Bool) => {
   ],[
     ["Fr Velo", "freq/velo"],
     ["Fr Mod", "freq/mod/sens"],
-  ],[
+  ],([
     [{checkbox: "Fseq"}, "fseq"],
-  ] + (fseqTrk ? `knob("Fseq Trk"/${[.fseq}/trk`)] : [])])
-  
-  let effects: [PatchController.Effect] = [
-    .patchChange("spectral/form", { value in
-      let isFormant = value == 7
-      let freqPaths: [SynthPath] = [
-        "freq/velo",
-        "freq/mod/sens",
-        "freq/bias/sens",
-        "note/scale",
-      ]
-      return freqPaths.map { ['dimItem', isFormant, $0, dimAlpha: 0] }
-    }),
-    .paramChange("fseq/on", { param in
-      [
-        ['dimItem', param.parm == 0, "fseq"],
-        ['dimItem', param.parm == 0, "fseq/trk"],
-      ]
-    }),
-    freqEnvMenu,
-  ]
-  
-  return (builder, effects)
-}
+  ]).concat(fseqTrk ? [["Fseq Trk", "fseq/trk"]] : [])
+]]
 
-static var voicedFreqController: PatchController {
-  let c = freqController(fseqTrk: true)
-  return .patch(prefix: voicedPrefix, color: 2, border: 2, [c.0], effects: c.1 + [paletteEffect])
-}
 
-static var unvoicedAmpController: PatchController {
-  let c = ampController()
-  return .patch(prefix: unvoicedPrefix, color: 3, border: 3, [c.0], effects: c.1 + [paletteEffect])
-}
+const freqEffects = [
+  ['patchChange', "spectral/form", v => ([
+      "freq/velo",
+      "freq/mod/sens",
+      "freq/bias/sens",
+      "note/scale",
+    ]).map(p => ['hideItem', v == 7, p])
+  ],
+  ['paramChange', "fseq/on", parm => [
+    ['dimItem', parm.p == 0, "fseq"],
+    ['dimItem', parm.p == 0, "fseq/trk"],
+  ] ],
+  freqEnvMenu,
+  paletteEffect,
+]
 
-static let unvoicedRatioEffect: PatchController.Effect = .patchChange(paths: ["coarse", "fine", "mode"], { values in
-  guard let mode = values["mode"],
-    let coarse = values["coarse"],
-    let fine = values["fine"] else { return [] }
+const unvoicedRatioEffect = ['patchChange', { 
+  paths: ["coarse", "fine", "mode"], 
+  fn: values => {
+    const mode = values["mode"] || 0
+    const coarse = values["coarse"] || 0
+    const fine = values["fine"] || 0
+    return [
+      ['hideItem', mode > 0, "ratio"],
+      ['configCtrl', "ratio", { opts: [
+        fixedFreq(coarse, fine),
+      ] } ],
+    ]
+  }
+}]
+
+const unvoicedModeEffect = ['patchChange', "mode", value => {
+  const isNormal = value == 0
   return [
-    ['dimItem', mode > 0, "ratio", dimAlpha: 0],
-    .configCtrl("ratio", .opts(ParamOptions(optArray: [
-      String(String(format: "%5.3f", fixedFreq(coarse: coarse, fine: fine)).prefix(5)),
-    ])))
-  ]
-})
-
-static let unvoicedModeEffect: PatchController.Effect = .patchChange("mode", { value in
-  let isNormal = value == 0
-  return [
-    ['dimItem', !isNormal, "coarse", dimAlpha: 0],
-    ['dimItem', !isNormal, "fine", dimAlpha: 0],
+    ['hideItem', !isNormal, "coarse"],
+    ['hideItem', !isNormal, "fine"],
     // only in bigger controller
-    ['dimItem', !isNormal, "freq/velo", dimAlpha: 0],
-    ['dimItem', !isNormal, "freq/mod/sens", dimAlpha: 0],
-    ['dimItem', !isNormal, "freq/bias/sens", dimAlpha: 0],
-    ['dimItem', !isNormal, "note/scale", dimAlpha: 0],
+    ['hideItem', !isNormal, "freq/velo"],
+    ['hideItem', !isNormal, "freq/mod/sens"],
+    ['hideItem', !isNormal, "freq/bias/sens"],
+    ['hideItem', !isNormal, "note/scale"],
   ]
-})
+}]
 
-static var unvoicedOscController: PatchController {
-  return .patch(prefix: unvoicedPrefix, color: 3, border: 3, [
-    .grid( [[
-      [{switsch: "Mode"}, "mode"],
-      [{switsch: "Ratio"}, "ratio"],
+const unvoicedOscController = {
+  prefix: unvoicedPrefix, 
+  color: 3, 
+  border: 3, 
+  builders: [
+    ['grid', [[
+      [{switch: "Mode"}, "mode"],
+      [{switch: "Ratio"}, "ratio"],
     ], [
       ["Coarse", "coarse"],
       ["Fine", "fine"],
@@ -416,17 +415,13 @@ static var unvoicedOscController: PatchController {
     ], [
       ["Skirt", "skirt"],
       ["Reson", "reson"],
-    ]]]
-  ], effects: [
+    ]]],
+  ], 
+  effects: [
     paletteEffect,
     unvoicedRatioEffect,
     unvoicedModeEffect,
-  ])
-}
-
-static var unvoicedFreqController: PatchController {
-  let c = freqController(fseqTrk: false)
-  return .patch(prefix: unvoicedPrefix, color: 3, border: 3, [c.0], effects: c.1 + [paletteEffect])
+  ],
 }
 
 const controller = {
@@ -456,12 +451,36 @@ const controller = {
     ["common", commonController],
     ["mod", modsController],
     ["op", Op.controller],
-    ["voiced/amp", palette(voicedAmpController)],
+    ["voiced/amp", palette({
+      prefix: voicedPrefix, 
+      color: 2, 
+      border: 2, 
+      builders: [ampController.builder], 
+      effects: ampController.effects,
+    })],
     ["voiced/osc", palette(voicedOscController)],
-    ["voiced/freq", palette(voicedFreqController)],
-    ["unvoiced/amp", palette(unvoicedAmpController)],
+    ["voiced/freq", palette({
+      prefix: voicedPrefix, 
+      color: 2, 
+      border: 2, 
+      builders: [freqController(true)], 
+      effects: freqEffects,
+    })],
+    ["unvoiced/amp", palette({
+      prefix: unvoicedPrefix, 
+      color: 3, 
+      border: 3, 
+      builders: [ampController.builder], 
+      effects: ampController.effects,
+    })],
     ["unvoiced/osc", palette(unvoicedOscController)],
-    ["unvoiced/freq", palette(unvoicedFreqController)],
+    ["unvoiced/freq", palette({
+      prefix: unvoicedPrefix, 
+      color: 3, 
+      border: 3,
+      builders: [freqController(false)], 
+      effects: freqEffects,
+    })],
   ]))
 }
 
