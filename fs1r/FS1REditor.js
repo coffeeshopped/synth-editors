@@ -20,6 +20,39 @@ const extra = path => {
   return i => { path + (i == 0 ? [] : "extra") } // mem > 0 -> voice bank of 64 (no fseqs)
 }
 
+
+// static let backupTruss = BackupTruss("FS1R", map: [
+//   ([.global], Global.patchTruss),
+//   ([.bank, .voice], Voice.Bank.bankTruss),
+//   ([.bank, .perf], Perf.Bank.bankTruss),
+// ], pathForData: backupPathForData)
+// 
+// static let backup64Truss = BackupTruss("FS1R", map: [
+//   ([.global], Global.patchTruss),
+//   ([.bank, .voice], Voice.Bank64.bankTruss),
+//   ([.bank, .perf], Perf.Bank.bankTruss),
+//   ([.bank, .fseq], Fseq.Bank.bankTruss),
+// ], pathForData: backupPathForData)
+// 
+// 
+// static let backupPathForData: BackupTruss.PathForDataFn = {
+//   guard $0.count > 6 else { return nil }
+//   switch $0[6] {
+//   case 0x00:
+//     return [.global]
+//   case 0x11:
+//     return [.bank, .perf]
+//   case 0x51:
+//     return [.bank, .voice]
+//   case 0x61:
+//     return [.bank, .fseq]
+//   default:
+//     return nil
+//   }
+// }
+
+
+
 const editor = {
   name: "FS1R",
   trussMap: ([
