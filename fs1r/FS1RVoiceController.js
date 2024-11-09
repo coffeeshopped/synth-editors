@@ -1,9 +1,10 @@
+const Voice = require('./FS1RVoice.js')
 
-
-const opPaths = patchTruss.params.keys.compactMap {
-    guard $0.starts(with: "op/0") else { return nil }
-    return $0.subpath(from: 2)
-  }
+const opPaths = ['>',
+  Voice.patchTruss.parms,
+  ['filter', 'op/0'],
+  ['from', 2],
+]
 
 const opEnv = prefix => ({
   display: 'timeLevelEnv',
@@ -74,10 +75,12 @@ const miniOpController = ['index', "op", "op", i => `${i + 1}`, {
     ['colFixed', ["op", "env"], { fixed: "op", height: 11, spacing: 2 }],
     ['row', [["nenv", 1]]],
     ['colFixed', ["op", "nenv"], { fixed: "op", height: 11, spacing: 2 }],
-  ]
-}
+  ],
+}]
 
-const algo = ['fm', algorithms, miniOpController, {
+const Algorithms = require('./FS1RAlgorithms.js')
+
+const algo = ['fm', Algorithms.algorithms, miniOpController, {
   algo: "algo", 
   reverse: true, 
   selectable: true,
@@ -100,8 +103,8 @@ const formantController = (destLabel, prefixItem) => ({
     ['patchChange', {
       paths: ["dest", "depth"], 
       fn: values => [['dimPanel', values["dest"] == 0 || values["depth"] == 64, null]],
-    })
-  ])
+    }],
+  ],
 })
 
 const knobController = (topLabel, destLabel, prefixItem) => ({
@@ -136,12 +139,14 @@ const env = label => ({
   sustain: 2, 
   bipolar: true,
   l: label,
-  maps: [
-    ['src', "level/-1", "start/level", v => (v - 50) / 50)],
-  ] + (4).flatMap(i => [
-    ['u', ["time", i], 99],
-    ['src', ["level", i], v => (v - 50) / 50],
-  ]),
+  maps: ([
+    ['src', "level/-1", "start/level", v => (v - 50) / 50],
+  ]).concat(
+    (4).flatMap(i => [
+      ['u', ["time", i], 99],
+      ['src', ["level", i], v => (v - 50) / 50],
+    ])
+  ),
   id: "env",
 })
 
@@ -174,7 +179,7 @@ const pitchController = {
 }
 
 const filterController = {
-  prefix: .fixed("filter/env"), 
+  prefix: ['fixed', "filter/env"], 
   builders: [
     ['grid', [[
       env("Filter EG"),
@@ -199,8 +204,8 @@ const filterController = {
 
 const common = {
   builders: [
-    ['child', pitchController, "pitch", color: 1],
-    ['child', filterController, "filter", color: 1],
+    ['child', pitchController, "pitch", {color: 1}],
+    ['child', filterController, "filter", {color: 1}],
     ['panel', 'filter2', { color: 1 }, [[
       [{select: "Filter"}, "filter/type"],
       ["Cutoff", "cutoff"],
@@ -263,7 +268,7 @@ const common = {
 
 // MARK: Palette
 
-const palette = subVC => {
+const palette = subVC => ({
   builders: ([
     ['children', 8, "vc", subVC],
   ]).concat((8).map(i =>
@@ -276,7 +281,7 @@ const palette = subVC => {
     ['row', []],
     ['col', [["vc0", 15], ["label0", 1]]]
   ],
-}
+})
 
 
 const paletteEffect = ['dimsOn', "amp/env/level", null]
@@ -305,7 +310,7 @@ const ampController = {
     [{checkbox: "Mute", id: "mute"}, null],
   ]]],
   effects: [
-    ['patchChange', "amp/env/level", v => [['setValue', "mute", v == 0 ? 1 : 0)]]],
+    ['patchChange', "amp/env/level", v => [['setValue', "mute", v == 0 ? 1 : 0]]],
     ['controlChange', "mute", (state, locals) => {
       const value = locals["mute"] || 0
       var level = 0
@@ -397,8 +402,8 @@ const freqEnv = {
   bipolar: true,
   l: "Freq EG", 
   maps: [
-    ['src', "freq/env/innit", "start/level", v => (v - 50) / 50 )],
-    ['src', "freq/env/attack/level", "level/0", v => (v - 50) / 50 )],
+    ['src', "freq/env/innit", "start/level", v => (v - 50) / 50],
+    ['src', "freq/env/attack/level", "level/0", v => (v - 50) / 50],
     ['u', "freq/env/attack", "time/0", 99],
     ['u', "freq/env/decay", "time/1", 99],
   ], 
@@ -518,14 +523,16 @@ const opAmpController = {
         pointCount: 5, 
         sustain: 3,
         l: "Amp EG",
-        maps: [
+        maps: ([
           ['u', "hold", "time/0", 99],
           ['u', "level/3", "start/level", 99],
           ['u', "level/3", "level/0", 99],
-        ] + (4).flatMap(i => [
-          ['u', ["time", i], ["time", i + 1, 99],
-          ['u', ["level", i], ["level", i + 1, 99],
-        ]), 
+        ]).concat(
+          (4).flatMap(i => [
+            ['u', ["time", i], ["time", i + 1], 99],
+            ['u', ["level", i], ["level", i + 1], 99],
+          ])
+        ), 
         id: "env",
       },
       ["T1", "time/0"],
@@ -547,7 +554,7 @@ const opAmpController = {
     ]]]
   ], 
   effects: [
-    ['patchChange', "level", v => [['setValue', "mute", v == 0 ? 1 : 0)]]],
+    ['patchChange', "level", v => ['setValue', "mute", v == 0 ? 1 : 0]],
     ['controlChange', "mute", (state, locals) => {
       const value = locals["mute"] || 0
       var level = 0
@@ -568,7 +575,7 @@ const opAmpController = {
       ).concat(["hold"]), 
       type: "FS1RAmpEnvelope", 
       init: [0, 20, 20, 0, 99, 99, 99, 0, 0], 
-      rand: { 9.map { $0 > 6 ? 0 : (0..<100).random()! } }],
+      rand: () => (9).map(i => i > 6 ? 0 : Math.floor(Math.random() * 100)),
     }]
   ]
 }
@@ -576,7 +583,7 @@ const opAmpController = {
 const opFreqController = {
   builders: [
     ['grid', [[
-      Controller.freqEnv,
+      freqEnv,
       ["Initial", "freq/env/innit"],
       ["A Level", "freq/env/attack/level"],
       ["Attack", "freq/env/attack"],
@@ -584,7 +591,7 @@ const opFreqController = {
     ]]],
   ], 
   effects: [
-    Controller.freqEnvMenu,
+    freqEnvMenu,
   ],
 }
 
@@ -594,70 +601,9 @@ const opControllerEffects = [
   ['paramChange', "fseq/on", parm => [
     ['dimItem', parm.p == 0, "fseq"],
     ['dimItem', parm.p == 0, "fseq/trk"],
-  ] }],
+  ] ],
 ]
 
-const voicedPaths: [SynthPath] = patchTruss.params.keys.compactMap {
-  guard $0.starts(with: "op/0/voiced") else { return nil }
-  return $0.subpath(from: 3)
-}
-
-const voicedOp = {
-  prefix: ['fixed', "voiced"], 
-  border: 2, 
-  builders: [
-    ['child', opAmpController, "amp", {color: 2}],
-    ['child', opFreqController, "freq", {color: 2}],
-    ['child', levelScale, "levelScale", {color: 2}],
-    ['button', "Op", {color: 2}],
-    ['panel', 'osc', { color: 2 }, [[
-      [{switch: "Mode"}, "osc/mode"],
-      "Ratio", nil, id: "ratio",
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-      ["Detune", "detune"],
-      ["Transpose", "transpose"],
-      ["P Mod", "pitch/mod/sens"],
-    ], [
-      [{select: "Spectral Form"}, "spectral/form"],
-      ["Skirt", "spectral/skirt"],
-      ["BW", "freq/ratio/spectral"],
-      ["BW Bias", "bw/bias/sens"],
-      [{checkbox: "Key Sync"}, "key/sync"],
-      ["Freq Scaling", "note/scale"],
-      [{checkbox: "Fseq"}, "fseq"],
-      ["Fseq Trk", "fseq/trk"],
-    ]]],
-    ['panel', 'freq2', { color: 2, }, [[
-      ["Fr Velo", "freq/velo"],
-      ["Fr Mod", "freq/mod/sens"],
-      ["Fr Bias", "freq/bias/sens"],
-    ]]],
-  ], 
-  effects: ([
-    Controller.spectralFormEffect,
-    Controller.oscModeEffect,
-    ['indexChange', i => ['setCtrlLabel', "button", `Op ${i + 1} - Voiced`]],
-    ['editMenu', "button", {
-      paths: voicedPaths, 
-      type: "FS1RVoicedOp", 
-      init: {
-        let bd = patchTruss.createInitBodyData()
-        return voicedPaths.map { patchTruss.getValue(bd, path: "op/0/voiced" + $0) ?? 0 }
-      }(), 
-      rand: {
-        let patch = patchTruss.randomize()
-        return voicedPaths.map { patch["op/0/voiced" + $0] ?? 0 }
-      }
-    }],
-  ]).concat(opControllerEffects), 
-  layout: [
-    ['row', [["freq", 6], ["freq2", 3]]],
-    ['row', [["button", 3], ["levelScale", 7.5]]],
-    ['col', [["osc", 2], ["freq", 1], ["amp", 2], ["button", 1]]],
-    ['eq', ["osc","freq2","amp","levelScale"], 'trailing'],
-  ])
-}
 
 const levelScale = {
   prefix: ['fixed', "level/scale"], 
@@ -693,17 +639,84 @@ const levelScale = {
       ], 
       type: "FS1RRateLevel", 
       init: [0, 3, 0, 0, 39], 
-      rand: {
-        5.map { $0 % 2 == 1 ? (0..<4).random()! : (0..<100).random()! }
-      },
+      // TODO
+      // rand: {
+      //   (5).map { $0 % 2 == 1 ? (0..<4).random()! : (0..<100).random()! }
+      // },
     }],
   ],
 }
 
-const unvoicedPaths = patchTruss.params.keys.compactMap {
-  guard $0.starts(with: "op/0/unvoiced") else { return nil }
-  return $0.subpath(from: 3)
+const voicedPaths = ['>',
+  Voice.patchTruss.parms,
+  ['filter', 'op/0/voiced'],
+  ['from', 3],
+]
+
+const voicedOp = {
+  prefix: ['fixed', "voiced"], 
+  border: 2, 
+  builders: [
+    ['child', opAmpController, "amp", {color: 2}],
+    ['child', opFreqController, "freq", {color: 2}],
+    ['child', levelScale, "levelScale", {color: 2}],
+    ['button', "Op", {color: 2}],
+    ['panel', 'osc', { color: 2 }, [[
+      [{switch: "Mode"}, "osc/mode"],
+      [{switch: "Ratio", id: "ratio"}, null],
+      ["Coarse", "coarse"],
+      ["Fine", "fine"],
+      ["Detune", "detune"],
+      ["Transpose", "transpose"],
+      ["P Mod", "pitch/mod/sens"],
+    ], [
+      [{select: "Spectral Form"}, "spectral/form"],
+      ["Skirt", "spectral/skirt"],
+      ["BW", "freq/ratio/spectral"],
+      ["BW Bias", "bw/bias/sens"],
+      [{checkbox: "Key Sync"}, "key/sync"],
+      ["Freq Scaling", "note/scale"],
+      [{checkbox: "Fseq"}, "fseq"],
+      ["Fseq Trk", "fseq/trk"],
+    ]]],
+    ['panel', 'freq2', { color: 2, }, [[
+      ["Fr Velo", "freq/velo"],
+      ["Fr Mod", "freq/mod/sens"],
+      ["Fr Bias", "freq/bias/sens"],
+    ]]],
+  ], 
+  effects: ([
+    spectralFormEffect,
+    oscModeEffect,
+    ['indexChange', i => ['setCtrlLabel', "button", `Op ${i + 1} - Voiced`]],
+    ['editMenu', "button", {
+      paths: voicedPaths, 
+      type: "FS1RVoicedOp", 
+      // TODO: this
+      // init: {
+      //   let bd = patchTruss.createInitBodyData()
+      //   return voicedPaths.map { patchTruss.getValue(bd, path: "op/0/voiced" + $0) ?? 0 }
+      // }(), 
+      // rand: {
+      //   let patch = patchTruss.randomize()
+      //   return voicedPaths.map { patch["op/0/voiced" + $0] ?? 0 }
+      // }
+    }],
+  ]).concat(opControllerEffects), 
+  layout: [
+    ['row', [["freq", 6], ["freq2", 3]]],
+    ['row', [["button", 3], ["levelScale", 7.5]]],
+    ['col', [["osc", 2], ["freq", 1], ["amp", 2], ["button", 1]]],
+    ['eq', ["osc","freq2","amp","levelScale"], 'trailing'],
+  ],
 }
+
+
+const unvoicedPaths = ['>'>
+  Voice.patchTruss.parms,
+  ['filter', 'op/0/unvoiced'],
+  ['from', 3],
+]
 
 const unvoicedOp = {
   prefix: ['fixed', "unvoiced"], 
@@ -736,28 +749,28 @@ const unvoicedOp = {
     ]]]
   ], 
   effects: ([
-    ['indexChange', i => ['setCtrlLabel', "button", `Op ${i + 1} - Unvoiced`],
+    ['indexChange', i => ['setCtrlLabel', "button", `Op ${i + 1} - Unvoiced`]],
     ['editMenu', "button", {
       paths: unvoicedPaths, 
       type: "FS1RUnvoicedOp", 
-      init: {
-        let bd = patchTruss.createInitBodyData()
-        return voicedPaths.map { patchTruss.getValue(bd, path: "op/0/unvoiced" + $0) ?? 0 }
-      }(), 
-      rand: {
-        let patch = patchTruss.randomize()
-        return voicedPaths.map { patch["op/0/unvoiced" + $0] ?? 0 }
-      }
+      // init: {
+      //   let bd = patchTruss.createInitBodyData()
+      //   return voicedPaths.map { patchTruss.getValue(bd, path: "op/0/unvoiced" + $0) ?? 0 }
+      // }(), 
+      // rand: {
+      //   let patch = patchTruss.randomize()
+      //   return voicedPaths.map { patch["op/0/unvoiced" + $0] ?? 0 }
+      // }
     }],
-    Controller.unvoicedRatioEffect,
-    Controller.unvoicedModeEffect,
+    unvoicedRatioEffect,
+    unvoicedModeEffect,
   ]).concat(opControllerEffects), 
   layout: [
     ['row', [["freq", 6], ["freq2", 1]]],
     ['row', [["button", 3], ["amp2", 4]]],
     ['col', [["osc", 2], ["freq", 1], ["amp", 2], ["button", 1]]],
     ['eq', ["osc","freq2","amp","amp2"], 'trailing'],
-  ])
+  ],
 }
 
 
@@ -777,8 +790,6 @@ const opController = {
     [[["v", 8.5],["n", 7.5]]],
   ],
 }
-
-
 
 
 const controller = {
@@ -805,7 +816,7 @@ const controller = {
       "common", "voiced/osc", "voiced/amp", "voiced/freq",
       "mod", "unvoiced/osc", "unvoiced/amp", "unvoiced/freq",
     ]), [
-    ["common", commonController],
+    ["common", common],
     ["mod", modsController],
     ["op", opController],
     ["voiced/amp", palette({
@@ -838,7 +849,7 @@ const controller = {
       builders: [freqController(false)], 
       effects: freqEffects,
     })],
-  ]))
+  ]],
 }
 
 module.exports = {

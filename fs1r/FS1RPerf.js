@@ -1,5 +1,7 @@
+require('../core/ArrayUtils.js')
 const FS1R = require('./FS1R.js')
 const Voice = require('./FS1RVoice.js')
+
 
 // TODO: treat byte (b) values as RolandAddresses for the purposes of packing/unpacking
 // i.e. take b, make a RolandAddress from it, then get intValue(), and that's the actual byte address
@@ -28,8 +30,6 @@ channelOptions[0x7f] = "Off"
 
 var channelMaxOptions = (16).map(i => `${i+1}`)   
 channelMaxOptions[0x7f] = "Off"
-
-const fseqMidiSpeedOptions = ["Midi 1/4","Midi 1/2","Midi","Midi 2/1","Midi 4/1"]
 
 const panOptions = { iso: ['switch', [
   [0, "Random"],
@@ -1161,4 +1161,7 @@ module.exports = {
     throttle: 0,
     bank: location => [sysexDataWithLocation(FS1R.deviceIdMap, location), 100]
   },
+  reverbParams,
+  varyParams,
+  insertParams,
 }

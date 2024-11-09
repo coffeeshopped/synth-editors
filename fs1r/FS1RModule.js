@@ -1,4 +1,7 @@
 const Editor = require('./FS1REditor.js')
+const GlobalCtrlr = require('./FS1RGlobalController.js')
+const VoiceCtrlr = require('./FS1RVoiceController.js')
+const PerfCtrlr = require('./FS1RPerfController.js')
 
 //    public static func onEditorLoad(_ module: TemplatedModule) {
 //      module.templatedEditor.patchChangesOutput(forPath: [.global])?.subscribe(onNext: { [unowned module] (change, patch) in
@@ -28,18 +31,6 @@ const Editor = require('./FS1REditor.js')
 //      }).disposed(by: module.templatedEditor.disposeBag)
 //    }
 
-const ctrlr = {
-  color: 1,
-  builders: [
-    ['panel', 'modes', [[
-      
-    ]]],
-  ],
-  simpleGridLayout: [
-    [['modes', 1]],
-  ]
-}
-
 module.exports = {
   module: {
     editor: Editor.editor,
@@ -48,12 +39,12 @@ module.exports = {
     subid: 'fs1r', 
     sections: [
       ['first', [
-        ['global', ctrlr], // Global.Controller.controller],
-        ['perf', ctrlr], // Perf.Controller.controller],
+        ['global', GlobalCtrlr.controller],
+        ['perf', PerfCtrlr.controller],
         // ['voice', "Fseq", path: [.fseq], PatchController.patch([])],
         // ['fullRef'],
         ]],
-      ['basic', "Parts", ['perfParts', 4, i => `Part ${i + 1}`, ctrlr]], // Voice.Controller.controller]],
+      ['basic', "Parts", ['perfParts', 4, i => `Part ${i + 1}`, VoiceCtrlr.controller]],
       ['banks', [
         ['bank', "Voice Bank", 'bank/voice'],
         ['bank', "Perf Bank", 'bank/perf'],

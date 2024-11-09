@@ -1,3 +1,4 @@
+require('../core/NumberUtils.js')
 const FS1R = require('./FS1R.js')
 
 const categoryOptions = [

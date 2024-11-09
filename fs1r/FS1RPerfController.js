@@ -1,4 +1,5 @@
-
+require('../core/NumberUtils.js')
+const Perf = require('./FS1RPerf.js')
 
 const ccBlock = (state, locals) => {
   const speedType = locals["speed/type"] || 0
@@ -7,6 +8,8 @@ const ccBlock = (state, locals) => {
   const value = speedType < 5 ? speedType : Math.min(5000, coarse * 10 + fine)
   return [["speed", value]]
 }
+
+const fseqMidiSpeedOptions = ["Midi 1/4","Midi 1/2","Midi","Midi 2/1","Midi 4/1"]
 
 const fseq = {
   prefix: ['fixed', "fseq"], 
@@ -60,7 +63,7 @@ const fseq = {
         ['hideItem', percsHidden, "speed"],
       ])
     }],
-    ['dimsOn', "part", id: null],
+    ['dimsOn', "part", {id: null}],
     ['controlChange', "speed/type", ccBlock],
     ['controlChange', "coarse", ccBlock],
     ['controlChange', "fine", ccBlock],
@@ -84,7 +87,7 @@ const fseq = {
   simpleGridLayout: [
     [["part", 3.5], ["speed", 5.5]],
     [["delay", 5], ["mode", 4]],
-  ])
+  ],
 }
 
 const perfVC = ['index', "ctrl", "part", i => `VC ${i + 1}`, { 
@@ -134,7 +137,7 @@ const perfVC = ['index', "ctrl", "part", i => `VC ${i + 1}`, {
     [["after", 1]],
   ],
 //      vc.addBorder()
-}
+}]
   
 
 const fxTypeEffect = params => ['patchChange', "type", value => {
@@ -164,7 +167,7 @@ const reverb = {
       (10).map(i => [`${i + 6}`, i + 6]),
     ]],
   ], 
-  effects: [fxTypeEffect(reverbParams)])
+  effects: [fxTypeEffect(Perf.reverbParams)],
 }
 
 const vary = {
@@ -179,7 +182,8 @@ const vary = {
       ].concat((5).map(i => [`${i}`, i])),
       (11).map(i => [`${i + 5}`, i + 5]),
     ]],
-  ], effects: [fxTypeEffect(varyParams)])
+  ], 
+  effects: [fxTypeEffect(Perf.varyParams)],
 }
 
 const insert = {
@@ -195,7 +199,8 @@ const insert = {
       ].concat((5).map(i => [`${i}`, i])),
       (11).map(i => [`${i + 5}`, i + 5]),
     ]],
-  ], effects: [fxTypeEffect(insertParams)])
+  ], 
+  effects: [fxTypeEffect(Perf.insertParams)],
 }
 
 const fx = {
@@ -218,19 +223,21 @@ const fx = {
       ["Hi Q", "hi/q"],
       [{switch: "Hi Shape"}, "hi/shape"],
     ]]],
-  ], effects: [
-  ], layout: [
+  ], 
+  layout: [
     ['row', [["reverb",12],["eq",4]], { opts: ['alignAllTop'] }],
     ['col', [["reverb",2],["vary",2],["insert",2]]],
     ['eq', ["reverb","vary","insert"], 'trailing'],
     ['eq', ["vary","eq"], 'bottom'],
-  ])
+  ],
 }
 
-const AllPaths = patchTruss.params.keys.compactMap {
-  guard $0.starts(with: "part/0") else { return null }
-  return $0.subpath(from: 2)
-}
+// TODO: implement parsing of this
+const AllPaths = ['>',
+  Perf.patchTruss.parms,
+  ['filter', 'part/0'],
+  ['from', 2],
+]
 
 const part = {
   prefix: ['index', "part"], 

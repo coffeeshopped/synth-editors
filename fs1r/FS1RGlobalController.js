@@ -1,6 +1,6 @@
 
 module.exports = {
-  ctrlr: {
+  controller: {
     builders: [
       ['panel', 'dev', { color: 1 }, [[
         ["Device ID", "deviceId"],
@@ -57,6 +57,6 @@ module.exports = {
       ['row', [["knob", 1],["mc", 1]]],
       ['row', [["foot", 1],["play",2]]],
       ['col', [["dev",1], ["curve", 1], ["knob", 1], ["foot", 2]]],
-    ])
+    ],
   }
 }
