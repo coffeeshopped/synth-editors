@@ -1,7 +1,8 @@
 
 const displayId = "blofeld"
+const broadcastDeviceId = 0x7f
 
-const deviceId = ['e', 'global', 'deviceId', Blofeld.Global.broadcastDeviceId]
+const deviceId = ['e', 'global', 'deviceId', broadcastDeviceId]
 
 const sysex = (deviceId, bytes) => [0xf0, 0x3e, 0x13, deviceId, bytes, 0xf7]
 
