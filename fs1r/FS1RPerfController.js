@@ -12,7 +12,7 @@ const ccBlock = (state, locals) => {
 const fseqMidiSpeedOptions = ["Midi 1/4","Midi 1/2","Midi","Midi 2/1","Midi 4/1"]
 
 const fseq = {
-  prefix: ['fixed', "fseq"], 
+  prefix: {fixed: "fseq"}, 
   builders: [
     ['panel', 'part', { color: 1, }, [[
       [{switch: "Fseq Part"}, "part"],
@@ -63,7 +63,7 @@ const fseq = {
         ['hideItem', percsHidden, "speed"],
       ])
     }],
-    ['dimsOn', "part", {id: null}],
+    ['dimsOn', "part"],
     ['controlChange', "speed/type", ccBlock],
     ['controlChange', "coarse", ccBlock],
     ['controlChange', "fine", ccBlock],
@@ -156,7 +156,7 @@ const fxTypeEffect = params => ['patchChange', "type", value => {
 }]
 
 const reverb = {
-  prefix: ['fixed', "reverb"], 
+  prefix: {fixed: "reverb"}, 
   builders: [
     ['grid', [
       [
@@ -171,7 +171,7 @@ const reverb = {
 }
 
 const vary = {
-  prefix: ['fixed', "vary"], 
+  prefix: {fixed: "vary"}, 
   builders: [
     ['grid', [
       [
@@ -187,7 +187,7 @@ const vary = {
 }
 
 const insert = {
-  prefix: ['fixed',"insert"], 
+  prefix: {fixed: "insert"}, 
   builders: [
     ['grid', [
       [
@@ -232,15 +232,8 @@ const fx = {
   ],
 }
 
-// TODO: implement parsing of this
-const AllPaths = ['>',
-  Perf.patchTruss.parms,
-  ['filter', 'part/0'],
-  ['from', 2],
-]
-
 const part = {
-  prefix: ['index', "part"], 
+  prefix: {index: "part"}, 
   builders: [
     ['button', "Part", {color: 2}],
     ['nav', "Edit Voice", [], {color: 2}],
@@ -339,7 +332,9 @@ const part = {
     ] ],
     ['patchChange', "channel", v => ['hideItem', v > 15, "channel/hi"]],
     ['editMenu', "button", {
-      paths: AllPaths, 
+      paths: ['>', Perf.patchTruss.parms,
+        ['removePrefix', 'part/0'],
+      ], 
       type: "FS1RPart",
     }],
     ['indexChange', i => [

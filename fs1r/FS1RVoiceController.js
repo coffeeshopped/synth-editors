@@ -1,9 +1,7 @@
 const Voice = require('./FS1RVoice.js')
 
-const opPaths = ['>',
-  Voice.patchTruss.parms,
-  ['filter', 'op/0'],
-  ['from', 2],
+const opPaths = ['>', Voice.patchTruss.parms,
+  ['removePrefix', 'op/0'],
 ]
 
 const opEnv = prefix => ({
@@ -89,7 +87,7 @@ const algo = ['fm', Algorithms.algorithms, miniOpController, {
 const algoOptions = (88).map(i => `fs1r-algo-${i + 1}`)
 
 const formantController = (destLabel, prefixItem) => ({
-  prefix: ['index', [prefixItem, 'ctrl']], 
+  prefix: { index: [prefixItem, 'ctrl'] }, 
   color: 1,
   builders: [
     ['grid', [[
@@ -129,7 +127,7 @@ const modsController = {
     ['child', knobController("FM Control", "FM Dest", 'fm'), "fm"],
   ], 
   simpleGridLayout: [
-    [[["formant", 1], ["fm", 1]]],
+    [["formant", 1], ["fm", 1]],
   ],
 }
 
@@ -156,7 +154,7 @@ const envEffect = ['editMenu', "env", {
 }]
 
 const pitchController = {
-  prefix: ['fixed', "pitch/env"],
+  prefix: {fixed: "pitch/env"},
   builders: [
     ['grid', [[
       env("Pitch EG"),
@@ -179,7 +177,7 @@ const pitchController = {
 }
 
 const filterController = {
-  prefix: ['fixed', "filter/env"], 
+  prefix: {fixed: "filter/env"}, 
   builders: [
     ['grid', [[
       env("Filter EG"),
@@ -272,22 +270,22 @@ const palette = subVC => ({
   builders: ([
     ['children', 8, "vc", subVC],
   ]).concat((8).map(i =>
-    ['panel', ["label", i], {color: 1, clearBG: true}, [[
+    ['panel', `label${i}`, {color: 1, clearBG: true}, [[
       {l: `${i + 1}`}
     ]]]
   )), 
   layout: [
-    ['row', []],
-    ['row', []],
+    ['row', (8).map(i => [`label${i}`, 1])],
+    ['row', (8).map(i => [`vc${i}`, 1])],
     ['col', [["vc0", 15], ["label0", 1]]]
   ],
 })
 
 
-const paletteEffect = ['dimsOn', "amp/env/level", null]
+const paletteEffect = ['dimsOn', "amp/env/level"]
 
-const voicedPrefix = ['indexFn', i => ["op", i, "voiced"]]
-const unvoicedPrefix = ['indexFn', i => ["op", i, "unvoiced"]]
+const voicedPrefix = {indexFn: i => ["op", i, "voiced"]}
+const unvoicedPrefix = {indexFn: i => ["op", i, "unvoiced"]}
     
 const ampController = {
   builder: ['grid', [[
@@ -515,7 +513,7 @@ const unvoicedOscController = {
 
 
 const opAmpController = {
-  prefix: ['fixed', "amp/env"], 
+  prefix: {fixed: "amp/env"}, 
   builders: [
     ['grid', [[
       {
@@ -606,14 +604,14 @@ const opControllerEffects = [
 
 
 const levelScale = {
-  prefix: ['fixed', "level/scale"], 
+  prefix: {fixed: "level/scale"}, 
   builders: [
     ['grid', [[
       {
         display: 'levelScaling',
         maps: [
-          ['ident', "left/curve"],
-          ['ident', "right/curve"],
+          ['=', "left/curve"],
+          ['=', "right/curve"],
           ['u', "left/depth", 99],
           ['u', "right/depth", 99],
           ['u', "brk/pt", 99],
@@ -647,14 +645,12 @@ const levelScale = {
   ],
 }
 
-const voicedPaths = ['>',
-  Voice.patchTruss.parms,
-  ['filter', 'op/0/voiced'],
-  ['from', 3],
+const voicedPaths = ['>', Voice.patchTruss.parms,
+  ['removePrefix', 'op/0/voiced'],
 ]
 
 const voicedOp = {
-  prefix: ['fixed', "voiced"], 
+  prefix: {fixed: "voiced"}, 
   border: 2, 
   builders: [
     ['child', opAmpController, "amp", {color: 2}],
@@ -712,14 +708,12 @@ const voicedOp = {
 }
 
 
-const unvoicedPaths = ['>'>
-  Voice.patchTruss.parms,
-  ['filter', 'op/0/unvoiced'],
-  ['from', 3],
+const unvoicedPaths = ['>', Voice.patchTruss.parms,
+  ['removePrefix', 'op/0/unvoiced'],
 ]
 
 const unvoicedOp = {
-  prefix: ['fixed', "unvoiced"], 
+  prefix: {fixed: "unvoiced"}, 
   border: 3, 
   builders: [
     ['child', opAmpController, "amp", {color: 3}],
@@ -775,7 +769,7 @@ const unvoicedOp = {
 
 
 const opController = {
-  prefix: ['index', "op"],
+  prefix: {index: "op"},
   builders: [
     ['child', voicedOp, "v"],
     ['child', unvoicedOp, "n"],
@@ -787,7 +781,7 @@ const opController = {
     ]],
   ], 
   simpleGridLayout: [
-    [[["v", 8.5],["n", 7.5]]],
+    [["v", 8.5],["n", 7.5]],
   ],
 }
 

@@ -51,7 +51,7 @@ module.exports = {
     id: "global", 
     bodyDataCount: 76, 
     parms: parms, 
-    createFileData: sysexData(0), 
+    createFile: sysexData(0), 
     parseBody: 9,
   },
   patchTransform: {

@@ -45,7 +45,7 @@ const patchTruss = {
   bodyDataCount: 6443 - 11,
   namePack: [0, 8], 
   parms: parms, 
-  createFileData: sysexData(0), 
+  createFile: sysexData(0), 
   initFile: "fs1r-fseq-init", 
   // variable data length - 50 bytes per frame
   parseBody: ['bytes', { start: 9, end: -2 }],
