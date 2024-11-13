@@ -41,7 +41,7 @@ const miniOpController = ['index', "op", "op", i => `${i + 1}`, {
         const fine = values["voiced/fine"] || 0
         const detune = values["voiced/detune"] || 0
         const ratioMode = oscMode == 0 && specForm < 7
-        const valText = voicedFreq(oscMode, specForm, coarse, fine)
+        const valText = Voice.voicedFreq(oscMode, specForm, coarse, fine)
         // const valText = String(String(format: "%5.3f", voicedFreq(oscMode, specForm, coarse, fine)).prefix(5))
         const detuneOff = detune - 15
         const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? detuneOff : `+${detuneOff}`)
@@ -314,14 +314,15 @@ const ampController = {
       var level = 0
       var changes = []
       if (value > 0) {
-        const newLastLevel = state.prefixedValue("amp/env/level") || 90
+        const newLastLevel = state.values[state.prefix+"/amp/env/level"] || 90
         changes.push(['setValue', "extra/level", newLastLevel == 0 ? 90 : newLastLevel])
         level = 0
       }
       else {
         level = locals["extra/level"] || 90
       }
-      return changes.concat(['paramsChange', [["amp/env/level", level]]])
+      changes.push(['paramsChange', [["amp/env/level", level]]])
+      return changes
     }],
     paletteEffect,
   ],
@@ -329,7 +330,7 @@ const ampController = {
 
 const spectralFormEffect = ['patchChange', "spectral/form", v => {
   const isSine = v == 0
-  const isFormant = v == 7
+  const isFormant = v >= 7
   return [
     ['hideItem', isFormant, "osc/mode"],
     ['hideItem', v < 5, "freq/ratio/spectral"],
@@ -355,7 +356,7 @@ const oscModeEffect = ['patchChange', {
     return [
       ['setCtrlLabel', "ratio", (oscMode == 0 && specForm < 7) ? "Ratio" : "Fixed"],
       ['configCtrl', "ratio", { opts: [
-        voicedFreq(oscMode, specForm, coarse, fine)
+        Voice.voicedFreq(oscMode, specForm, coarse, fine)
       ] }],
     ]
   },
@@ -462,7 +463,7 @@ const unvoicedRatioEffect = ['patchChange', {
     return [
       ['hideItem', mode > 0, "ratio"],
       ['configCtrl', "ratio", { opts: [
-        fixedFreq(coarse, fine),
+        Voice.fixedFreq(coarse, fine),
       ] } ],
     ]
   }

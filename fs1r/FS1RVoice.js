@@ -123,11 +123,9 @@ const parms = [
         ["attack", { b: 0x0a, max: 99}],
         ["decay", { b: 0x0b, max: 99}],
       ] },
-      { prefix: "amp/env", count: 4, bx: 1, block: [
-        ["level", { b: 0x0c, max: 99}],
-        ["time", { b: 0x10, max: 99}],
-      ] },
       { prefix: "amp/env", block: [
+        { prefix: "level", count: 4, bx: 1, block: ["", { b: 0x0c, max: 99}] },
+        { prefix: "time", count: 4, bx: 1, block: ["", { b: 0x10, max: 99}] },
         ["hold", { b: 0x14, max: 99}],
         ["time/scale", { b: 0x15, max: 7}],
         ["level", { b: 0x16, max: 99}], // TODO: should this be under level/scale?
@@ -165,11 +163,9 @@ const parms = [
       ] },
       ["amp/env/level", { b: 0x2e, max: 99}],
       ["level/key/scale", { b: 0x2f, max: 14, dispOff: -7}],
-      { prefix: "amp/env", count: 4, bx: 1, block: [
-        ["level", { b: 0x30, max: 99}],
-        ["time", { b: 0x34, max: 99}],
-      ] },
       { prefix: "amp/env", block: [
+        { prefix: "level", count: 4, bx: 1, block: ["", { b: 0x30, max: 99}] },
+        { prefix: "time", count: 4, bx: 1, block: ["", { b: 0x34, max: 99}] },
         ["hold", { b: 0x38, max: 99}],
         ["time/scale", { b: 0x39, max: 7}],
       ] },
