@@ -19,150 +19,68 @@ const modCombo = (label, pre) => ({
   }],
 })
 
-const fmCombo = () => {
-  (
-    items: [
-      ["FM", "fm/amt"],
-      [{select: "← FM Src"}, "fm/src"],
-    ],
-    cmd: .patchChange("fm/src", {
-      let off = $0 == 0
-      return [
-        ['dimItem', off, "fm/amt"],
-        ['dimItem', off, "fm/src"],
-      ]
-    })
-  )
+const fmCombo = {
+  items: [
+    ["FM", "fm/amt"],
+    [{select: "← FM Src"}, "fm/src"],
+  ],
+  cmd: ['patchChange', "fm/src", v => [
+    ['dimItem', v == 0, "fm/amt"],
+    ['dimItem', v == 0, "fm/src"],
+  ] }
 }
 
-static let voiceController: PatchController = {
-  let pitch = modCombo("Pitch Mod", "pitch")
-  
-  let knobs = envControllerSetup(prefix: "env/0")
 
-  let env = envItem("Filter", prefix: "env/0", "env/0")
-  return .patch([
-    // add before fEnv panels so it's in the back.
-    ['panel', 'fEnvCon', { color: 2, }, [[]]],
-    ['child', oscController(index: 0), "osc0", color: 1],
-    ['child', oscController(index: 1), "osc1", color: 1],
-    ['child', oscController(index: 2), "osc2", color: 1],
-    ['children', 2, "filter", color: 2, filterController],
-    ['child', envController(), "env", color: 3],
-    ['child', lfoController, "lfo", color: 3],
-    ['panel', 'mix', { color: 1, }, [[
-      ["O1 Lvl", "osc/0/level"],
-      ["O1 Bal", "osc/0/balance"],
-    ],[
-      ["O2 Lvl", "osc/1/level"],
-      ["O2 Bal", "osc/1/balance"],
-    ],[
-      ["O3 Lvl", "osc/2/level"],
-      ["O3 Bal", "osc/2/balance"],
-    ],[
-      ["Noise", "noise/level"],
-      ["Balance", "noise/balance"],
-    ],[
-      ["Ring Mod", "ringMod/level"],
-      ["Balance", "ringMod/balance"],
-    ]]],
-    ['panel', 'noise', { color: 1, }, [[
-      ["Nz Color", "noise/color"],
-    ]]],
-    .panel("pitch", color: 1, [pitch.items]),
-    ['panel', 'route', { color: 2, }, [[
-      [{switsch: "Routing"}, "filter/routing"],
-    ]]],
-    ['panel', 'fEnv', { prefix: "env/0", color: 2, }, [[
-      knobs.items[1],
-      knobs.items[2],
-      knobs.items[3],
-    ],[
-      knobs.items[0],
-      [{switsch: "Trigger"}, "trigger"],
-      knobs.items[6],
-    ],[
-      [{select: "Mode"}, "mode"],
-      env.0,
-    ]]],
-    ['panel', 'fEnvX', { prefix: "env/0", color: 2, }, [[
-      knobs.items[4],
-      knobs.items[5],
-    ]]],
-  ], effects: [
-    knobs.cmd,
-    env.1,
-  ], layout: [
-    ['row', [["mix", 2], ["osc0", 16]], { opts: ['alignAllTop'] }],
-    ['rowPart', [["noise", 1], ["route", 1], ["filter0", 5.5], ["filter1", 5.5]], { opts: ['alignAllTop'] }],
-    ['rowPart', [["fEnv", 3], ["fEnvX", 2]], { opts: ['alignAllTop'] }],
-    ['rowPart', [["env", 7], ["lfo", 6]]],
-    ['col', [["mix", 5], ["fEnv", 3]]],
-    ['col', [["osc0", 1], ["osc1", 1], ["osc2", 1], ["filter1", 3], ["lfo", 2]], { opts: ['alignAllTrailing'] }],
-    ['colPart', [["noise", 1], ["pitch", 1]]],
-    ['eq', ["osc0", "osc1", "osc2", "noise", "pitch"], 'leading'],
-    ['eq', ["route", "pitch", "fEnvX"], 'trailing'],
-    ['eq', ["mix", "pitch"], 'bottom'],
-    ['eq', ["noise", "route"], 'bottom'],
-    ['eq', ["fEnvX", "filter0", "filter1"], 'bottom'],
-    ['eq', ["fEnvX", "env"], 'leading'],
-    ['eq', ["fEnvCon", "fEnv"], 'top'],
-    ['eq', ["fEnvCon", "fEnv"], 'leading'],
-    ['eq', ["fEnvCon", "fEnvX"], 'bottom'],
-    ['eq', ["fEnvCon", "fEnvX"], 'trailing'],
-  ])
-}()
-
-const oscController = (index: Int) => {
-  let pwm = modCombo("PWM", "pw")
-  let fm = fmCombo()
-
-  let dim: PatchController.Effect
-  let items: [PatchController.PanelItem]
-  if index < 2 {
-    dim = ['dimsOn', ["shape", "sample"], id: nil]
-    items = [
-      [{switsch: "Mode"}, "sample"],
-      [{switsch: "Limit WT"}, "limitWT"],
-      ]
-  }
-  else {
-    dim = ['dimsOn', "shape", id: nil]
+const oscController = index => {
+  const pwm = modCombo("PWM", "pw")
+  var dim = ['dimsOn', {paths: ["shape", "sample"]}]
+  var items = [
+    [{switch: "Mode"}, "sample"],
+    [{switch: "Limit WT"}, "limitWT"],
+  ]
+  if (index >= 2) {
+    dim = ['dimsOn', "shape"]
     items = [
       [{checkbox: "Sync 2→3"}, "sync"],
-      .spacer(2),
+      '-'
     ]
   }
   
-  let shapeConfig: PatchController.Effect = .patchChange("sample", {
-    [['configCtrl', "shape", .opts(ParamOptions(opts: $0 == 0 ? waveformOptions : sampleOptions))]]
-  })
-  
-  return .patch(prefix: .fixed("osc/index"), [
-    ['grid', [[
-      "Osc \(index + 1 Wave", "shape"),
-      "octave",
-      ["Semi", "coarse"],
-      ["Detune", "fine"],
-      ["PW", "pw"],
-    ] + pwm.items + fm.items + [
-      ["Key Track", "keyTrk"],
-      ["bend"],
-      ["brilliance"],
-    ] + items]),
-  ], effects: [
-    dim,
-    shapeConfig,
-  ])
-
+  return {
+    prefix: .fixed("osc/index"), 
+    builders: [
+      ['grid', [[
+        [{select: `Osc ${index + 1} Wave`}, "shape"],
+        [{select: 'Octave'}, "octave"],
+        ["Semi", "coarse"],
+        ["Detune", "fine"],
+        ["PW", "pw"],
+      ].concat(
+        pwm.items
+      ).concat(
+        fmCombo.items
+      ).concat([
+        ["Key Track", "keyTrk"],
+        ["bend"],
+        ["brilliance"],
+      ]).concat(
+        items
+      )]],
+    ], 
+    effects: [
+      dim,
+      ['patchChange', "sample", v => ['configCtrl', "shape", {opts:  $0 == 0 ? waveformOptions : sampleOptions}]],
+      fm.cmd,
+    ],
+  }
 }
 
-static var filterController: PatchController {
+const filterController = {
   let cutoff = modCombo("Cutoff Mod", "cutoff")
   let fm = fmCombo()
   let pan = modCombo("Pan Mod", "pan")
 
-  return .index("filter", label: "type", { "Filter \($0+1)" }, [
+  return ['index', "filter", "type", i => { "Filter \($0+1)" }, [
     ['grid', [[
       [{select: "Filter"}, "type"],
       ["cutoff"],
@@ -179,7 +97,7 @@ static var filterController: PatchController {
     cutoff.cmd,
     fm.cmd,
     pan.cmd,
-    ['dimsOn', "type", id: nil]
+    ['dimsOn', "type"]
   ])
 }
 
@@ -329,6 +247,89 @@ static let lfoController: PatchController = .patch(prefix: .index("lfo"), [
   }),
   ['dimsOn', "sync", id: "phase"]
 ])
+
+
+const voiceController = {
+  let pitch = modCombo("Pitch Mod", "pitch")
+  
+  let knobs = envControllerSetup(prefix: "env/0")
+
+  let env = envItem("Filter", prefix: "env/0", "env/0")
+  builders: [
+    // add before fEnv panels so it's in the back.
+    ['panel', 'fEnvCon', { color: 2, }, [[]]],
+    ['child', oscController(0), "osc0", color: 1],
+    ['child', oscController(1), "osc1", color: 1],
+    ['child', oscController(2), "osc2", color: 1],
+    ['children', 2, "filter", color: 2, filterController],
+    ['child', envController(), "env", color: 3],
+    ['child', lfoController, "lfo", color: 3],
+    ['panel', 'mix', { color: 1, }, [[
+      ["O1 Lvl", "osc/0/level"],
+      ["O1 Bal", "osc/0/balance"],
+    ],[
+      ["O2 Lvl", "osc/1/level"],
+      ["O2 Bal", "osc/1/balance"],
+    ],[
+      ["O3 Lvl", "osc/2/level"],
+      ["O3 Bal", "osc/2/balance"],
+    ],[
+      ["Noise", "noise/level"],
+      ["Balance", "noise/balance"],
+    ],[
+      ["Ring Mod", "ringMod/level"],
+      ["Balance", "ringMod/balance"],
+    ]]],
+    ['panel', 'noise', { color: 1, }, [[
+      ["Nz Color", "noise/color"],
+    ]]],
+    .panel("pitch", color: 1, [pitch.items]),
+    ['panel', 'route', { color: 2, }, [[
+      [{switsch: "Routing"}, "filter/routing"],
+    ]]],
+    ['panel', 'fEnv', { prefix: "env/0", color: 2, }, [[
+      knobs.items[1],
+      knobs.items[2],
+      knobs.items[3],
+    ],[
+      knobs.items[0],
+      [{switsch: "Trigger"}, "trigger"],
+      knobs.items[6],
+    ],[
+      [{select: "Mode"}, "mode"],
+      env.0,
+    ]]],
+    ['panel', 'fEnvX', { prefix: "env/0", color: 2, }, [[
+      knobs.items[4],
+      knobs.items[5],
+    ]]],
+  ], 
+  effects: [
+    knobs.cmd,
+    env.1,
+  ], 
+  layout: [
+    ['row', [["mix", 2], ["osc0", 16]], { opts: ['alignAllTop'] }],
+    ['rowPart', [["noise", 1], ["route", 1], ["filter0", 5.5], ["filter1", 5.5]], { opts: ['alignAllTop'] }],
+    ['rowPart', [["fEnv", 3], ["fEnvX", 2]], { opts: ['alignAllTop'] }],
+    ['rowPart', [["env", 7], ["lfo", 6]]],
+    ['col', [["mix", 5], ["fEnv", 3]]],
+    ['col', [["osc0", 1], ["osc1", 1], ["osc2", 1], ["filter1", 3], ["lfo", 2]], { opts: ['alignAllTrailing'] }],
+    ['colPart', [["noise", 1], ["pitch", 1]]],
+    ['eq', ["osc0", "osc1", "osc2", "noise", "pitch"], 'leading'],
+    ['eq', ["route", "pitch", "fEnvX"], 'trailing'],
+    ['eq', ["mix", "pitch"], 'bottom'],
+    ['eq', ["noise", "route"], 'bottom'],
+    ['eq', ["fEnvX", "filter0", "filter1"], 'bottom'],
+    ['eq', ["fEnvX", "env"], 'leading'],
+    ['eq', ["fEnvCon", "fEnv"], 'top'],
+    ['eq', ["fEnvCon", "fEnv"], 'leading'],
+    ['eq', ["fEnvCon", "fEnvX"], 'bottom'],
+    ['eq', ["fEnvCon", "fEnvX"], 'trailing'],
+  ],
+}
+
+
 
 static let modsController: PatchController = .patch([
   .children(16, "mod", color: 1, {
