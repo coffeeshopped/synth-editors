@@ -22,18 +22,6 @@ const paramData = (deviceId, bufferBytes, parm) => sysex(deviceId, [
   ['byte', parm],
 ])
 
-
-const wholePatchTransform = (throttle, dumpByte, bank, location) => ({
-  type: 'singlePatch',
-  throttle: throttle,
-  wholePatch: [[sysexData(deviceId, dumpByte, bank, location)], 0]],
-})
-
-const bankPatch = (dumpByte, bank, interval) => ({
-  type: 'singleBank',
-  bank: location => [[sysexData(deviceId, dumpByte, bank, location)], interval]],
-})
-
 const createPatchTruss = (displayId, bodyDataCount, initFile, namePack, parms, parseOffset, dumpByte, hasBankAndLocation) => ({
   type: 'singlePatch',
   id: displayId,

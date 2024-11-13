@@ -376,6 +376,7 @@ const patchTruss = Blofeld.createPatchTruss("Voice", 383, "blofeld-init", [363, 
 const dumpByte = 0x10
 
 module.exports = {
+  dumpByte,
   patchTruss,
   bankTruss: Blofeld.createBankTruss(dumpByte, patchTruss, "blofeld-bank-init"),
   fxMap: [
