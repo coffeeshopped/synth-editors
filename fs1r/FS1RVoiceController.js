@@ -84,7 +84,7 @@ const algo = ['fm', Algorithms.algorithms, miniOpController, {
   selectable: true,
 }]
 
-const algoOptions = (88).map(i => `fs1r-algo-${i + 1}`)
+const algoOptions = (88).map(i => `assets/fs1r-algo-${i + 1}.svg`)
 
 const formantController = (destLabel, prefixItem) => ({
   prefix: { index: [prefixItem, 'ctrl'] }, 
