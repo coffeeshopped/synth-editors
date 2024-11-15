@@ -262,8 +262,9 @@ const bankValidBundle = { sizes: [79232, 39616] }
 const commonParamData = (part, paramAddress) =>
   FS1R.dataSetMsg(FS1R.deviceIdMap, [0x40 + part, 0x00, paramAddress], ['byte', paramAddress])
 
-const opParamData = (part, parm, op) =>
-  FS1R.dataSetMsg(FS1R.deviceIdMap, [0x60 + part, op, parm.p], ['byte', parm.b])
+const opParamData = (part, parm, op) => {
+  return FS1R.dataSetMsg(FS1R.deviceIdMap, [0x60 + part, op, parm.p], ['byte', parm.b])
+}
 
 const fixedFreq = (coarse, fine) => {
   if (coarse <= 0) { return 0 }
@@ -323,14 +324,14 @@ module.exports = {
     throttle: 30,
     param: (path, parm, value) => {
       // special check for fseq on/off for op, since that's a COMMON param...
-      if (!(path.count == 4 && path[3] == 'fseq')) {
-        let op = path[0] == 'op' ? path[1] : null
-        return [[opParamData(part, parm, op), 30]]
+      if (!(pathLen(path) == 4 && pathPart(path,3) == 'fseq')) {
+        const op = pathPart(path,0) == 'op' ? pathPart(path,1) : null
+        if (op !== null) {
+          return [[opParamData(part, parm, op), 30]]
+        }
       }
-      else {
-        // common params have param address stored in .b
-        return [[commonParamData(part, parm.b), 30]]
-      }
+      // common params have param address stored in .b
+      return [[commonParamData(part, parm.b), 30]]
     }, 
     patch: [[tempSysexData(FS1R.deviceIdMap, part), 100]], 
     name: patchTruss.namePack.rangeMap(i => [
