@@ -32,11 +32,11 @@ const parms = [
   ] } },
 ]
 
-const sysexData = (deviceId) => FS1R.sysexData(deviceId, [0x60, 0x00, 0x00])
+const sysexData = FS1R.sysexData([0x60, 0x00, 0x00])
 
 /// sysex bytes for patch as stored in memory location
-const sysexDataWithLocation = (deviceId, location) =>
-  FS1R.sysexData(deviceId, [0x61, 0x00, location])
+const sysexDataWithLocation = location =>
+  FS1R.sysexData([0x61, 0x00, location])
 
 
 const patchTruss = {
@@ -45,7 +45,7 @@ const patchTruss = {
   bodyDataCount: 6443 - 11,
   namePack: [0, 8], 
   parms: parms, 
-  createFile: sysexData(0), 
+  createFile: sysexData, 
   initFile: "fs1r-fseq-init", 
   // variable data length - 50 bytes per frame
   parseBody: ['bytes', { start: 9, end: -2 }],
@@ -56,11 +56,11 @@ const patchTruss = {
 const presets = ["ShoobyDo", "2BarBeat", "D&B", "D&B Fill", "4BarBeat", "YouCanG", "EBSayHey", "RtmSynth", "VocalRtm", "WooWaPa", "UooLha", "FemRtm", "ByonRole", "WowYeah", "ListenVo", "YAMAHAFS", "Laugh", "Laugh2", "AreYouR", "Oiyai", "Oiaiuo", "UuWaUu", "Wao", "RndArp1", "FiltrArp", "RndArp2", "TechArp", "RndArp3", "Voco-Seq", "PopTech", "1BarBeat", "1BrBeat2", "Undo", "RndArp4", "VoclRtm2", "Reiyowha", "RndArp5", "VocalArp", "CanYouGi", "Pu-Yo", "Yaof", "MyaOh", "ChuckRtm", "ILoveYou", "Jan-On", "Welcome", "One-Two", "Edokko", "Everybdy", "Uwau", "YEEAAH", "4-3-2-1", "Test123", "CheckSnd", "ShavaDo", "R-M-H-R", "HiSchool", "M.Blastr", "L&G MayI", "Hellow", "ChowaUu", "Everybd2", "Dodidowa", "Check123", "BranNewY", "BoomBoom", "Hi=Woo", "FreeForm", "FreqPad", "YouKnow", "OldTech", "B/M", "MiniJngl", "EveryB-S", "IYaan", "Yeah", "ThankYou", "Yes=No", "UnWaEDon", "MouthPop", "Fire", "TBLine", "China", "Aeiou", "YaYeYiYo", "C7Seq", "SoundLib", "IYaan2", "Relax", "PSYAMAHA"]
 
 
-const headerParamData = (deviceId, paramAddress, byteCount) => {
+const headerParamData = (paramAddress, byteCount) => {
   // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
   let v = byteCount == 1 ? ['byte', paramAddress] : (['byte', paramAddress] << 7) + ['byte', paramAddress + 1]
   let paramBytes = []// TODO: RolandAddress(intValue: paramAddress).sysexBytes(count: 2)
-  return FS1R.dataSetMsg(deviceId, [0x70, paramBytes], v)
+  return FS1R.dataSetMsg([0x70, paramBytes], v)
 }
 
 const bankIsValid = (sysex) => {
@@ -82,7 +82,7 @@ module.exports = {
     patchTruss: patchTruss,
     patchCount: 6,
     createFile: {
-      locationMap: location => sysexDataWithLocation(0, location)
+      locationMap: sysexDataWithLocation,
     }, 
     locationIndex: 8,
     validSize: size => {
@@ -112,15 +112,15 @@ module.exports = {
       //        return [(perfCommonParamData(editor, patch: patch, paramAddress: byte, byteCount: byteCount), 0.03)]
       //      }
     }, 
-    patch: [[sysexData(FS1R.deviceIdMap), 30]], 
+    patch: [[sysexData, 30]], 
     name: patchTruss.namePack.rangeMap(i => [
-      headerParamData(FS1R.deviceIdMap, i, 1), 30
+      headerParamData(i, 1), 30
     ]),
   },
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexDataWithLocation(FS1R.deviceIdMap, location), 100],
+    bank: location => [sysexDataWithLocation(location), 100],
   },
   presets: presets,
 }

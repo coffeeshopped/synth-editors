@@ -257,10 +257,10 @@ const parms = [
 ]
 
 /// sysex bytes for patch as temp perf
-const sysexData = deviceId => FS1R.sysexData(deviceId, [0x10, 0x00, 0x00])
+const sysexData = FS1R.sysexData([0x10, 0x00, 0x00])
 
 /// sysex bytes for patch as stored in memory location
-const sysexDataWithLocation = (deviceId, location) => FS1R.sysexData(deviceId, [0x11, 0x00, location])
+const sysexDataWithLocation = location => FS1R.sysexData([0x11, 0x00, location])
 
 const patchTruss = {
   type: 'singlePatch',
@@ -269,20 +269,20 @@ const patchTruss = {
   namePack: [0, 0x0c],
   parms: parms, 
   initFile: "fs1r-perf-init", 
-  createFile: sysexData(0),
+  createFile: sysexData,
   parseBody: FS1R.parseOffset,
 }
 
 // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
-const commonParamData = (deviceId, address, byteCount) => {
+const commonParamData = (address, byteCount) => {
   // it's either 1 or 2 bytes holding the value
   const v = byteCount == 1 ? [0, ['byte', address]] : ['+' ['byte', address], ['byte', address + 1]]
   const paramBytes = ['msBytes7bit', address, 2]
-  return FS1R.dataSetMsg(deviceId, [0x10, paramBytes], v)
+  return FS1R.dataSetMsg([0x10, paramBytes], v)
 }
 
-const partParamData = (deviceId, part, parm) => 
-  FS1R.dataSetMsg(deviceId, [0x30 + part, 0x00, parm.p], ['byte', parm.b])
+const partParamData = (part, parm) => 
+  FS1R.dataSetMsg([0x30 + part, 0x00, parm.p], ['byte', parm.b])
 
 // const refTruss: FullRefTruss = {
 // 
@@ -1127,7 +1127,7 @@ module.exports = {
     patchTruss: patchTruss,
     patchCount: 128, 
     createFile: {
-      locationMap: location => sysexDataWithLocation(0, location)
+      locationMap: location => sysexDataWithLocation(location)
     },
     locationIndex: 8,
   },
@@ -1137,7 +1137,7 @@ module.exports = {
     param: (path, parm, value) => {
       const part = path[0] == 'part' ? path[1] : -1
       if (part >= 0) {
-        return [[partParamData(FS1R.deviceIdMap, part, parm), 30]]
+        return [[partParamData(part, parm), 30]]
       }
       else {
         // common params have param address stored in .byte
@@ -1148,18 +1148,18 @@ module.exports = {
           byte = byte - (byte % 2)
           byteCount = 2
         }
-        return [[commonParamData(FS1R.deviceIdMap, byte, byteCount), 30]]
+        return [[commonParamData(byte, byteCount), 30]]
       }
     }, 
-    patch: [[sysexData(FS1R.deviceIdMap), 100]], 
+    patch: [[sysexData, 100]], 
     name: patchTruss.namePack.rangeMap(i => [
-      commonParamData(FS1R.deviceIdMap, i, 1), 30
+      commonParamData(i, 1), 30
     ]),
   },
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexDataWithLocation(FS1R.deviceIdMap, location), 100]
+    bank: location => [sysexDataWithLocation(location), 100]
   },
   reverbParams,
   varyParams,

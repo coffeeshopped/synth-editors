@@ -180,10 +180,10 @@ const parms = [
 ]
 
 /// sysex bytes for patch as temp voice
-const tempSysexData = (deviceId, part) => FS1R.sysexData(deviceId, [0x40 + part, 0x00, 0x00])
+const tempSysexData = part => FS1R.sysexData([0x40 + part, 0x00, 0x00])
 
 /// sysex bytes for patch as stored in memory location
-const sysexData = (deviceId, location) => FS1R.sysexData(deviceId, [0x51, 0x00, location])
+const sysexData = location => FS1R.sysexData([0x51, 0x00, location])
 
 const patchTruss = {
   type: 'singlePatch',
@@ -192,7 +192,7 @@ const patchTruss = {
   namePack: [0, 10], 
   parms: parms, 
   initFile: "fs1r-init", 
-  createFile: tempSysexData(0, 0), 
+  createFile: tempSysexData(0), 
   parseBody: FS1R.parseOffset,
 }
 
@@ -260,11 +260,11 @@ const bankValidBundle = { sizes: [79232, 39616] }
 // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
 
 const commonParamData = (part, paramAddress) =>
-  FS1R.dataSetMsg(FS1R.deviceIdMap, [0x40 + part, 0x00, paramAddress], ['byte', paramAddress])
+  FS1R.dataSetMsg([0x40 + part, 0x00, paramAddress], ['byte', paramAddress])
 
-const opParamData = (part, parm, op) => {
-  return FS1R.dataSetMsg(FS1R.deviceIdMap, [0x60 + part, op, parm.p], ['byte', parm.b])
-}
+const opParamData = (part, parm, op) =>
+  FS1R.dataSetMsg([0x60 + part, op, parm.p], ['byte', parm.b])
+
 
 const fixedFreq = (coarse, fine) => {
   if (coarse <= 0) { return 0 }
@@ -304,7 +304,7 @@ module.exports = {
     patchTruss: patchTruss,
     patchCount: 128, 
     createFile: {
-      locationMap: location => sysexData(0, location)
+      locationMap: sysexData,
     },
     locationIndex: 8,
     validBundle: bankValidBundle,
@@ -314,7 +314,7 @@ module.exports = {
     patchTruss: patchTruss,
     patchCount: 64, 
     createFile: {
-      locationMap: location => sysexData(0, location)
+      locationMap: sysexData,
     },
     locationIndex: 8,
     validBundle: bankValidBundle,
@@ -333,7 +333,7 @@ module.exports = {
       // common params have param address stored in .b
       return [[commonParamData(part, parm.b), 30]]
     }, 
-    patch: [[tempSysexData(FS1R.deviceIdMap, part), 100]], 
+    patch: [[tempSysexData(part), 100]], 
     name: patchTruss.namePack.rangeMap(i => [
       commonParamData(part, i), 30
     ]),
@@ -341,7 +341,7 @@ module.exports = {
   bankTransform: {
     type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexData(FS1R.deviceIdMap, location), 100]
+    bank: location => [sysexData(location), 100]
   },
   fixedFreq: fixedFreq,
   voicedFreq: (oscMode, spectralForm, coarse, fine) => {

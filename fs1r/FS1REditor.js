@@ -9,9 +9,8 @@ const Perf = require('./FS1RPerf.js')
 
 // MARK: MIDI I/O
 
-const fetch = address => ['yamFetch', FS1R.deviceIdMap(FS1R.deviceId), [0x5e, address]]
-const patchFetch = address => ['truss', fetch(address)]
-const bankFetch = address => ['bankTruss', fetch(address)]
+const patchFetch = address => ['truss', FS1R.fetch(address)]
+const bankFetch = address => ['bankTruss', FS1R.fetch(address)]
 
 const banks = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"]
 const userXform = ['user', i => `Int-${i + 1}`]

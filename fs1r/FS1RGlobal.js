@@ -1,6 +1,6 @@
 const FS1R = require('./FS1R.js')
 
-const sysexData = (deviceId) => FS1R.sysexData(deviceId, [0x00, 0x00, 0x00])
+const sysexData = FS1R.sysexData([0x00, 0x00, 0x00])
 
 const ctrlOptions = Array.sparse(
   (95).map(i => [i+1, i == 31 ? "Invalid" : `${i + 1}`])
@@ -51,13 +51,13 @@ module.exports = {
     id: "global", 
     bodyDataCount: 76, 
     parms: parms, 
-    createFile: sysexData(0), 
+    createFile: sysexData, 
     parseBody: 9,
   },
   patchTransform: {
     type: 'singlePatch',
     throttle: 100, 
-    param: (path, parm, value) => [[FS1R.dataSetMsg(FS1R.deviceIdMap, [0x00, 0x00, parm.b], value), 30]], 
-    patch: [[sysexData(FS1R.deviceIdMap), 100]],
+    param: (path, parm, value) => [[FS1R.dataSetMsg([0x00, 0x00, parm.b], value), 30]], 
+    patch: [[sysexData, 100]],
   },
 }
