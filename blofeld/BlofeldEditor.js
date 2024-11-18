@@ -65,73 +65,76 @@ const channelMap = raw => raw == 0 ? 0 : raw - 1
 // }
 
 
-const truss = {
-  name: "Blofeld", 
-  trussMap: ([
-    ["global", Global.patchTruss],
-    ["voice", Voice.patchTruss],
-    ["perf", MultiMode.patchTruss],
-    ["perf/bank", MultiMode.bankTruss],
-    ["backup", backupTruss],
-    ["extra/perf", MultiMode.refTruss],
-  ]).concat(
-    (16).map(i => [['part', i], Voice.patchTruss])
-  ).concat(
-    (8).map(i => [['bank', i], Voice.bankTruss])
-  )
-  
-  fetchTransforms: ([
-    ["global", patchFetch([0x04])],
-    ["voice", patchFetch([0x00, 0x7f, 0x00])],
-    ["perf", patchFetch([0x01, 0x7f, 0x00])],
-    ["perf/bank", bankFetch({ [0x01, 0x00, $0, 0x7f] })],
-  ]).concat(
-    (16).map(i => [['part', i], patchFetch([0x00, 0x7f, i])])
-  ).concat(
-    (8).map(i => [['bank', i], bankFetch([0x00, i, 'b', 0x7f])])
-  )
-  
-  compositeFetchWaitInterval: 100,
-  compositeSendWaitInterval: 300,
 
-  extraParamOuts: (8).map(i =>
-    ["perf", ['bankNames', ['bank', i], ['patch/name', i]]]
-  }),
-
-  midiOuts: ([
-    ["global", wholePatchTransform(400, Global.dumpByte, 0, 0)],
-    ["voice", Voice.patchChange(30, 0)],
-    ["perf", wholePatchTransform(400, MultiMode.dumpByte, 0x7f, 0)],
-    ["perf/bank", bankPatch(MultiMode.dumpByte, 0, 200)],
-  ]).concat(
-    (16).map(i => [['part', i], Voice.patchChange(30, i)])
-  ).concat(
-    (8).map(i => [['bank', i], bankPatch(Voice.dumpByte, i, 100)])
-  ),
+module.exports = {
+  editor: {
+    name: "Blofeld", 
+    trussMap: ([
+      ["global", Global.patchTruss],
+      ["voice", Voice.patchTruss],
+      ["perf", MultiMode.patchTruss],
+      ["perf/bank", MultiMode.bankTruss],
+      ["backup", backupTruss],
+      ["extra/perf", MultiMode.refTruss],
+    ]).concat(
+      (16).map(i => [['part', i], Voice.patchTruss])
+    ).concat(
+      (8).map(i => [['bank', i], Voice.bankTruss])
+    )
+    
+    fetchTransforms: ([
+      ["global", patchFetch([0x04])],
+      ["voice", patchFetch([0x00, 0x7f, 0x00])],
+      ["perf", patchFetch([0x01, 0x7f, 0x00])],
+      ["perf/bank", bankFetch({ [0x01, 0x00, $0, 0x7f] })],
+    ]).concat(
+      (16).map(i => [['part', i], patchFetch([0x00, 0x7f, i])])
+    ).concat(
+      (8).map(i => [['bank', i], bankFetch([0x00, i, 'b', 0x7f])])
+    )
+    
+    compositeFetchWaitInterval: 100,
+    compositeSendWaitInterval: 300,
   
-  midiChannels: ([
-    ["voice", ['basic', { map: channelMap}]],
-  ]).concat(
-    (16).map(i => [`part/${i}`, ['custom', [
-      ['value', "global", "channel"], 
-      ['value', "perf", `part/${i}/channel`],
-    ], values => {
-      const rawCh = values[0] || 0
-      const partCh = values[1] || 0
-      switch (partCh) {
-      case 0: // 0 is Global
-        return channelMap(rawCh)
-      case 1: // 1 is omni
-        return 0
-      default: // else channel - 2
-        return partCh - 2
-      }
-    }]])
-  ),
+    extraParamOuts: (8).map(i =>
+      ["perf", ['bankNames', ['bank', i], ['patch/name', i]]]
+    }),
   
-  slotTransforms: (8).map(b =>
-    ["bank/b", ['user', i => Voice.bankLetter(b) + `${i + 1}`]]
-  ),
+    midiOuts: ([
+      ["global", wholePatchTransform(400, Global.dumpByte, 0, 0)],
+      ["voice", Voice.patchChange(30, 0)],
+      ["perf", wholePatchTransform(400, MultiMode.dumpByte, 0x7f, 0)],
+      ["perf/bank", bankPatch(MultiMode.dumpByte, 0, 200)],
+    ]).concat(
+      (16).map(i => [['part', i], Voice.patchChange(30, i)])
+    ).concat(
+      (8).map(i => [['bank', i], bankPatch(Voice.dumpByte, i, 100)])
+    ),
+    
+    midiChannels: ([
+      ["voice", ['basic', { map: channelMap}]],
+    ]).concat(
+      (16).map(i => [`part/${i}`, ['custom', [
+        ['value', "global", "channel"], 
+        ['value', "perf", `part/${i}/channel`],
+      ], values => {
+        const rawCh = values[0] || 0
+        const partCh = values[1] || 0
+        switch (partCh) {
+        case 0: // 0 is Global
+          return channelMap(rawCh)
+        case 1: // 1 is omni
+          return 0
+        default: // else channel - 2
+          return partCh - 2
+        }
+      }]])
+    ),
+    
+    slotTransforms: (8).map(b =>
+      ["bank/b", ['user', i => Voice.bankLetter(b) + `${i + 1}`]]
+    ),
+  },
 }
   
 //  private let partPaths: [SynthPath] = (0..<16).map { "part/$0" }
