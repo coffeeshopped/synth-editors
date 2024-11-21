@@ -2,6 +2,7 @@
   "name": "jvxp",
   "version": "0.0.1",
   "description": "Roland JV-1080, JV-2080, JV-1010, XPs...",
+  "api": 1,
   "modules": [
     {
       "name": "jv1080",

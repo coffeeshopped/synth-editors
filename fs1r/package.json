@@ -2,6 +2,7 @@
   "name": "fs1r",
   "version": "0.0.1",
   "description": "Yamaha FS1R",
+  "api": 1,
   "modules": [
     {
       "name": "fs1r",
