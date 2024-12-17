@@ -1,0 +1,14 @@
+{
+  "name": "blofeld",
+  "version": "0.0.1",
+  "description": "Waldorf Blofeld",
+  "api": 1,
+  "modules": [
+    {
+      "name": "blofeld",
+      "manufacturer": "Waldorf",
+      "model": "Blofeld",
+      "module": "BlofeldModule.js"
+    }
+  ]
+}
