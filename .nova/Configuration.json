@@ -1,4 +1,5 @@
 {
   "editor.default_syntax" : "javascript",
+  "workspace.color" : 10,
   "workspace.name" : "Synth Editors"
 }
