@@ -1,4 +1,4 @@
-require('../core/NumberUtils.js')
+require('./utils.js')
 
 const env = label => {
   const parts = ["delay", "attack", "decay", "sustain", "release"]
@@ -86,8 +86,16 @@ const modEffects = (10).map(mod => {
   const modPaths = modParts.map(part => ["mod", mod, part])
   return ['patchChange', {
     paths: modPaths,
+    // values is an object (path => value)
     fn: values => {
-      const active = values.map(v => v != 0).reduce((a, b) => a && b, true)
+      var active = false
+      if (values) {
+        vals = []
+        for (let key in values) {
+          vals.push(values[key])
+        }
+        active = vals.map(v => v != 0).reduce((a, b) => a && b, true)
+      }
       return modPaths.map(p => ['dimItem', !active, p])
     }
   }]

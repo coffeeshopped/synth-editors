@@ -1,5 +1,4 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
+require('./utils.js')
 const Matrix = require('./matrix.js')
 
 const rampModeOptions = ["Single","Multi","External","Ext Gated"]

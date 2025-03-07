@@ -1,5 +1,4 @@
 
-
 const sysex = cmdBytes => [0xf0, 0x10, 0x06, cmdBytes, 0xf7]
   
 module.exports = {
