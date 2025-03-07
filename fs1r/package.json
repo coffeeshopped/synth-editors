@@ -1,6 +1,6 @@
 {
   "name": "fs1r",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Yamaha FS1R",
   "api": 1,
   "modules": [
