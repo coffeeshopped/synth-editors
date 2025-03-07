@@ -21,7 +21,7 @@ const optionsDict = (range, options) =>
 
 
 const presetFseqNames = ["ShoobyDo", "2BarBeat", "D&B", "D&B Fill", "4BarBeat", "YouCanG", "EBSayHey", "RtmSynth", "VocalRtm", "WooWaPa", "UooLha", "FemRtm", "ByonRole", "WowYeah", "ListenVo", "YAMAHAFS", "Laugh", "Laugh2", "AreYouR", "Oiyai", "Oiaiuo", "UuWaUu", "Wao", "RndArp1", "FiltrArp", "RndArp2", "TechArp", "RndArp3", "Voco-Seq", "PopTech", "1BarBeat", "1BrBeat2", "Undo", "RndArp4", "VoclRtm2", "Reiyowha", "RndArp5", "VocalArp", "CanYouGi", "Pu-Yo", "Yaof", "MyaOh", "ChuckRtm", "ILoveYou", "Jan-On", "Welcome", "One-Two", "Edokko", "Everybdy", "Uwau", "YEEAAH", "4-3-2-1", "Test123", "CheckSnd", "ShavaDo", "R-M-H-R", "HiSchool", "M.Blastr", "L&G MayI", "Hellow", "ChowaUu", "Everybd2", "Dodidowa", "Check123", "BranNewY", "BoomBoom", "Hi=Woo", "FreeForm", "FreqPad", "YouKnow", "OldTech", "B/M", "MiniJngl", "EveryB-S", "IYaan", "Yeah", "ThankYou", "Yes=No", "UnWaEDon", "MouthPop", "Fire", "TBLine", "China", "Aeiou", "YaYeYiYo", "C7Seq", "SoundLib", "IYaan2", "Relax", "PSYAMAHA"]
-const presetFseqOptions = Array.sparse(presetFseqNames.mapWithIndex((e, i) => [i + 1, e]))
+const presetFseqOptions = Array.sparse(presetFseqNames.map((e, i) => [i + 1, e]))
 
 const bankOptions = ["Off","Int","PrA","PrB","PrC", "PrD","PrE","PrF","PrG","PrH","PrI","PrJ","PrK"]
 
@@ -157,7 +157,7 @@ const parms = [
     "midi/ctrl/2",
     "modWheel",
     "midi/ctrl/3",
-    ]).mapWithIndex((path, i) =>
+    ]).map((path, i) =>
       [path, { b: 0x30 + (2 * ctrl) + (i < 7 ? 1 : 0), bit: i % 7 }]
     )
   },

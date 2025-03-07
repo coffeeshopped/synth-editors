@@ -1,10 +1,3 @@
-Array.prototype.mapWithIndex = function(mapFn) {
-  var arr = []
-  for(let i=0; i<this.length; ++i) {
-    arr.push(mapFn(this[i], i))
-  }
-  return arr
-}
 
 // NOTE: all ranges are treated as open (up to but not including the upper bound)
 Array.prototype.rangeMap = function(mapFn) {

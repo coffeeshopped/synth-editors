@@ -13,7 +13,7 @@ const portaOptions = ["Off","Porta","Key Track"]
 const modSourceOptions = ["Unused","Env 1","Env 2","Env 3","LFO 1","LFO 2","Vibrato","Ramp 1","Ramp 2","Keyboard","Portamento","Tracking Gen","Keybd Gate","Velocity","Release Velo","Pressure","Pedal 1","Pedal 2","Lever 1 (Bend)","Lever 2 (Mod)","Lever 3 (Breath)"]
 
 // removing first option
-const trkSrcOptions = modSourceOptions.mapWithIndex((s, i) => [i, s]).slice(1)
+const trkSrcOptions = modSourceOptions.map((s, i) => [i, s]).slice(1)
 
 const modDestinationOptions = ["Unused","DCO1 Freq","DCO1 PW","DCO1 Waveshape","DCO2 Freq","DCO2 PW","DCO2 Waveshape","Mix Level","VCF FM Amount","VCF Freq","VCF Resonance","VCA1 Level","VCA2 Level","Env1 Delay","Env1 Attack","Env1 Decay","Env1 Release","Env1 Amp","Env2 Delay","Env2 Attack","Env2 Decay","Env2 Release","Env2 Amp","Env3 Delay","Env3 Attack","Env3 Decay","Env3 Release","Env3 Amp","LFO1 Speed","LFO1 Amp","LFO2 Speed","LFO2 Amp","Porta Time"]
 

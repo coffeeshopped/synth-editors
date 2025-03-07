@@ -1,10 +1,4 @@
 
-Array.prototype.forEachWithIndex = function(mapFn) {
-  for(let i=0; i<this.length; ++i) {
-    mapFn(this[i], i)
-  }
-}
-
 // NOTE: all ranges are treated as open (up to but not including the upper bound)
 Array.prototype.rangeMap = function(mapFn) {
   if (this.length < 2 || this[1] < this[0]) { return [] }

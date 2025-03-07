@@ -2,7 +2,7 @@
 const reservePaths = (8).map(i => ['part', i, 'voice', 'reserve'])
 
 const partController = presetVoices => {
-  const presetMap = presetVoices.mapWithIndex((e, i) => [i + 32, e])
+  const presetMap = presetVoices.map((e, i) => [i + 32, e])
   return {
     index: 'part', 
     label: 'voice/number', 

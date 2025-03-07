@@ -2,7 +2,7 @@ require('./utils.js')
 const Op4 = require('./op4.js')
 
   // note the order: 4, 2, 3, 1. wacky
-const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
+const parms = ([3,1,2,0]).map((op, i) => ({
   prefix: ['op', op], block: {
     b: i * 13, offset: [
       ["attack", { b: 0, max: 31 }],
@@ -62,7 +62,7 @@ const parms = ([3,1,2,0]).mapWithIndex((op, i) => ({
 ])
 
     // note the order: 4, 2, 3, 1. wacky
-const compactParms = ([3,1,2,0]).mapWithIndex((op, i) => ({
+const compactParms = ([3,1,2,0]).map((op, i) => ({
   prefix: ["op", op], block: {
     b: i * 10, offset: [
       ["attack", { b: 0 }],

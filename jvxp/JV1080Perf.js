@@ -83,7 +83,7 @@ const patchGroups = (() => {
     [5, "Preset-C"],
     [6, "GM"],
   ])
-  SRJVBoard.boardNames.forEachWithIndex((n, i) => options[i+100] = n)
+  SRJVBoard.boardNames.forEach((n, i) => options[i+100] = n)
   return options
 })()
 
