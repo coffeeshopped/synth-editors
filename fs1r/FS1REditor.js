@@ -1,5 +1,4 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
+require('./utils.js')
 const FS1R = require('./FS1R.js')
 const Global = require('./FS1RGlobal.js')
 const Voice = require('./FS1RVoice.js')

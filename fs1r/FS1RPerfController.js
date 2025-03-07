@@ -1,4 +1,4 @@
-require('../core/NumberUtils.js')
+require('./utils.js')
 const Perf = require('./FS1RPerf.js')
 
 const ccBlock = (state, locals) => {

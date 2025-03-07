@@ -1,4 +1,5 @@
-require('../core/NumberUtils.js')
+require('./utils.js')
+
 /// Umbrella utils for TX81Z, DX100, DX21, DX11
 
 // static let synth = SynthWerk("Op4")

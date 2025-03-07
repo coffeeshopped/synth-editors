@@ -1,5 +1,4 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
+require('./utils.js')
 const Op4 = require('./op4.js')
 
   // note the order: 4, 2, 3, 1. wacky

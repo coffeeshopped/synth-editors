@@ -1,5 +1,4 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
+require('./utils.js')
 
 const Voice = require('./JV1080Voice.js')
 const SRJVBoard = require('./SRJVBoard.js')

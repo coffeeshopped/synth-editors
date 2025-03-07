@@ -1,6 +1,5 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
-  
+require('./utils.js')
+
 /// MSB first. lower 4 bits of each byte used
 // 2 bytes per value
 const multiPack = (byte) => ['splitter', (2).map(i => {

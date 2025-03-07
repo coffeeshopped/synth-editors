@@ -1,5 +1,4 @@
-require('../core/NumberUtils.js')
-require('../core/ArrayUtils.js')
+require('./utils.js')
 
 const reverbHFDamps = ["200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "Bypass"]
 const fxGainParam = { max: 30, dispOff: -15 }

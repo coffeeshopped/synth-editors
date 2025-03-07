@@ -1,4 +1,5 @@
-require('../core/ArrayUtils.js')
+require('./utils.js')
+
 const FS1R = require('./FS1R.js')
 const Voice = require('./FS1RVoice.js')
 
