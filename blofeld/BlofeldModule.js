@@ -19,10 +19,10 @@ module.exports = {
         ['perf', PerfCtrlr.controller, "Multi"],
         ['perfParts', 16, i => `Part ${i + 1}`, VoiceCtrlr.controller],
       ]]
-      ['banks',
+      ['banks', [
         ['banks', 8, i => `Bank ${Voice.bankLetter(i)}`, 'bank'], 
         ['bank', "Multi Bank", 'perf/bank'],
-      ],
+      ]],
       // .backup,
     ],
     dirMap: [

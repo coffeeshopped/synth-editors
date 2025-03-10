@@ -1,6 +1,7 @@
+require('./utils.js')
 const Blofeld = require('./Blofeld.js')
   
-const paramData(location, parm) => Blofeld.paramData(Blofeld.deviceId, [0x20, location], parm)
+const paramData = (location, parm) => Blofeld.paramData(Blofeld.deviceId, [0x20, location], parm)
   
 const patchChange = (throttle, location) => ({
   type: 'singlePatch',
@@ -8,158 +9,18 @@ const patchChange = (throttle, location) => ({
   param: (path, parm, value) => [[paramData(location, parm.b), 10]],
   patch: Blofeld.wholePatch(dumpByte, 0x7f, location), 
   name: patchTruss.namePack.rangeMap(i => [
-    paramData(location, i)], 10
+    paramData(location, i), 10
   ]),
 })
 
 
 //  const tempBankIndex = 0x7f
   
-const bankLetter(_ index: Int) -> String {
-  guard index < 8 else { return "?" }
+const bankLetter = index => {
+  if (index >= 8) { return "?" }
   return ["A","B","C","D","E","F","G","H"][index]
 }
   
-  
-const parms = [
-  { prefix: "osc", count: 3, bx: 16, block: i => (
-    { inc: true, b: 1, block: [
-      ["octave", {opts: oscOctaves}],
-      ["coarse", { rng: [52, 77], dispOff: -64 }],
-      ["fine", { dispOff: -64}],
-      ["bend", { rng: [40, 89], dispOff: -64}],
-      ["keyTrk", { iso: keytrackIso}],
-      ["fm/src", { opts: fmSources}],
-      ["fm/amt"],
-      ["shape", { opts: i == 2 ? osc3Waveforms : waveforms}],
-      ["pw"],
-      ["pw/src", { opts: modSources}],
-      ["pw/amt", { dispOff: -64}],
-    ] })
-  },
-  { prefix: "osc", count: 2, bx: 16, block:
-    { inc: true, b: 14, block: [
-      ["limitWT", {opts: ["On", "Off"]}],
-      ["sample", {opts: ["WT","Sample"]}],
-      ["brilliance"],
-    ] }
-  },
-  { inc: true, b: 48, block: [
-    ["osc/2/brilliance"],
-    ["osc/2/sync", {max: 1}],
-    ["pitch/src", {opts: modSources}],
-    ["pitch/amt", {dispOff: -64}],
-  ] },
-  ["glide/on", 53, {max: 1}],
-  ["glide/mode", 56, {opts: glideModes}],
-  ["glide/rate", 57],
-  ["mono", 58, {bit: 0}],
-  ["unison", 58, {bits: 4...6, opts: unisonModes}],
-  ["unison/detune", 59],
-  { prefix: "osc", count: 3, bx: 2, block:
-    { inc: true, b: 61, block: [
-      ["level"],
-      ["balance", {iso: filterBalanceIso}],
-    ] }
-  },
-  ["noise/level", 67],
-  ["noise/balance", 68, {iso: filterBalanceIso}],
-  ["noise/color", 69, {dispOff: -64}],
-  ["ringMod/level", 71],
-  ["ringMod/balance", 72, {iso: filterBalanceIso}],
-  { prefix: "filter", count: 2, bx: 20, block: [
-    ["type", 77, {opts: filterTypes}],
-    ["cutoff", 78],
-    ["reson", 80],
-    ["drive", 81],
-    ["drive/curve", 82, {opts: driveCurves}],
-    ["keyTrk", 86, {iso: keytrackIso}],
-    ["env/amt", 87, {dispOff: -64}],
-    ["velo", 88, {dispOff: -64}],
-    ["cutoff/src", 89, {opts: modSources}],
-    ["cutoff/amt", 90, {dispOff: -64}],
-    ["fm/src", 91, {opts: fmSources}],
-    ["fm/amt", 92],
-    ["pan", 93, {dispOff: -64}],
-    ["pan/src", 94, {opts: modSources}],
-    ["pan/amt", 95, {dispOff: -64}],
-  ] },
-  ["filter/routing", 117, {opts: ["Para", "Serial"]}],
-  ["volume", 121],
-  ["amp/velo", 122, {dispOff: -64}],
-  ["amp/mod/src", 123, {opts: modSources}],
-  ["amp/mod/amt", 124, {dispOff: -64}],
-  { prefix: "fx", count: 2, bx: 16, block: i => (
-    { inc: true, b: 128, block: [
-      ["type", {opts: i == 0 ? effectTypes : effect2Types}],
-      ["mix"],
-    ] }
-  )} ,
-  { prefix: "param", count: 14, bx: 1, block: [
-    ['', 130]
-  ] },
-  { prefix: "lfo", count: 3, bx: 12, block: [
-    ["shape", 160, {opts: lfoShapes}],
-    ["speed", 161],
-    ["sync", 163, {max: 1}],
-    ["clock", 164, {max: 1}],
-    ["phase", 165, {iso: MicroQVoicePatch.phaseIso}],
-    ["delay", 166],
-    ["fade", 167, {dispOff: -64}],
-    ["keyTrk", 170, {iso: keytrackIso}],
-  ] },
-  { prefix: "env", count: 4, bx: 12, block: [
-    ["mode", 196, {bits: [0, 3], opts: envelopeModes}],
-    ["trigger", 196, {p: -1, bit: 5, opts: envelopeTriggers}],
-    ["attack", 199],
-    ["attack/level", 200],
-    ["decay", 201],
-    ["sustain", 202],
-    ["decay2", 203],
-    ["sustain2", 204],
-    ["release", 205],
-  ] }
-  { prefix: "modif", count: 4, bx: 4, block:
-    { inc: true, b: 245, block: [
-      ["src/0", {opts: modSources}],
-      ["src/1", {opts: ["Const"].concat(modSources.suffix(1))}],
-      ["op", {opts: modOperators}],
-      ["const", {dispOff: -64}],
-    ] }
-  },
-  { prefix: "mod", count: 16, bx: 3, block:
-    { inc: true, b: 261, block: [
-      ["src", {opts: modSources}],
-      ["dest", {opts: modDestinations}],
-      ["amt", {dispOff: -64}],
-    ] }
-  },
-  { prefix: "arp", block: [
-    ["mode", 311, {opts: arpModes}],
-    ["pattern", 312, {max: 16, iso: ['switch', [
-      [0, "Off"],
-      [1, "User"],
-    ], ['-', 1]] }],
-    ["clock", 314, {opts: arpClocks}],
-    ["length", 315, {opts: arpLengths}],
-    ["octave", 316, {max: 9, dispOff: 1}],
-    ["direction", 317, {opts: arpDirections}],
-    ["sortOrder", 318, {opts: arpSorts}],
-    ["velo", 319, {opts: arpVeloModes}],
-    ["timingFactor", 320],
-    ["pattern/reset", 322, {max: 1}],
-    ["pattern/length", 323, {max: 15, dispOff: 1}],
-    ["tempo", 326, {iso: MicroQVoicePatch.tempoIso}],
-  ] }
-  { prefix: '', count: 16, bx: 1, block: [
-    ["step", 327, {bits: 4...6, dispOff: -4, opts: arpSteps}],
-    ["glide", 327, {bit: 3}],
-    ["accent", 327, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpAccentIso}],
-    ["length", 343, {bits: [4, 7], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpLenIso}],
-    ["timing", 343, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpTimingIso}],
-  ] },
-  ["category", 379, {opts: categorys}],
-]
 
 const waveforms = (["off", "Pulse", "Saw", "Triangle", "Sine", "Alt 1", "Alt 2", "Resonant", "Resonant2", "MalletSyn", "Sqr-Sweep", "Bellish", "Pul-Sweep", "Saw-Sweep", "MellowSaw", "Feedback", "Add Harm", "Reso 3 HP", "Wind Syn", "High Harm", "Clipper", "Organ Syn", "SquareSaw", "Formant 1", "Polated", "Transient", "ElectricP", "Robotic", "StrongHrm", "PercOrgan", "ClipSweep", "ResoHarms", "2 Echoes", "Formant 2", "FmntVocal", "MicroSync", "Micro PWM", "Glassy", "Square HP", "SawSync 1", "SawSync 2", "SawSync 3", "PulSync 1", "PulSync 2", "PulSync 3", "SinSync 1", "SinSync 2", "SinSync 3", "PWM Pulse", "PWM Saw", "Fuzz Wave", "Distorted", "HeavyFuzz", "Fuzz Sync", "K+Strong1", "K+Strong2", "K+Strong3", "1-2-3-4-5", "19/twenty", "Wavetrip1", "Wavetrip2", "Wavetrip3", "Wavetrip4", "MaleVoice", "Low Piano", "ResoSweep", "Xmas Bell", "FM Piano", "Fat Organ", "Vibes", "Chorus 2", "True PWM", "UpperWaves"]).concat(
   (13).map(i => `Rsrvd ${i + 67}`)
@@ -195,7 +56,7 @@ const oscOctaves = Array.sparse([
     [[0, 64], ['>', ['*', -1], ['+', 64], ['unitFormat', " F1"]]],
     [64, "Bal"],
     [[65, 128], ['>', ['-', 64], ['unitFormat', " F2"]]],
-  ]],
+  ]]
   
   const filterTypes = [
     "Bypass",
@@ -335,7 +196,7 @@ const overdriveParams = [
 const freqFormatIso = [['switch', [
   [[0, 1000], ['>', ['round', 1], ['unitFormat', "Hz"]]],
   [[1000, 10001], ['>', ['*', 0.001], ['round', 2], ['unitFormat',"k"]]],
-], ['>', ['*', 0.001], ['round', 1], ['unitFormat', "k"]]]
+], ['>', ['*', 0.001], ['round', 1], ['unitFormat', "k"]]]]
 
 const tripleFXParams = [
   {b: "150", l: "S&H"},
@@ -370,6 +231,148 @@ const reverbParams = [
   {b: "148", l: "Decay"},
   {b: "154", l: "Damping"},
 ]
+
+
+const parms = [
+  { prefix: "osc", count: 3, bx: 16, block: i => (
+    { inc: true, b: 1, block: [
+      ["octave", {opts: oscOctaves}],
+      ["coarse", { rng: [52, 77], dispOff: -64 }],
+      ["fine", { dispOff: -64}],
+      ["bend", { rng: [40, 89], dispOff: -64}],
+      ["keyTrk", { iso: keytrackIso}],
+      ["fm/src", { opts: fmSources}],
+      ["fm/amt"],
+      ["shape", { opts: i == 2 ? osc3Waveforms : waveforms}],
+      ["pw"],
+      ["pw/src", { opts: modSources}],
+      ["pw/amt", { dispOff: -64}],
+    ] })
+  },
+  { prefix: "osc", count: 2, bx: 16, block:
+    { inc: true, b: 14, block: [
+      ["limitWT", {opts: ["On", "Off"]}],
+      ["sample", {opts: ["WT","Sample"]}],
+      ["brilliance"],
+    ] }
+  },
+  { inc: true, b: 48, block: [
+    ["osc/2/brilliance"],
+    ["osc/2/sync", {max: 1}],
+    ["pitch/src", {opts: modSources}],
+    ["pitch/amt", {dispOff: -64}],
+  ] },
+  ["glide/on", 53, {max: 1}],
+  ["glide/mode", 56, {opts: glideModes}],
+  ["glide/rate", 57],
+  ["mono", 58, {bit: 0}],
+  ["unison", 58, {bits: [4, 7], opts: unisonModes}],
+  ["unison/detune", 59],
+  { prefix: "osc", count: 3, bx: 2, block:
+    { inc: true, b: 61, block: [
+      ["level"],
+      ["balance", {iso: filterBalanceIso}],
+    ] }
+  },
+  ["noise/level", 67],
+  ["noise/balance", 68, {iso: filterBalanceIso}],
+  ["noise/color", 69, {dispOff: -64}],
+  ["ringMod/level", 71],
+  ["ringMod/balance", 72, {iso: filterBalanceIso}],
+  { prefix: "filter", count: 2, bx: 20, block: [
+    ["type", 77, {opts: filterTypes}],
+    ["cutoff", 78],
+    ["reson", 80],
+    ["drive", 81],
+    ["drive/curve", 82, {opts: driveCurves}],
+    ["keyTrk", 86, {iso: keytrackIso}],
+    ["env/amt", 87, {dispOff: -64}],
+    ["velo", 88, {dispOff: -64}],
+    ["cutoff/src", 89, {opts: modSources}],
+    ["cutoff/amt", 90, {dispOff: -64}],
+    ["fm/src", 91, {opts: fmSources}],
+    ["fm/amt", 92],
+    ["pan", 93, {dispOff: -64}],
+    ["pan/src", 94, {opts: modSources}],
+    ["pan/amt", 95, {dispOff: -64}],
+  ] },
+  ["filter/routing", 117, {opts: ["Para", "Serial"]}],
+  ["volume", 121],
+  ["amp/velo", 122, {dispOff: -64}],
+  ["amp/mod/src", 123, {opts: modSources}],
+  ["amp/mod/amt", 124, {dispOff: -64}],
+  { prefix: "fx", count: 2, bx: 16, block: i => (
+    { inc: true, b: 128, block: [
+      ["type", {opts: i == 0 ? effectTypes : effect2Types}],
+      ["mix"],
+    ] }
+  )} ,
+  { prefix: "param", count: 14, bx: 1, block: [
+    ['', 130]
+  ] },
+  { prefix: "lfo", count: 3, bx: 12, block: [
+    ["shape", 160, {opts: lfoShapes}],
+    ["speed", 161],
+    ["sync", 163, {max: 1}],
+    ["clock", 164, {max: 1}],
+    ["phase", 165, {iso: MicroQVoicePatch.phaseIso}],
+    ["delay", 166],
+    ["fade", 167, {dispOff: -64}],
+    ["keyTrk", 170, {iso: keytrackIso}],
+  ] },
+  { prefix: "env", count: 4, bx: 12, block: [
+    ["mode", 196, {bits: [0, 3], opts: envelopeModes}],
+    ["trigger", 196, {p: -1, bit: 5, opts: envelopeTriggers}],
+    ["attack", 199],
+    ["attack/level", 200],
+    ["decay", 201],
+    ["sustain", 202],
+    ["decay2", 203],
+    ["sustain2", 204],
+    ["release", 205],
+  ] },
+  { prefix: "modif", count: 4, bx: 4, block:
+    { inc: true, b: 245, block: [
+      ["src/0", {opts: modSources}],
+      ["src/1", {opts: ["Const"].concat(modSources.suffix(1))}],
+      ["op", {opts: modOperators}],
+      ["const", {dispOff: -64}],
+    ] }
+  },
+  { prefix: "mod", count: 16, bx: 3, block:
+    { inc: true, b: 261, block: [
+      ["src", {opts: modSources}],
+      ["dest", {opts: modDestinations}],
+      ["amt", {dispOff: -64}],
+    ] }
+  },
+  { prefix: "arp", block: [
+    ["mode", 311, {opts: arpModes}],
+    ["pattern", 312, {max: 16, iso: ['switch', [
+      [0, "Off"],
+      [1, "User"],
+    ], ['-', 1]] }],
+    ["clock", 314, {opts: arpClocks}],
+    ["length", 315, {opts: arpLengths}],
+    ["octave", 316, {max: 9, dispOff: 1}],
+    ["direction", 317, {opts: arpDirections}],
+    ["sortOrder", 318, {opts: arpSorts}],
+    ["velo", 319, {opts: arpVeloModes}],
+    ["timingFactor", 320],
+    ["pattern/reset", 322, {max: 1}],
+    ["pattern/length", 323, {max: 15, dispOff: 1}],
+    ["tempo", 326, {iso: MicroQVoicePatch.tempoIso}],
+  ] },
+  { prefix: '', count: 16, bx: 1, block: [
+    ["step", 327, {bits: [4, 7], dispOff: -4, opts: arpSteps}],
+    ["glide", 327, {bit: 3}],
+    ["accent", 327, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpAccentIso}],
+    ["length", 343, {bits: [4, 7], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpLenIso}],
+    ["timing", 343, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpTimingIso}],
+  ] },
+  ["category", 379, {opts: categorys}],
+]
+
 
 const patchTruss = Blofeld.createPatchTruss("Voice", 383, "blofeld-init", [363, 379], parms, 7, dumpByte)
   

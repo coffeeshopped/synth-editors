@@ -3,19 +3,19 @@ const Global = require('./BlofeldGlobal.js')
 const Voice = require('./BlofeldVoice.js')
 const MultiMode = require('./BlofeldMultiMode.js')
 
-const patchFetch = bytes => ['truss', Blofeld.sysex(deviceId, bytes)]
+const patchFetch = bytes => ['truss', Blofeld.sysex(bytes)]
 
-const bankFetch = bytes => ['bankTruss', Blofeld.sysex(deviceId, bytes), {waitInterval: 100}]
+const bankFetch = bytes => ['bankTruss', Blofeld.sysex(bytes), {waitInterval: 100}]
 
 const wholePatchTransform = (throttle, dumpByte, bank, location) => ({
   type: 'singlePatch',
   throttle: throttle,
-  wholePatch: [[Blofeld.sysexData(deviceId, dumpByte, bank, location)], 0]],
+  wholePatch: [[Blofeld.sysexData(dumpByte, bank, location), 0]],
 })
 
 const bankPatch = (dumpByte, bank, interval) => ({
   type: 'singleBank',
-  bank: location => [[Blofeld.sysexData(deviceId, dumpByte, bank, location)], interval]],
+  bank: location => [[Blofeld.sysexData(dumpByte, bank, location), interval]],
 })
 
 const channelMap = raw => raw == 0 ? 0 : raw - 1
@@ -80,25 +80,23 @@ module.exports = {
       (16).map(i => [['part', i], Voice.patchTruss])
     ).concat(
       (8).map(i => [['bank', i], Voice.bankTruss])
-    )
+    ),
     
     fetchTransforms: ([
       ["global", patchFetch([0x04])],
       ["voice", patchFetch([0x00, 0x7f, 0x00])],
       ["perf", patchFetch([0x01, 0x7f, 0x00])],
-      ["perf/bank", bankFetch({ [0x01, 0x00, $0, 0x7f] })],
+      ["perf/bank", bankFetch([0x01, 0x00, 'b', 0x7f])],
     ]).concat(
       (16).map(i => [['part', i], patchFetch([0x00, 0x7f, i])])
     ).concat(
       (8).map(i => [['bank', i], bankFetch([0x00, i, 'b', 0x7f])])
-    )
+    ),
     
     compositeFetchWaitInterval: 100,
     compositeSendWaitInterval: 300,
   
-    extraParamOuts: (8).map(i =>
-      ["perf", ['bankNames', ['bank', i], ['patch/name', i]]]
-    }),
+    extraParamOuts: (8).map(i => ["perf", ['bankNames', ['bank', i], ['patch/name', i]]]),
   
     midiOuts: ([
       ["global", wholePatchTransform(400, Global.dumpByte, 0, 0)],

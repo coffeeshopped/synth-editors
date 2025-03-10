@@ -11,8 +11,8 @@ const parms = [
   ["autoEdit", 35, {max: 1}],
   ["channel", 36, {max: 16, iso: channelIso}],
   ["deviceId", 37, {rng: [0, 127]}],
-  ["popup/time", 38}],
-  ["contrast", 39}],
+  ["popup/time", 38],
+  ["contrast", 39],
   ["tune", 40, {rng: [54,75], dispOff: 376}],
   ["transpose", 41, {rng: [52, 77], dispOff: -64}],
   ["ctrl/send", 44, {opts: ["off","Ctrl","SysEx","Ctrl+SysEx"]}],
@@ -23,7 +23,7 @@ const parms = [
   ["ctrl/1", 52, {max: 120}],
   ["ctrl/2", 53, {max: 120}],
   ["ctrl/3", 54, {max: 120}],
-  ["volume", 55}],
+  ["volume", 55],
   ["category", 56, {max: 13}],
 ]
 

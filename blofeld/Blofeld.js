@@ -4,16 +4,16 @@ const broadcastDeviceId = 0x7f
 
 const deviceId = ['e', 'global', 'deviceId', broadcastDeviceId]
 
-const sysex = (deviceId, bytes) => [0xf0, 0x3e, 0x13, deviceId, bytes, 0xf7]
+const sysex = bytes => [0xf0, 0x3e, 0x13, deviceId, bytes, 0xf7]
 
 /// dumpByte: cmd byte for what kind of dump.
-const sysexData = (deviceId, dumpByte, bank, location, hasBankAndLocation) => {
+const sysexData = (dumpByte, bank, location, hasBankAndLocation) => {
   // universal checksum
   const dumpArr = hasBankAndLocation ? [dumpByte, bank, location] : [dumpByte]
   return sysex(deviceId, [dumpArr, 'b', 0x7f])
 }
   
-const paramData = (deviceId, bufferBytes, parm) => sysex(deviceId, [
+const paramData = (bufferBytes, parm) => sysex([
   bufferBytes,
   ['>', parm, [
     ['bits', 0, 7, 'b'],
@@ -43,3 +43,7 @@ const createBankTruss = (dumpByte, patchTruss, initFile) => ({
   locationIndex: 6,
   initFile: initFile,
 })
+
+module.exports = {
+  createPatchTruss,
+}
