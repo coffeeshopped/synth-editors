@@ -1,14 +1,3 @@
-//
-//  MicroQVoiceController.swift
-//  Blofeld
-//
-//  Created by Chadwick Wood on 10/14/21.
-//  Copyright © 2021 Coffeeshopped LLC. All rights reserved.
-//
-
-import Foundation
-import PBCore
-
 
 extension FnPatchEditorController {
   func modCombo(_ label: String, _ pre: SynthPath) -> (src: PBSelect, amt: PBKnob) {

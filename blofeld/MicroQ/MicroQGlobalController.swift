@@ -1,13 +1,3 @@
-//
-//  MicroQGlobalController.swift
-//  Blofeld
-//
-//  Created by Chadwick Wood on 10/21/21.
-//  Copyright © 2021 Coffeeshopped LLC. All rights reserved.
-//
-
-import Foundation
-import PBCore
 
 struct MicroQGlobalController {
   

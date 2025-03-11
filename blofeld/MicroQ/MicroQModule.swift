@@ -1,13 +1,3 @@
-//
-//  MicroQModule.swift
-//  Blofeld
-//
-//  Created by Chadwick Wood on 10/14/21.
-//  Copyright © 2021 Coffeeshopped LLC. All rights reserved.
-//
-
-import Foundation
-import PBCore
 
 public struct MicroQModule : TypedSynthModuleTemplate {
   public typealias EditorTemplate = MicroQEditor
