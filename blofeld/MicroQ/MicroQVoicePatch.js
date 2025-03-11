@@ -4,15 +4,15 @@ const nameByteRange = [363, 379]
 const initFileName = "microq-voice-init"
 const fileDataCount = 392
 
-const phaseIso = Miso.switcher([
-  .int(0, "Free")
-], default: Miso.lerp(in: [1, 128], out: 0...360) >>> Miso.round() >>> Miso.unitFormat("°"))
+const phaseIso = ['switch', [
+  [0, "Free"],
+], ['>', ['lerp', {'in': [1, 128], 'out': [0, 361]}], 'round', ['unitFormat', "°"]]]
 
-const tempoIso = Miso.switcher([
-  .range(0...25, Miso.lerp(in: 0...25, out: 40...90)),
-  .range(26...100, Miso.lerp(in: 26...100, out: 91...165)),
-  .range(101...127, Miso.lerp(in: 101...127, out: 170...300))
-]) >>> Miso.round()
+const tempoIso = ['>', ['switch', ([
+  [[0, 26], ['lerp', {'in': [0, 25], 'out': [40, 90]}]],
+  [[26, 101], ['lerp', {'in': [26, 100], 'out': [91, 165]}]],
+  [[101, 128], ['lerp', {'in': [101, 127], 'out': [170, 300]}]],
+])], 'round']
 
 const arpAccentIso = ["❌", "↓↓↓", "↓↓", "↓", "-", "↑", "↑↑", "↑↑↑"]
 
@@ -20,20 +20,18 @@ const arpTimingIso = ["Random", "-3", "-2", "-1", "0", "1", "2", "3"]
 
 const arpLenIso = ["Legato", "-3", "-2", "-1", "0", "1", "2", "3"]
 
-const waveOptions: [Int:String] = ["Off", "Pulse", "Saw", "Triangle", "Sine", "Alt 1", "Alt 2"]
+const waveOptions = ["Off", "Pulse", "Saw", "Triangle", "Sine", "Alt 1", "Alt 2"]
 
-const lfoRateIso = Miso.m(0.5) >>> Miso.floor() >>> Miso.options(["256", "192", "160", "144", "128", "120", "96", "80", "72", "64", "48", "40", "36", "32", "24", "20", "18", "16", "15", "14", "12", "10", "9", "8", "7", "6", "5", "4", "3.5", "3", "2.66", "2.4", "2", "1.75", "1.5", "1.33", "1.2", "1", "7/8", "1/2.", "1/2T", "5/8", "1/2", "7/16", "1/4.", "1/4T", "5/16", "1/4", "7/32", "1/8.", "1/8T", "5/32", "1/8", "7/64", "1/16.", "1/16T", "5/64", "1/16", "1/32.", "1/32T", "1/32", "1/64T", "1/64", "1/96"])
+const lfoRateIso = ['>', ['*', 0.5], 'floor', ['@', ["256", "192", "160", "144", "128", "120", "96", "80", "72", "64", "48", "40", "36", "32", "24", "20", "18", "16", "15", "14", "12", "10", "9", "8", "7", "6", "5", "4", "3.5", "3", "2.66", "2.4", "2", "1.75", "1.5", "1.33", "1.2", "1", "7/8", "1/2.", "1/2T", "5/8", "1/2", "7/16", "1/4.", "1/4T", "5/16", "1/4", "7/32", "1/8.", "1/8T", "5/32", "1/8", "7/64", "1/16.", "1/16T", "5/64", "1/16", "1/32.", "1/32T", "1/32", "1/64T", "1/64", "1/96"]]]
 
 const fastModSource = ["Off", "LFO 1", "LFO1*MW", "LFO 2", "LFO2*Prs", "LFO 3", "FilterEnv", "AmpEnv", "Env3", "Env4", "Velocity", "Mod Wheel", "Pitchbend", "Pressure"]
 
-const stdModStrings = ["Off", "LFO 1", "LFO1*MW", "LFO 2", "LFO2*Press", "LFO 3", "FilterEnv", "AmpEnv", "Env3", "Env4", "Keytrack", "Velocity", "Rel. Velo", "Pressure", "Poly Press", "Pitch Bend", "Mod Wheel", "Sustain", "Foot Ctrl", "BreathCtrl", "Control W", "Control X", "Control Y", "Control Z", "Ctrl Delay", "Modif 1", "Modif 2", "Modif 3", "Modif 4", "min", "MAX", "Voice Num", "Voice%16", "Voice%8", "Voice%4", "Voice%2", "Unisono Vc", "U. Detune", "U De-Pan", "U De-Oct"]
-const stdModSrc = stdModStrings
-const modifSrc2 = ["Const"] + stdModStrings.suffix(from: 1)
+const stdModSrc = ["Off", "LFO 1", "LFO1*MW", "LFO 2", "LFO2*Press", "LFO 3", "FilterEnv", "AmpEnv", "Env3", "Env4", "Keytrack", "Velocity", "Rel. Velo", "Pressure", "Poly Press", "Pitch Bend", "Mod Wheel", "Sustain", "Foot Ctrl", "BreathCtrl", "Control W", "Control X", "Control Y", "Control Z", "Ctrl Delay", "Modif 1", "Modif 2", "Modif 3", "Modif 4", "min", "MAX", "Voice Num", "Voice%16", "Voice%8", "Voice%4", "Voice%2", "Unisono Vc", "U. Detune", "U De-Pan", "U De-Oct"]
+const modifSrc2 = ["Const"].concat(stdModSrc.slice(1))
 
-const fastModDestStrings = ["Pitch", "O1 Pitch", "O1 FM", "O1 PW", "O2 Pitch", "O2 FM", "O2 PW", "O3 Pitch", "O3 FM", "O3 PW", "O1 Level", "O1 Balance", "O2 Level", "O2 Balance", "O3 Level", "O3 Balance", "Ring Level", "Ring Bal.", "N/E Level", "N/E Bal.", "F1 Cutoff", "F1 Reson", "F1 FM", "F1 Drive", "F1 Pan", "F2 Cutoff", "F2 Reson", "F2 FM", "F2 Drive", "F2 Pan", "Volume"]
-const fastModDest = fastModDestStrings
+const fastModDest = ["Pitch", "O1 Pitch", "O1 FM", "O1 PW", "O2 Pitch", "O2 FM", "O2 PW", "O3 Pitch", "O3 FM", "O3 PW", "O1 Level", "O1 Balance", "O2 Level", "O2 Balance", "O3 Level", "O3 Balance", "Ring Level", "Ring Bal.", "N/E Level", "N/E Bal.", "F1 Cutoff", "F1 Reson", "F1 FM", "F1 Drive", "F1 Pan", "F2 Cutoff", "F2 Reson", "F2 FM", "F2 Drive", "F2 Pan", "Volume"]
 
-const stdModDest = fastModDestStrings + ["LFO1Speed", "LFO2Speed", "LFO3Speed", "FE Attack", "FE Decay", "FE Sustain", "FE Release", "AE Attack", "AE Decay", "AE Sustain", "AE Release", "E3 Attack", "E3 Decay", "E3 Sustain", "E3 Release", "E4 Attack", "E4 Decay", "E4 Sustain", "E4 Release", "M1F Amount", "M2F Amount", "M1S Amount", "M2S Amount", "O1 Sub Div", "O1 Sub Vol", "O2 Sub Div", "O2 Sub Vol"]
+const stdModDest = fastModDest.concat(["LFO1Speed", "LFO2Speed", "LFO3Speed", "FE Attack", "FE Decay", "FE Sustain", "FE Release", "AE Attack", "AE Decay", "AE Sustain", "AE Release", "E3 Attack", "E3 Decay", "E3 Sustain", "E3 Release", "E4 Attack", "E4 Decay", "E4 Sustain", "E4 Release", "M1F Amount", "M2F Amount", "M1S Amount", "M2S Amount", "O1 Sub Div", "O1 Sub Vol", "O2 Sub Div", "O2 Sub Vol"])
 
 
 const keytrackIso = Blofeld.Voice.keytrackIso
@@ -44,11 +42,9 @@ const filterTypes = ["Bypass", "LP 24dB", "LP 12dB", "BP 24dB", "BP 12dB", "HP 2
 
 const fxTypes = ["Bypass", "Chorus", "Flanger", "Phaser", "Overdrive", "Five FX", "Vocoder"]
 
-const fx2Types = fxTypes + ["Delay", "Reverb", "5.1 Delay", "5.1 D.Clk"]
+const fx2Types = fxTypes.concat(["Delay", "Reverb", "5.1 Delay", "5.1 D.Clk"])
 
 const categories = ["-custom-", "Arp", "Atmo", "Bass", "Bell", "Drum", "Ext", "FX", "Init", "Keys", "Lead", "Orgn", "Pad", "Perc", "Pluk", "Poly", "RAND", "Seq", "Strg", "Synt", "Voc", "Wave"]
-const categoryOptions = categories
-
 
 function bytes(data) { return data.safeBytes(7..<390) }
 
@@ -89,7 +85,7 @@ const parms = [
       ["coarse", {range: [52, 77], dispOff: -64}],
       ["fine", {dispOff: -64}],
       ["bend", {range: [40, 89], dispOff: -64}],
-      ["keyTrk", {isoS: keytrackIso}],
+      ["keyTrk", {iso: keytrackIso}],
       ["fm/src", {opts: Blofeld.Voice.fmSourceOptions}],
       ["fm/amt"],
       ["shape", {opts: waveOpts = i == 2 ? Blofeld.Voice.osc3WaveformOptions : waveOptions}],
@@ -117,23 +113,23 @@ const parms = [
   { prefix: "osc", count: 3, bx: 2, block: 
     { inc: true, b: 61, block: [
       ["level"],
-      ["balance", {isoS: Blofeld.Voice.filterBalanceIso}],
+      ["balance", {iso: Blofeld.Voice.filterBalanceIso}],
     ] }
   },
   [
     ["noise/level", {b: 67}],
-    ["noise/balance", {b: 68, isoS: Blofeld.Voice.filterBalanceIso}],
+    ["noise/balance", {b: 68, iso: Blofeld.Voice.filterBalanceIso}],
     ["ringMod/level", {b: 71}],
-    ["ringMod/balance", {b: 72, isoS: Blofeld.Voice.filterBalanceIso}],
+    ["ringMod/balance", {b: 72, iso: Blofeld.Voice.filterBalanceIso}],
     ["noise/select/0", {b: 75, opts: noiseSelect}],
     ["noise/select/1", {b: 76, opts: noiseSelect}],
   ],
   { prefix: "filter", count: 2, bx: 20, block: [
-    ["type", {b: 77, optArray: filterTypes}],
+    ["type", {b: 77, opts: filterTypes}],
     ["cutoff", {b: 78}],
     ["reson", {b: 80}],
     ["drive", {b: 81}],
-    ["keyTrk", {b: 86, isoS: keytrackIso}],
+    ["keyTrk", {b: 86, iso: keytrackIso}],
     ["env/amt", {b: 87, dispOff: -64}],
     ["velo", {b: 88, dispOff: -64}],
     ["cutoff/src", {b: 89, opts: fastModSource}],
@@ -145,7 +141,7 @@ const parms = [
     ["pan/amt", {b: 95, dispOff: -64}],
   ] },
   [
-    ["filter/routing", {b: 117, optArray: ["Para", "Serial"]}],
+    ["filter/routing", {b: 117, opts: ["Para", "Serial"]}],
     ["volume", {b: 121}],
     ["amp/velo", {b: 122, dispOff: -64}],
     ["amp/mod/src", {b: 123, opts: fastModSource}],
@@ -157,10 +153,10 @@ const parms = [
     ["speed", {b: 161}],
     ["sync", {b: 163, max: 1}],
     ["clock", {b: 164, max: 1}],
-    ["phase", {b: 165, isoS: phaseIso}],
+    ["phase", {b: 165, iso: phaseIso}],
     ["delay", {b: 166}],
     ["fade", {b: 167, dispOff: -64}],
-    ["keyTrk", {b: 170, isoS: keytrackIso}],
+    ["keyTrk", {b: 170, iso: keytrackIso}],
   ] },
   { prefix: "env", count: 4, bx: 12, block: [
     ["mode", {b: 196, bits: [0, 3], opts: Blofeld.Voice.envelopeModeOptions}],
@@ -197,7 +193,7 @@ const parms = [
   },
   arpParams(311),
   [
-    ["category", {b: 379, opts: categoryOptions}],
+    ["category", {b: 379, opts: categories}],
   ],
 ]
   // TODO: Category as ASCII?
@@ -218,56 +214,53 @@ const fxMap = [
   clockedDelayParams,
   ]
 
-const polarityOptions = [
-  0:"+",
-  1:"-"
-]
+const polarityOptions = ["+", "-"]
 
 // these are for effect 2. for effect 1, subtract 16 from parm
 const chorusParams  = [
-  o("146", l: "Speed"),
-  o("147", l: "Depth"),
-  o("149", l: "Delay"),
+  [146, {l: "Speed"}],
+  [147, {l: "Depth"}],
+  [149, {l: "Delay"}],
 ]
 
 const flangerParams  = [
-  o("146", l: "Speed"), // 0..127 0..127
-  o("147", l: "Depth"), // 0..127 0..127
-  o("150", l: "Feedback"), // 0..127 0..127
-  o("154", l: "Polarity", opts: polarityOptions), // 0..1 positive,negative
+  [146, {l: "Speed"}], // 0..127 0..127
+  [147, {l: "Depth"}], // 0..127 0..127
+  [150, {l: "Feedback"}], // 0..127 0..127
+  [154, {l: "Polarity", opts: polarityOptions}], // 0..1 positive,negative
 ]
 
 const phaserParams  = [
-  o("146", l: "Speed"), // 0..127 0..127
-  o("147", l: "Depth"), // 0..127 0..127
-  o("151", l: "Center"), // 0..127 0..127
-  o("152", l: "Spacing"), // 0..127 0..127
-  o("150", l: "Feedback"), // 0..127 0..127
-  o("154", l: "Polarity", opts: polarityOptions), // 0..1 positive,negative
+  [146, {l: "Speed"}], // 0..127 0..127
+  [147, {l: "Depth"}], // 0..127 0..127
+  [151, {l: "Center"}], // 0..127 0..127
+  [152, {l: "Spacing"}], // 0..127 0..127
+  [150, {l: "Feedback"}], // 0..127 0..127
+  [154, {l: "Polarity", opts: polarityOptions}], // 0..1 positive,negative
 ]
 
 const overdriveParams  = [
-  o("147", l: "Drive"), // 0..127 0..127
-  o("148", l: "Post Gain"), // 0..127 0..127
-  o("151", l: "Cutoff"), // 0..127 0..127
+  [147, {l: "Drive"}], // 0..127 0..127
+  [148, {l: "Post Gain"}], // 0..127 0..127
+  [151, {l: "Cutoff"}], // 0..127 0..127
 ]
 
-const freqFormatIso = Miso.switcher([
-  .range(0...1000, Miso.round(1) >>> Miso.unitFormat("Hz")),
-  .range(1000...10000, Miso.m(1/1000) >>> Miso.round(2) >>> Miso.unitFormat("k"))
-], default: Miso.m(1/1000) >>> Miso.round(1) >>> Miso.unitFormat("k"))
+const freqFormatIso = ['switch', [
+  [[0,1000], ['>', ['round', 1], ['unitFormat', "Hz"]]],
+  [[1000, 10001], ['>', ['*', 1/1000], ['round', 2], ['unitFormat', "k"]]],
+], ['>', ['*', 1/1000], ['round', 1], ['unitFormat', "k"]]]
 
-const shFreqIso = Miso.quadReg(a: 2.6915979097009197, b: -689.0545153869274, c: 44099.76187350981, neg: true) >>> freqFormatIso
+const shFreqIso = ['>', ['quadReg', { a: 2.6915979097009197, b: -689.0545153869274, c: 44099.76187350981, neg: true }], freqFormatIso]
 
 const fiveFXParams  = [
-  o("150", l: "S&H", isoS: shFreqIso),
-  o("151", l: "Overdrive"), // 0..127 0..127
-  o("153", l: "Ring Mod"),
-  o("152", l: "←Src", opts: vocSrc),
-  o("149", l: "Chrs/Dly"), // 0..127 0..127
-  o("146", l: "←Speed"), // 0..127 0..127
-  o("147", l: "←Depth"), // 0..127 0..127
-  o("148", l: "←Delay"), // 0..127 0..127
+  [150, {l: "S&H", iso: shFreqIso}],
+  [151, {l: "Overdrive"}], // 0..127 0..127
+  [153, {l: "Ring Mod"}],
+  [152, {l: "←Src", opts: vocSrc}],
+  [149, {l: "Chrs/Dly"}], // 0..127 0..127
+  [146, {l: "←Speed"}], // 0..127 0..127
+  [147, {l: "←Depth"}], // 0..127 0..127
+  [148, {l: "←Delay"}], // 0..127 0..127
 ]
 
 const vocSrc = ["Ext", "Aux", "Inst 1 FX", "Inst 2 FX", "Inst 3 FX", "Inst 4 FX", "Main In", "Sub 1 In", "Sub 2 In"]
@@ -276,20 +269,20 @@ const vocOffIso = Miso.lerp(in: 127, out: -128...128) >>> Miso.round()
 const vocFreqIso = Miso.exponReg(a: 10.924085542005335, b: 0.05774863315179796, c: -0.06151331566783524) >>> freqFormatIso
 
 const vocoderParams  = [
-  o("146", l: "Bands", max: 23, dispOff: 2),
-  o("147", l: "Ana Sig", opts: vocSrc),
-  o("148", l: "A Lo Frq", isoS: vocFreqIso),
-  o("149", l: "A Hi Frq", isoS: vocFreqIso),
-  o("150", l: "S Offset", isoF: vocOffIso),
-  o("151", l: "Hi Offset", isoF: vocOffIso),
-  o("152", l: "Bwid", dispOff: -64),
-  o("153", l: "Reson", dispOff: -64),
-  o("154", l: "Attack"),
-  o("155", l: "Decay"),
-  o("156", l: "EQ Lo", dispOff: -64),
-  o("157", l: "EQ Mid Band", max: 24, dispOff: 1),
-  o("158", l: "EQ Mid", dispOff: -64),
-  o("159", l: "EQ High", dispOff: -64),
+  [146, {l: "Bands", max: 23, dispOff: 2}],
+  [147, {l: "Ana Sig", opts: vocSrc}],
+  [148, {l: "A Lo Frq", iso: vocFreqIso}],
+  [149, {l: "A Hi Frq", iso: vocFreqIso}],
+  [150, {l: "S Offset", iso: vocOffIso}],
+  [151, {l: "Hi Offset", iso: vocOffIso}],
+  [152, {l: "Bwid", dispOff: -64}],
+  [153, {l: "Reson", dispOff: -64}],
+  [154, {l: "Attack"}],
+  [155, {l: "Decay"}],
+  [156, {l: "EQ Lo", dispOff: -64}],
+  [157, {l: "EQ Mid Band", max: 24, dispOff: 1}],
+  [158, {l: "EQ Mid", dispOff: -64}],
+  [159, {l: "EQ High", dispOff: -64}],
 ]
 
 const delayTempoIso = Miso.switcher([
@@ -299,87 +292,88 @@ const delayTempoIso = Miso.switcher([
 const delayLenIso = Miso.quadReg(a: 0.09205458275935607, b: -2.7201779383867475e-05, c: 1.4159673877757628) >>> Miso.round(1)
 
 const delayParams  = [
-  o("153", l: "Clocked", max: 1),
-  o("149", l: "Length", isoF: delayLenIso), // non-Clocked len
-  o("156", l: "Clk Len", opts: clockedDelayLengthOptions), // Clocked len
-  o("148", l: "Tempo", isoS: delayTempoIso),
-  o("150", l: "Feedback"), // 0..127 0..127
-  o("154", l: "Polarity", opts: polarityOptions), // 0..1 positive,negative
-  o("151", l: "Cutoff"), // 0..127 0..127
-  o("155", l: "Autopan", optArray: ["Off", "On"]),
+  [153, {l: "Clocked", max: 1}],
+  [149, {l: "Length", iso: delayLenIso}], // non-Clocked len
+  [156, {l: "Clk Len", opts: clockedDelayLengthOptions}], // Clocked len
+  [148, {l: "Tempo", iso: delayTempoIso}],
+  [150, {l: "Feedback"}], // 0..127 0..127
+  [154, {l: "Polarity", opts: polarityOptions}], // 0..1 positive,negative
+  [151, {l: "Cutoff"}], // 0..127 0..127
+  [155, {l: "Autopan", opts: ["Off", "On"}]],
 ]
 
-const clockedDelayLengthOptions = ["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "2/4", "3/4", "4/4", "8/4"].map { ["\($0)", "\($0)T", "\($0)."] }.reduce([], +)
-const delayFeedIso = Miso.piecewise(breaks: [
-  (0, 0),
-  (32, 25),
-  (64, 50),
-  (96, 75),
-  (126, 98.4),
-  (127, 100),
-]) >>> Miso.round(1) >>> Miso.unitFormat("%")
+const clockedDelayLengthOptions = (["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "2/4", "3/4", "4/4", "8/4"]).flatMap(s => [s, `${s}T`, `${s}.`])
 
-const delayPercIso = Miso.piecewise(breaks: [
-  (0, 0),
-  (12, 6),
-  (13, 6.2),
-  (14, 6.5),
-  (17, 8),
-  (18, 8.3),
-  (19, 8.5),
-  (35, 16.5),
-  (36, 16.6),
-  (37, 17),
-  (43, 20),
-  (56, 33),
-  (57, 33.3),
-  (58, 34),
-  (74, 50),
-  (82, 66),
-  (83, 66.6),
-  (84, 68),
-  (87, 74),
-  (88, 75),
-  (89, 76),
-  (96, 90),
-  (116, 110),
-  (120, 150),
-  (124, 250),
-  (127, 400),
-]) >>> Miso.unitFormat("%")
+const delayFeedIso = ['>', ['piecewise', [
+  [0, 0],
+  [32, 25],
+  [64, 50],
+  [96, 75],
+  [126, 98.4],
+  [127, 100],
+]], ['round', 1], ['unitFormat', "%"]]
+
+const delayPercIso = ['>', ['piecewise', [
+  [0, 0],
+  [12, 6],
+  [13, 6.2],
+  [14, 6.5],
+  [17, 8],
+  [18, 8.3],
+  [19, 8.5],
+  [35, 16.5],
+  [36, 16.6],
+  [37, 17],
+  [43, 20],
+  [56, 33],
+  [57, 33.3],
+  [58, 34],
+  [74, 50],
+  [82, 66],
+  [83, 66.6],
+  [84, 68],
+  [87, 74],
+  [88, 75],
+  [89, 76],
+  [96, 90],
+  [116, 110],
+  [120, 150],
+  [124, 250],
+  [127, 400],
+]], ['unitFormat', "%"]]
 
 
-const clockedDelayParams  = [
-  o("146", l: "Length", opts: clockedDelayLengthOptions),
-  o("147", l: "Feedback", isoS: delayFeedIso),
-  o("148", l: "LFE LP", isoS: vocFreqIso), // 0..127 0..127
-  o("149", l: "Input HP", isoS: vocFreqIso), // 0..127 0..127
-  o("151", l: "FSL V"), // 0..127 0..127
-  o("150", l: "Delay ML", isoS: delayPercIso), // 0..127 0..127
-  o("153", l: "FSR V"), // 0..127 0..127
-  o("152", l: "Delay MR", isoS: delayPercIso), // 0..127 0..127
-  o("155", l: "CntrS V"), // 0..127 -64..+63
-  o("154", l: "Delay S2L", isoS: delayPercIso), // 0..1 positive,negative
-  o("157", l: "RearSL V"), // 0..127 0..127
-  o("156", l: "Delay S1L", isoS: delayPercIso), // 0..127 0..127
-  o("159", l: "RearSR V"), // 0..127 0..127
-  o("158", l: "Delay S1R", isoS: delayPercIso), // 0..127 0..127
+const clockedDelayParams = [
+  [146, {l: "Length", opts: clockedDelayLengthOptions}],
+  [147, {l: "Feedback", iso: delayFeedIso}],
+  [148, {l: "LFE LP", iso: vocFreqIso}], // 0..127 0..127
+  [149, {l: "Input HP", iso: vocFreqIso}], // 0..127 0..127
+  [151, {l: "FSL V"}], // 0..127 0..127
+  [150, {l: "Delay ML", iso: delayPercIso}], // 0..127 0..127
+  [153, {l: "FSR V"}], // 0..127 0..127
+  [152, {l: "Delay MR", iso: delayPercIso}], // 0..127 0..127
+  [155, {l: "CntrS V"}], // 0..127 -64..+63
+  [154, {l: "Delay S2L", iso: delayPercIso}], // 0..1 positive,negative
+  [157, {l: "RearSL V"}], // 0..127 0..127
+  [156, {l: "Delay S1L", iso: delayPercIso}], // 0..127 0..127
+  [159, {l: "RearSR V"}], // 0..127 0..127
+  [158, {l: "Delay S1R", iso: delayPercIso}], // 0..127 0..127
 ]
 
-const preDelayIso = Miso.lerp(in: 127, out: 0...300) >>> Miso.round(1)
-const sizeIso = Miso.lerp(in: 127, out: 3...20) >>> Miso.round(1) >>> Miso.unitFormat("m")
-const reverbParams  = [
-  o("152", l: "Highpass"),
-  o("151", l: "Lowpass"),
-  o("149", l: "Pre-Delay", isoF: preDelayIso),
-  o("153", l: "Diffusion"),
-  o("146", l: "Size", isoS: sizeIso),
-  o("147", l: "Shape"),
-  o("148", l: "Decay"),
-  o("154", l: "Damping"),
+const preDelayIso = ['>', ['lerp', {'in': 127, 'out': [0, 301]}], ['round', 1]]
+const sizeIso = ['>', ['lerp', {'in': 127, 'out': [3, 21]}], ['round', 1], ['unitFormat', "m"]]
+const reverbParams = [
+  [152, {l: "Highpass"}],
+  [151, {l: "Lowpass"}],
+  [149, {l: "Pre-Delay", iso: preDelayIso}],
+  [153, {l: "Diffusion"}],
+  [146, {l: "Size", iso: sizeIso}],
+  [147, {l: "Shape"}],
+  [148, {l: "Decay"}],
+  [154, {l: "Damping"}],
 ]
 
-const delay51Params  = [
-  o("146", l: "Delay", isoF: delayLenIso),
-] + clockedDelayParams.suffix(from: 1)
+const delay51Params = [
+  [146, {l: "Delay", iso: delayLenIso}),
+].concat(clockedDelayParams.slice(1))
 
