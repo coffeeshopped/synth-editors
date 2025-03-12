@@ -10,7 +10,7 @@ const sysex = bytes => [0xf0, 0x3e, 0x13, deviceId, bytes, 0xf7]
 const sysexData = (dumpByte, bank, location, hasBankAndLocation) => {
   // universal checksum
   const dumpArr = hasBankAndLocation ? [dumpByte, bank, location] : [dumpByte]
-  return sysex(deviceId, [dumpArr, 'b', 0x7f])
+  return sysex([dumpArr, 'b', 0x7f])
 }
   
 const paramData = (bufferBytes, parm) => sysex([
@@ -45,5 +45,9 @@ const createBankTruss = (dumpByte, patchTruss, initFile) => ({
 })
 
 module.exports = {
+  sysex,
+  sysexData,
+  paramData,
   createPatchTruss,
+  createBankTruss,
 }

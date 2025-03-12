@@ -1,3 +1,13 @@
+// NOTE: all ranges are treated as open (up to but not including the upper bound)
+Array.prototype.rangeMap = function(mapFn) {
+  if (this.length < 2 || this[1] < this[0]) { return [] }
+  var arr = []
+  for (let i=this[0]; i<this[1]; ++i) {
+    arr.push(mapFn(i))
+  }
+  return arr
+}
+
 // create a sparse array from an array of arrays.
 // each sub-array is two elements: [index, element]
 Array.sparse = (arr) => {

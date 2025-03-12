@@ -1,6 +1,6 @@
-const Blofeld = require('./Blofeld.js')
+const Blofeld = require('./blofeld.js')
 const Global = require('./BlofeldGlobal.js')
-const Voice = require('./BlofeldVoice.js')
+const Voice = require('./blofeld_voice.js')
 const MultiMode = require('./BlofeldMultiMode.js')
 
 const patchFetch = bytes => ['truss', Blofeld.sysex(bytes)]
@@ -64,6 +64,17 @@ const channelMap = raw => raw == 0 ? 0 : raw - 1
 //   }, createFileData: createFileData)
 // }
 
+const voiceParamData = (location, parm) => Blofeld.paramData([0x20, location], parm)
+  
+const voicePatchChange = (throttle, location) => ({
+  type: 'singlePatch',
+  throttle: throttle,
+  param: (path, parm, value) => [[voiceParamData(location, parm.b), 10]],
+  patch: Blofeld.sysexData(Voice.dumpByte, 0x7f, location, true), 
+  name: Voice.patchTruss.namePack.rangeMap(i => [
+    voiceParamData(location, i), 10
+  ]),
+})
 
 
 module.exports = {
@@ -74,11 +85,10 @@ module.exports = {
       ["voice", Voice.patchTruss],
       ["perf", MultiMode.patchTruss],
       ["perf/bank", MultiMode.bankTruss],
-      ["backup", backupTruss],
+      // ["backup", backupTruss],
       ["extra/perf", MultiMode.refTruss],
     ]).concat(
-      (16).map(i => [['part', i], Voice.patchTruss])
-    ).concat(
+      (16).map(i => [['part', i], Voice.patchTruss]),
       (8).map(i => [['bank', i], Voice.bankTruss])
     ),
     
@@ -88,8 +98,7 @@ module.exports = {
       ["perf", patchFetch([0x01, 0x7f, 0x00])],
       ["perf/bank", bankFetch([0x01, 0x00, 'b', 0x7f])],
     ]).concat(
-      (16).map(i => [['part', i], patchFetch([0x00, 0x7f, i])])
-    ).concat(
+      (16).map(i => [['part', i], patchFetch([0x00, 0x7f, i])]),
       (8).map(i => [['bank', i], bankFetch([0x00, i, 'b', 0x7f])])
     ),
     
@@ -100,12 +109,11 @@ module.exports = {
   
     midiOuts: ([
       ["global", wholePatchTransform(400, Global.dumpByte, 0, 0)],
-      ["voice", Voice.patchChange(30, 0)],
+      ["voice", voicePatchChange(30, 0)],
       ["perf", wholePatchTransform(400, MultiMode.dumpByte, 0x7f, 0)],
       ["perf/bank", bankPatch(MultiMode.dumpByte, 0, 200)],
     ]).concat(
-      (16).map(i => [['part', i], Voice.patchChange(30, i)])
-    ).concat(
+      (16).map(i => [['part', i], voicePatchChange(30, i)]),
       (8).map(i => [['bank', i], bankPatch(Voice.dumpByte, i, 100)])
     ),
     

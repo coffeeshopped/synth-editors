@@ -1,5 +1,5 @@
-const Blofeld = require('./Blofeld.js')
-
+const Blofeld = require('./blofeld.js')
+const BlofeldVoice = require('./blofeld_voice.js')
 const dumpByte = 0x11
   
 // const refTruss: FullRefTruss = {
@@ -62,7 +62,7 @@ const channelIso = ['switch', [
 
 const parms = [
   ["volume", 17],
-  ["tempo", 18, isF: MicroQVoicePatch.tempoIso],
+  ["tempo", 18, {iso: BlofeldVoice.tempoIso}],
   { prefix: "part", count: 16, bx: 24, block: [
     ["bank", 32, {opts: bankOptions}],
     ["sound", 33],
