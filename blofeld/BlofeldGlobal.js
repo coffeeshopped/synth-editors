@@ -1,4 +1,4 @@
-const Blofeld = require('./Blofeld.js')
+const Blofeld = require('./blofeld.js')
 
 const dumpByte = 0x14
 

@@ -1,18 +1,5 @@
 require('./utils.js')
-const Blofeld = require('./Blofeld.js')
-  
-const paramData = (location, parm) => Blofeld.paramData(Blofeld.deviceId, [0x20, location], parm)
-  
-const patchChange = (throttle, location) => ({
-  type: 'singlePatch',
-  throttle: throttle,
-  param: (path, parm, value) => [[paramData(location, parm.b), 10]],
-  patch: Blofeld.wholePatch(dumpByte, 0x7f, location), 
-  name: patchTruss.namePack.rangeMap(i => [
-    paramData(location, i), 10
-  ]),
-})
-
+const Blofeld = require('./blofeld.js')
 
 //  const tempBankIndex = 0x7f
   
@@ -23,8 +10,7 @@ const bankLetter = index => {
   
 
 const waveforms = (["off", "Pulse", "Saw", "Triangle", "Sine", "Alt 1", "Alt 2", "Resonant", "Resonant2", "MalletSyn", "Sqr-Sweep", "Bellish", "Pul-Sweep", "Saw-Sweep", "MellowSaw", "Feedback", "Add Harm", "Reso 3 HP", "Wind Syn", "High Harm", "Clipper", "Organ Syn", "SquareSaw", "Formant 1", "Polated", "Transient", "ElectricP", "Robotic", "StrongHrm", "PercOrgan", "ClipSweep", "ResoHarms", "2 Echoes", "Formant 2", "FmntVocal", "MicroSync", "Micro PWM", "Glassy", "Square HP", "SawSync 1", "SawSync 2", "SawSync 3", "PulSync 1", "PulSync 2", "PulSync 3", "SinSync 1", "SinSync 2", "SinSync 3", "PWM Pulse", "PWM Saw", "Fuzz Wave", "Distorted", "HeavyFuzz", "Fuzz Sync", "K+Strong1", "K+Strong2", "K+Strong3", "1-2-3-4-5", "19/twenty", "Wavetrip1", "Wavetrip2", "Wavetrip3", "Wavetrip4", "MaleVoice", "Low Piano", "ResoSweep", "Xmas Bell", "FM Piano", "Fat Organ", "Vibes", "Chorus 2", "True PWM", "UpperWaves"]).concat(
-  (13).map(i => `Rsrvd ${i + 67}`)
-).concat(
+  (13).map(i => `Rsrvd ${i + 67}`),
   (39).map(i => `User WT ${i + 80}`)
 )
   
@@ -134,7 +120,18 @@ const arpStepLengths = ["Legato", "-3", "-2", "-1", "0", "1", "2", "3"]
 
 const arpStepTimings = ["Random", "-3", "-2", "-1", "0", "1", "2", "3"]
 
-const arpAccents = ["Silent", "/4", "/3", "/2", "*1", "*2", "*3", "*4"]
+const tempoIso = ['>', ['switch', ([
+  [[0, 26], ['lerp', {'in': [0, 25], 'out': [40, 90]}]],
+  [[26, 101], ['lerp', {'in': [26, 100], 'out': [91, 165]}]],
+  [[101, 128], ['lerp', {'in': [101, 127], 'out': [170, 300]}]],
+])], 'round']
+
+const arpAccentIso = ["❌", "↓↓↓", "↓↓", "↓", "-", "↑", "↑↑", "↑↑↑"]
+
+const arpTimingIso = ["Random", "-3", "-2", "-1", "0", "1", "2", "3"]
+
+const arpLenIso = ["Legato", "-3", "-2", "-1", "0", "1", "2", "3"]
+
 
 const arpPatterns = ["Off", "User", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
 
@@ -150,6 +147,11 @@ const arpLengths = ["1/96", "1/48", "1/32", "1/16T", "1/32.", "1/16", "1/8T", "1
 // stride(from: 165, to: 301, by: 5).forEach { options.append("\($0)") }
 // return options
 // }()
+
+const phaseIso = ['switch', [
+  [0, "Free"],
+], ['>', ['lerp', {'in': [1, 128], 'out': [0, 361]}], 'round', ['unitFormat', "°"]]]
+
 
 const categorys = ["Init", "Arp ", "Atmo", "Bass", "Drum", "FX  ", "Keys", "Lead", "Mono", "Pad ", "Perc", "Poly", "Seq"]
 
@@ -315,7 +317,7 @@ const parms = [
     ["speed", 161],
     ["sync", 163, {max: 1}],
     ["clock", 164, {max: 1}],
-    ["phase", 165, {iso: MicroQVoicePatch.phaseIso}],
+    ["phase", 165, {iso: phaseIso}],
     ["delay", 166],
     ["fade", 167, {dispOff: -64}],
     ["keyTrk", 170, {iso: keytrackIso}],
@@ -334,7 +336,7 @@ const parms = [
   { prefix: "modif", count: 4, bx: 4, block:
     { inc: true, b: 245, block: [
       ["src/0", {opts: modSources}],
-      ["src/1", {opts: ["Const"].concat(modSources.suffix(1))}],
+      ["src/1", {opts: ["Const"].concat(modSources.slice(1))}],
       ["op", {opts: modOperators}],
       ["const", {dispOff: -64}],
     ] }
@@ -361,27 +363,27 @@ const parms = [
     ["timingFactor", 320],
     ["pattern/reset", 322, {max: 1}],
     ["pattern/length", 323, {max: 15, dispOff: 1}],
-    ["tempo", 326, {iso: MicroQVoicePatch.tempoIso}],
+    ["tempo", 326, {iso: tempoIso}],
   ] },
   { prefix: '', count: 16, bx: 1, block: [
     ["step", 327, {bits: [4, 7], dispOff: -4, opts: arpSteps}],
     ["glide", 327, {bit: 3}],
-    ["accent", 327, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpAccentIso}],
-    ["length", 343, {bits: [4, 7], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpLenIso}],
-    ["timing", 343, {bits: [0, 3], max: 7, dispOff: -4, iso: MicroQVoicePatch.arpTimingIso}],
+    ["accent", 327, {bits: [0, 3], max: 7, dispOff: -4, iso: arpAccentIso}],
+    ["length", 343, {bits: [4, 7], max: 7, dispOff: -4, iso: arpLenIso}],
+    ["timing", 343, {bits: [0, 3], max: 7, dispOff: -4, iso: arpTimingIso}],
   ] },
   ["category", 379, {opts: categorys}],
 ]
 
+const dumpByte = 0x10
 
 const patchTruss = Blofeld.createPatchTruss("Voice", 383, "blofeld-init", [363, 379], parms, 7, dumpByte)
   
-const dumpByte = 0x10
-
 module.exports = {
   dumpByte,
   patchTruss,
   bankTruss: Blofeld.createBankTruss(dumpByte, patchTruss, "blofeld-bank-init"),
+  tempoIso,
   fxMap: [
     [],
     chorusParams,

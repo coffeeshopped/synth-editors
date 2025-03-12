@@ -1,5 +1,4 @@
 
-
 const nameByteRange = [363, 379]
 const initFileName = "microq-voice-init"
 const fileDataCount = 392
@@ -7,18 +6,6 @@ const fileDataCount = 392
 const phaseIso = ['switch', [
   [0, "Free"],
 ], ['>', ['lerp', {'in': [1, 128], 'out': [0, 361]}], 'round', ['unitFormat', "°"]]]
-
-const tempoIso = ['>', ['switch', ([
-  [[0, 26], ['lerp', {'in': [0, 25], 'out': [40, 90]}]],
-  [[26, 101], ['lerp', {'in': [26, 100], 'out': [91, 165]}]],
-  [[101, 128], ['lerp', {'in': [101, 127], 'out': [170, 300]}]],
-])], 'round']
-
-const arpAccentIso = ["❌", "↓↓↓", "↓↓", "↓", "-", "↑", "↑↑", "↑↑↑"]
-
-const arpTimingIso = ["Random", "-3", "-2", "-1", "0", "1", "2", "3"]
-
-const arpLenIso = ["Legato", "-3", "-2", "-1", "0", "1", "2", "3"]
 
 const waveOptions = ["Off", "Pulse", "Saw", "Triangle", "Sine", "Alt 1", "Alt 2"]
 
@@ -46,37 +33,35 @@ const fx2Types = fxTypes.concat(["Delay", "Reverb", "5.1 Delay", "5.1 D.Clk"])
 
 const categories = ["-custom-", "Arp", "Atmo", "Bass", "Bell", "Drum", "Ext", "FX", "Init", "Keys", "Lead", "Orgn", "Pad", "Perc", "Pluk", "Poly", "RAND", "Seq", "Strg", "Synt", "Voc", "Wave"]
 
-function bytes(data) { return data.safeBytes(7..<390) }
+function bytes(data) { return [7, 390] }
 
-function getValue(_ bytes: [UInt8], path: SynthPath) -> Int? {
-  guard path == "category" else { return defaultGetValue(bytes, path: path) }
-  let cat = [UInt8](bytes[379..<383]).cleanString()
-  return categories.firstIndex(of: cat) ?? 0
-}
+// function getValue(bytes, path) {
+//   guard path == "category" else { return defaultGetValue(bytes, path: path) }
+//   let cat = [UInt8](bytes[379..<383]).cleanString()
+//   return categories.firstIndex(of: cat) ?? 0
+// }
+// 
+// function setValue(_ bytes: inout [UInt8], _ value: Int, path: SynthPath) {
+//   guard path == "category" else { return defaultSetValue(&bytes, value, path: path) }
+//   guard value > 0 && value < categories.count else { return }
+//   let cat = categories[value].bytes(forCount: 4)
+//   (0..<4).forEach {
+//     bytes[379 + $0] = cat[$0]
+//   }
+// }
 
-function setValue(_ bytes: inout [UInt8], _ value: Int, path: SynthPath) {
-  guard path == "category" else { return defaultSetValue(&bytes, value, path: path) }
-  guard value > 0 && value < categories.count else { return }
-  let cat = categories[value].bytes(forCount: 4)
-  (0..<4).forEach {
-    bytes[379 + $0] = cat[$0]
-  }
-}
+const dumpByte = 0x10
 
-function sysexData(_ bytes: [UInt8], deviceId: UInt8, bank: UInt8, location: UInt8) -> MidiMessage {
-  sysexData(bytes, deviceId: deviceId, dumpByte: 0x10, bank: bank, location: location)
-}
-
-function randomize(patch: ByteBackedSysexPatch) {
-  let filterPres: [SynthPath] = [
-    "fx", "modif", "hi/mod", "lo/mod",
-    "arp/mode", "mono",
-  ] + (0..<3).map { ["keyTrk"].prefixed("osc/$0") }.reduce([], +)
-  type(of: patch).params.forEach { path, param in
-    guard filterPres.map({ !path.starts(with: $0) }).reduce(true, { $0 && $1 }) else { return }
-    patch[path] = param.randomize()
-  }
-}
+// function randomize(patch: ByteBackedSysexPatch) {
+//   let filterPres: [SynthPath] = [
+//     "fx", "modif", "hi/mod", "lo/mod",
+//     "arp/mode", "mono",
+//   ] + (0..<3).map { ["keyTrk"].prefixed("osc/$0") }.reduce([], +)
+//   type(of: patch).params.forEach { path, param in
+//     guard filterPres.map({ !path.starts(with: $0) }).reduce(true, { $0 && $1 }) else { return }
+//     patch[path] = param.randomize()
+//   }
+// }
 
 const parms = [
   { prefix: "osc", count: 3, bx: 16, block: i => (
@@ -96,7 +81,7 @@ const parms = [
       ["sub/freq/divide", {max: 31, dispOff: 1}],
       ["sub/volume"],
     ]) }
-  },
+  ) },
   { inc: true, b: 49, block: [
     ["osc/1/sync", {max: 1}],
     ["pitch/src", {opts: fastModSource}],
@@ -265,10 +250,10 @@ const fiveFXParams  = [
 
 const vocSrc = ["Ext", "Aux", "Inst 1 FX", "Inst 2 FX", "Inst 3 FX", "Inst 4 FX", "Main In", "Sub 1 In", "Sub 2 In"]
 
-const vocOffIso = Miso.lerp(in: 127, out: -128...128) >>> Miso.round()
-const vocFreqIso = Miso.exponReg(a: 10.924085542005335, b: 0.05774863315179796, c: -0.06151331566783524) >>> freqFormatIso
+const vocOffIso = ['>', ['lerp', {'in': 127, 'out': [-128, 129]}], 'round']
+const vocFreqIso = ['>', ['exponReg', {a: 10.924085542005335, b: 0.05774863315179796, c: -0.06151331566783524}],  freqFormatIso]
 
-const vocoderParams  = [
+const vocoderParams = [
   [146, {l: "Bands", max: 23, dispOff: 2}],
   [147, {l: "Ana Sig", opts: vocSrc}],
   [148, {l: "A Lo Frq", iso: vocFreqIso}],
@@ -285,11 +270,11 @@ const vocoderParams  = [
   [159, {l: "EQ High", dispOff: -64}],
 ]
 
-const delayTempoIso = Miso.switcher([
-  .int(0, "Internal"),
-], default: tempoIso >>> Miso.str())
+const delayTempoIso = ['switch', [
+  [0, "Internal"],
+], ['>', tempoIso, 'str']]
 
-const delayLenIso = Miso.quadReg(a: 0.09205458275935607, b: -2.7201779383867475e-05, c: 1.4159673877757628) >>> Miso.round(1)
+const delayLenIso = ['>', ['quadReg', { a: 0.09205458275935607, b: -2.7201779383867475e-05, c: 1.4159673877757628 }], ['round', 1]]
 
 const delayParams  = [
   [153, {l: "Clocked", max: 1}],
@@ -299,7 +284,7 @@ const delayParams  = [
   [150, {l: "Feedback"}], // 0..127 0..127
   [154, {l: "Polarity", opts: polarityOptions}], // 0..1 positive,negative
   [151, {l: "Cutoff"}], // 0..127 0..127
-  [155, {l: "Autopan", opts: ["Off", "On"}]],
+  [155, {l: "Autopan", opts: ["Off", "On"] }],
 ]
 
 const clockedDelayLengthOptions = (["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "2/4", "3/4", "4/4", "8/4"]).flatMap(s => [s, `${s}T`, `${s}.`])
@@ -374,6 +359,6 @@ const reverbParams = [
 ]
 
 const delay51Params = [
-  [146, {l: "Delay", iso: delayLenIso}),
+  [146, {l: "Delay", iso: delayLenIso}],
 ].concat(clockedDelayParams.slice(1))
 

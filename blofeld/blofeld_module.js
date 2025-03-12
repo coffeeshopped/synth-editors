@@ -1,4 +1,4 @@
-const Editor = require('./BlofeldEditor.js')
+const Editor = require('./blofeld_editor.js')
 const GlobalCtrlr = require('./BlofeldGlobalController.js')
 const VoiceCtrlr = require('./BlofeldVoiceController.js')
 const PerfCtrlr = require('./BlofeldMultiController.js')
