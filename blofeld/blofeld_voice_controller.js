@@ -1,8 +1,7 @@
 
-
 const modItems = (label, pre) => [
   [label, [pre, "amt"]],
-  `← ${label} Src`, [pre, "src"]],
+  [`← ${label} Src`, [pre, "src"]],
 ]
 
 const modEffect = pre => ['patchChange', {
@@ -27,7 +26,7 @@ const fmCombo = {
   cmd: ['patchChange', "fm/src", v => [
     ['dimItem', v == 0, "fm/amt"],
     ['dimItem', v == 0, "fm/src"],
-  ] }
+  ]],
 }
 
 
@@ -46,7 +45,7 @@ const oscController = index => {
   }
   
   return {
-    prefix: .fixed("osc/index"), 
+    prefix: { fixed: "osc/index" },
     builders: [
       ['grid', [[
         [{select: `Osc ${index + 1} Wave`}, "shape"],
@@ -69,7 +68,7 @@ const oscController = index => {
     effects: [
       dim,
       ['patchChange', "sample", v => ['configCtrl', "shape", {opts:  $0 == 0 ? waveformOptions : sampleOptions}]],
-      fm.cmd,
+      fmCombo.cmd,
       modEffect('pw'),
     ],
   }
@@ -204,7 +203,7 @@ const envController = withFilter => {
   const labels = (withFilter ? ["Filter"] : []).concat(["Amp", "Env 3", "Env 4"])
   
   return {
-    prefix: ['indexFn', i => `env/${i + (withFilter ? 0 : 1)}`, 
+    prefix: ['indexFn', i => `env/${i + (withFilter ? 0 : 1)}`], 
     builders: [
       ['grid', [[
         ["AL", "attack/level"], // 0
@@ -231,7 +230,7 @@ const envController = withFilter => {
 
 
 const lfoController = {
-  prefix: .index("lfo"), 
+  prefix: { index: "lfo" }, 
   builders: [
     ['grid', [[
       ["speed"],
@@ -241,14 +240,14 @@ const lfoController = {
       ["delay"],
       ["fade"],
     ],[
-      ['switcher', label: "LFO", ["1","2","3"]],
+      ['switcher', ["1","2","3"], {l: "LFO"}],
       [{select: "Wave"}, "shape"],
       "sync",
     ]]],
   ], 
   effects: [
     ['indexChange', i => ['setCtrlLabel', "shape", `LFO ${i + 1}`]],
-    ['patchChange', "clock", v => ['configCtrl', "speed", { iso: v == 0 ? null : lfoRateIso }],
+    ['patchChange', "clock", v => ['configCtrl', "speed", { iso: v == 0 ? null : lfoRateIso }]],
     ['dimsOn', "sync", "phase"],
   ],
 }
@@ -283,7 +282,7 @@ const voiceController = {
     ['panel', 'noise', { color: 1, }, [[
       ["Nz Color", "noise/color"],
     ]]],
-    ['panel', "pitch", {color: 1}, [modItems("Pitch Mod", "pitch")]),
+    ['panel', "pitch", {color: 1}, [modItems("Pitch Mod", "pitch")]],
     ['panel', 'route', { color: 2, }, [[
       [{switsch: "Routing"}, "filter/routing"],
     ]]],
@@ -427,8 +426,9 @@ const fxController = {
 
 const arpStepPanel = (label, pathItem, control) => 
   ['panel', pathItem, {prefix: "arp", color: 2}, [(16).map(i => {
-    const label = i == 0 ? `${label} 1` : `${i + 1}`
-    return [{ `${control}`: label }, [i, pathItem]]
+    const l = i == 0 ? `${label} 1` : `${i + 1}`
+    // TODO: check if control var is getting substituted (or is the key just "control")
+    return [{ control: l }, [i, pathItem]]
   })]]
 
 
@@ -461,7 +461,7 @@ const arp = {
   effects: [
     ['patchChange', "arp/pattern/length", v => {
       const pathItems = ["step", "length", "timing", "accent", "glide"]
-      return 16.map(step => pathItems.map(i =>
+      return (16).map(step => pathItems.map(i =>
         ['dimItem', step > v, ['step', i], {dimAlpha: 0.25}]
       ))
     }],
@@ -493,7 +493,7 @@ module.exports = {
         ["Rate", "rate"],
       ]]],
       ['panel', 'mono', { color: 1 }, [[
-        [{checkbox: "Mono",} "mono"],
+        [{checkbox: "Mono"}, "mono"],
         ["Unison", "unison"],
         ["Detune", "unison/detune"],
       ]]],

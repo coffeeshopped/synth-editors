@@ -16,7 +16,7 @@ function fileData(bytes, dumpByte) {
 
 function fxParams(b) {
   return { prefix: "fx", count: 2, bx: 16, block: i => [
-    { inc: true, b: b, block: [
+    { inc: 1, b: b, block: [
       ["type", {opts: i == 0 ? MicroQVoicePatch.fxTypes : MicroQVoicePatch.fx2Types}],
       ["mix"],
     ] },
@@ -28,7 +28,7 @@ function fxParams(b) {
 
 function arpParams(b) {
   return { prefix: "arp", block: [
-    { inc: true, b: b, block: [
+    { inc: 1, b: b, block: [
       ["mode", {opts: Blofeld.Voice.arpModes}],
       ["pattern", {max: 16, iso: ['switch', [[0, "Off"], [1, "User"]], ['>', ['-', 1],  'str']] }],
       ["note", {max: 15, dispOff: 1}],

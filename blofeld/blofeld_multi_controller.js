@@ -31,7 +31,7 @@ const part = {
     ['indexChange', i => ['setCtrlLabel', "mute", `${i + 1}`]],
     ['patchSelector', "sound", {
       bankValue: "bank", 
-      paramMap: bank => ['fullPath', `patch/name/${bank}`,
+      paramMap: bank => ['fullPath', `patch/name/${bank}`],
     }],
   ],
 }
@@ -75,6 +75,6 @@ module.exports = {
     pages: ['map', ["part/0", "part/1", "rcv"], [
       ["part", ['oneRow', 8, part, (parentIndex, offset) => offset + (parentIndex * 8)]],
       ["rcv", receive],
-    ]))
+    ]],
   }
 }

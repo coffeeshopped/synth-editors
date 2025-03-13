@@ -237,7 +237,7 @@ const reverbParams = [
 
 const parms = [
   { prefix: "osc", count: 3, bx: 16, block: i => (
-    { inc: true, b: 1, block: [
+    { inc: 1, b: 1, block: [
       ["octave", {opts: oscOctaves}],
       ["coarse", { rng: [52, 77], dispOff: -64 }],
       ["fine", { dispOff: -64}],
@@ -252,13 +252,13 @@ const parms = [
     ] })
   },
   { prefix: "osc", count: 2, bx: 16, block:
-    { inc: true, b: 14, block: [
+    { inc: 1, b: 14, block: [
       ["limitWT", {opts: ["On", "Off"]}],
       ["sample", {opts: ["WT","Sample"]}],
       ["brilliance"],
     ] }
   },
-  { inc: true, b: 48, block: [
+  { inc: 1, b: 48, block: [
     ["osc/2/brilliance"],
     ["osc/2/sync", {max: 1}],
     ["pitch/src", {opts: modSources}],
@@ -271,7 +271,7 @@ const parms = [
   ["unison", 58, {bits: [4, 7], opts: unisonModes}],
   ["unison/detune", 59],
   { prefix: "osc", count: 3, bx: 2, block:
-    { inc: true, b: 61, block: [
+    { inc: 1, b: 61, block: [
       ["level"],
       ["balance", {iso: filterBalanceIso}],
     ] }
@@ -304,7 +304,7 @@ const parms = [
   ["amp/mod/src", 123, {opts: modSources}],
   ["amp/mod/amt", 124, {dispOff: -64}],
   { prefix: "fx", count: 2, bx: 16, block: i => (
-    { inc: true, b: 128, block: [
+    { inc: 1, b: 128, block: [
       ["type", {opts: i == 0 ? effectTypes : effect2Types}],
       ["mix"],
     ] }
@@ -334,7 +334,7 @@ const parms = [
     ["release", 205],
   ] },
   { prefix: "modif", count: 4, bx: 4, block:
-    { inc: true, b: 245, block: [
+    { inc: 1, b: 245, block: [
       ["src/0", {opts: modSources}],
       ["src/1", {opts: ["Const"].concat(modSources.slice(1))}],
       ["op", {opts: modOperators}],
@@ -342,7 +342,7 @@ const parms = [
     ] }
   },
   { prefix: "mod", count: 16, bx: 3, block:
-    { inc: true, b: 261, block: [
+    { inc: 1, b: 261, block: [
       ["src", {opts: modSources}],
       ["dest", {opts: modDestinations}],
       ["amt", {dispOff: -64}],

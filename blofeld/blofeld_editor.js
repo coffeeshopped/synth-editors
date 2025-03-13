@@ -1,16 +1,16 @@
 const Blofeld = require('./blofeld.js')
-const Global = require('./BlofeldGlobal.js')
+const Global = require('./blofeld_global.js')
 const Voice = require('./blofeld_voice.js')
-const MultiMode = require('./BlofeldMultiMode.js')
+const MultiMode = require('./blofeld_multi_mode.js')
 
 const patchFetch = bytes => ['truss', Blofeld.sysex(bytes)]
 
 const bankFetch = bytes => ['bankTruss', Blofeld.sysex(bytes), {waitInterval: 100}]
 
 const wholePatchTransform = (throttle, dumpByte, bank, location) => ({
-  type: 'singlePatch',
+  type: 'singleWholePatch',
   throttle: throttle,
-  wholePatch: [[Blofeld.sysexData(dumpByte, bank, location), 0]],
+  patch: [[Blofeld.sysexData(dumpByte, bank, location), 0]],
 })
 
 const bankPatch = (dumpByte, bank, interval) => ({
@@ -86,7 +86,7 @@ module.exports = {
       ["perf", MultiMode.patchTruss],
       ["perf/bank", MultiMode.bankTruss],
       // ["backup", backupTruss],
-      ["extra/perf", MultiMode.refTruss],
+      // ["extra/perf", MultiMode.refTruss],
     ]).concat(
       (16).map(i => [['part', i], Voice.patchTruss]),
       (8).map(i => [['bank', i], Voice.bankTruss])
@@ -118,7 +118,7 @@ module.exports = {
     ),
     
     midiChannels: ([
-      ["voice", ['basic', { map: channelMap}]],
+      ["voice", ['basic', channelMap]],
     ]).concat(
       (16).map(i => [`part/${i}`, ['custom', [
         ['value', "global", "channel"], 

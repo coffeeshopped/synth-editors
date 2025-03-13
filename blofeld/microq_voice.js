@@ -61,7 +61,7 @@ const dumpByte = 0x10
 
 const parms = [
   { prefix: "osc", count: 3, bx: 16, block: i => (
-    { inc: true, b: 1, block: ([
+    { inc: 1, b: 1, block: ([
       ["octave", {opts: Blofeld.Voice.oscOctaveOptions}],
       ["coarse", {range: [52, 77], dispOff: -64}],
       ["fine", {dispOff: -64}],
@@ -78,7 +78,7 @@ const parms = [
       ["sub/volume"],
     ]) }
   ) },
-  { inc: true, b: 49, block: [
+  { inc: 1, b: 49, block: [
     ["osc/1/sync", {max: 1}],
     ["pitch/src", {opts: fastModSource}],
     ["pitch/amt", {dispOff: -64}],
@@ -92,7 +92,7 @@ const parms = [
     ["unison/detune", {b: 59}],
   ],
   { prefix: "osc", count: 3, bx: 2, block: 
-    { inc: true, b: 61, block: [
+    { inc: 1, b: 61, block: [
       ["level"],
       ["balance", {iso: Blofeld.Voice.filterBalanceIso}],
     ] }
@@ -151,7 +151,7 @@ const parms = [
     ["release", {b: 205}],
   ] },
   { prefix: "modif", count: 4, bx: 4, block:
-    { inc: true, b: 245, block: [
+    { inc: 1, b: 245, block: [
       ["src/0", {opts: stdModSrc}],
       ["src/1", {opts: modifSrc2}],
       ["op", {opts: Blofeld.Voice.modOperatorOptions}],
@@ -159,14 +159,14 @@ const parms = [
     ] }
   },
   { prefix: "hi/mod", count: 8, bx: 3, block:
-    { inc: true, b: 261, block: [
+    { inc: 1, b: 261, block: [
       ["src", {opts: fastModSource}],
       ["dest", {opts: fastModDest}],
       ["amt", {dispOff: -64}],
     ] }
   },
   { prefix: "lo/mod", count: 8, bx: 3, block:
-    { inc: true, b: 285, block: [
+    { inc: 1, b: 285, block: [
       ["src", {opts: stdModSrc}],
       ["dest", {opts: stdModDest}],
       ["amt", {dispOff: -64}],

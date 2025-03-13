@@ -1,7 +1,7 @@
 const Editor = require('./blofeld_editor.js')
-const GlobalCtrlr = require('./BlofeldGlobalController.js')
-const VoiceCtrlr = require('./BlofeldVoiceController.js')
-const PerfCtrlr = require('./BlofeldMultiController.js')
+const GlobalCtrlr = require('./blofeld_global_controller.js')
+const VoiceCtrlr = require('./blofeld_voice_controller.js')
+const PerfCtrlr = require('./blofeld_multi_controller.js')
 
 module.exports = {
   module: {
