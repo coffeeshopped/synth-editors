@@ -5,14 +5,14 @@ const modItems = (label, pre) => [
 ]
 
 const modEffect = pre => ['patchChange', {
-  paths: [pre + "amt", pre + "src"], 
+  paths: [[pre, "amt"], [pre, "src"]], 
   fn: values => {
-    const src = values[pre + "src"] || 0
-    const amt = values[pre + "amt"] || 0
+    const src = values[`${pre}/src`] || 0
+    const amt = values[`${pre}/amt`] || 0
     const off = src == 0 || amt == 64
     return [
-      ['dimItem', off, pre + "amt"],
-      ['dimItem', off, pre + "src"],
+      ['dimItem', off, [pre, "amt"]],
+      ['dimItem', off, [pre, "src"]],
     ]
   }
 }]
@@ -45,7 +45,7 @@ const oscController = index => {
   }
   
   return {
-    prefix: { fixed: "osc/index" },
+    prefix: { fixed: ["osc", index] },
     builders: [
       ['grid', [[
         [{select: `Osc ${index + 1} Wave`}, "shape"],
@@ -54,13 +54,12 @@ const oscController = index => {
         ["Detune", "fine"],
         ["PW", "pw"],
       ].concat(
-        modItems("PWM", "pw")
-      ).concat(
+        modItems("PWM", "pw"),
         fmCombo.items
       ).concat([
         ["Key Track", "keyTrk"],
-        ["bend"],
-        ["brilliance"],
+        ["Bend", "bend"],
+        ["Brilliance", "brilliance"],
       ]).concat(
         items
       )]],
@@ -79,7 +78,7 @@ const filterController = ['index', "filter", "type", i => `Filter ${i + 1}`, {
     ['grid', [[
       [{select: "Filter"}, "type"],
       ["cutoff"],
-      ["reson"],
+      "reson",
       ["Env Amt", "env/amt"],
       ["Velocity", "velo"],
     ], modItems("Cutoff Mod", "cutoff").concat(fmCombo.items), ([
@@ -203,7 +202,7 @@ const envController = withFilter => {
   const labels = (withFilter ? ["Filter"] : []).concat(["Amp", "Env 3", "Env 4"])
   
   return {
-    prefix: ['indexFn', i => `env/${i + (withFilter ? 0 : 1)}`], 
+    prefix: {indexFn: i => `env/${i + (withFilter ? 0 : 1)}`}, 
     builders: [
       ['grid', [[
         ["AL", "attack/level"], // 0
@@ -214,7 +213,7 @@ const envController = withFilter => {
         ["S2", "sustain2"], // 5
         ["R", "release"], // 6
       ],[
-        ['switcher', "Envelope", items, {width: withFilter ? 7 : 5}],
+        ['switcher', items, {l: "Envelope", width: withFilter ? 7 : 5}],
         [{select: "Mode"}, "mode"],
         envItem(null, '', "env"),
         [{switch: "Trigger"}, "trigger"],
@@ -260,7 +259,7 @@ const voiceController = {
     ['child', oscController(0), "osc0", {color: 1}],
     ['child', oscController(1), "osc1", {color: 1}],
     ['child', oscController(2), "osc2", {color: 1}],
-    ['children', 2, "filter", {color: 2}, filterController],
+    ['children', 2, "filter", filterController, {color: 2}],
     ['child', envController(false), "env", {color: 3}],
     ['child', lfoController, "lfo", {color: 3}],
     ['panel', 'mix', { color: 1, }, [[
@@ -331,7 +330,7 @@ const voiceController = {
 
 const modsController = {
   builders: [
-    ['children', 16, "mod", {color: 1}, {
+    ['children', 16, "mod", {
       prefix: { index: "mod" }, 
       builders: [
         ['grid', [[
@@ -344,8 +343,8 @@ const modsController = {
         ['indexChange', i => ['setCtrlLabel', "src", `M${i + 1} Src`]],
         ['dimsOn', "src"],
       ],
-    }],
-    ['children', 4, "modif", {color: 2}, {
+    }, {color: 1}],
+    ['children', 4, "modif", {
       prefix: { index: "modif" }, 
       builders: [
         ['grid', [[
@@ -359,7 +358,7 @@ const modsController = {
         ['indexChange', i => ['setCtrlLabel', "src", `Modif ${i + 1} Src A`]],
         ['patchChange', "src/1", v => ['hideItem', v > 0, "const"]],
       ],
-    }],
+    }, {color: 2}],
     ['child', lfoController, "lfo", {color: 3}],
     ['child', envController(true), "env", {color: 3}]
   ], 
@@ -396,7 +395,7 @@ const fxController = {
   effects: ([
     ['indexChange', i => ['setCtrlLabel', "type", `FX ${i + 1}`]],
     ['patchChange', {
-      paths: ["type"] + fxKnobCount.map(i => `param/${i}`),
+      paths: (["type"]).concat(fxKnobCount.map(i => `param/${i}`)),
       fn: values => { 
         const fxType = values["type"]
         return fxKnobCount.map(i => {
@@ -419,7 +418,7 @@ const fxController = {
     const fxType = state.values[state.prefix+"/type"]
     const pindex = paramIndex(fxType, k)
     const v = locals[`${k}`]
-    return ['paramsChange', ["param/pindex", v]]
+    return ['paramsChange', [["param", pindex], v]]
   }]))
 }
 
@@ -512,6 +511,6 @@ module.exports = {
       {row: [["switch", 4.5], ["glide", 3], ["mono", 3], ["amp", 4.5], ["tempo", 1]], h: 1},
       {row: [["page", 1]], h: 8},
     ], 
-    pages: { controllers: [voiceController, modsController, arp] },
+    pages: ['controllers', [voiceController, modsController, arp]],
   },
 }

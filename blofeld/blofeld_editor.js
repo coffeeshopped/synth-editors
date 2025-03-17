@@ -76,6 +76,11 @@ const voicePatchChange = (throttle, location) => ({
   ]),
 })
 
+const bankLetter = index => {
+  if (index >= 8) { return "?" }
+  return ["A","B","C","D","E","F","G","H"][index]
+}
+
 
 module.exports = {
   editor: {
@@ -121,8 +126,8 @@ module.exports = {
       ["voice", ['basic', channelMap]],
     ]).concat(
       (16).map(i => [`part/${i}`, ['custom', [
-        ['value', "global", "channel"], 
-        ['value', "perf", `part/${i}/channel`],
+        ['e', "global", "channel"], 
+        ['e', "perf", `part/${i}/channel`],
       ], values => {
         const rawCh = values[0] || 0
         const partCh = values[1] || 0
@@ -138,9 +143,10 @@ module.exports = {
     ),
     
     slotTransforms: (8).map(b =>
-      ["bank/b", ['user', i => Voice.bankLetter(b) + `${i + 1}`]]
+      [["bank", b], ['user', i => bankLetter(b) + `${i + 1}`]]
     ),
   },
+  bankLetter,
 }
   
 //  private let partPaths: [SynthPath] = (0..<16).map { "part/$0" }

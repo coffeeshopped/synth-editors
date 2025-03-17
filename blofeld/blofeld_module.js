@@ -12,15 +12,15 @@ module.exports = {
     sections: [
       ['first', [
         ['global', GlobalCtrlr.controller],
-        ['voice', "Temp Voice", 'voice', VoiceCtrlr.controller],
+        ['voice', "Temp Voice", VoiceCtrlr.controller, 'voice'],
       ]],
       ['basic', "Multi Mode", [
         // .fullRef(title: "Full Multi"),
         ['perf', PerfCtrlr.controller, "Multi"],
         ['perfParts', 16, i => `Part ${i + 1}`, VoiceCtrlr.controller],
-      ]]
+      ]],
       ['banks', [
-        ['banks', 8, i => `Bank ${Voice.bankLetter(i)}`, 'bank'], 
+        ['banks', 8, i => `Bank ${Editor.bankLetter(i)}`, 'bank'], 
         ['bank', "Multi Bank", 'perf/bank'],
       ]],
       // .backup,
