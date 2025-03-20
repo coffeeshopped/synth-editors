@@ -16,7 +16,7 @@ module.exports = {
       ]],
       ['basic', "Multi Mode", [
         // .fullRef(title: "Full Multi"),
-        ['perf', PerfCtrlr.controller, "Multi"],
+        ['perf', PerfCtrlr.controller, {title: "Multi"}],
         ['perfParts', 16, i => `Part ${i + 1}`, VoiceCtrlr.controller],
       ]],
       ['banks', [
