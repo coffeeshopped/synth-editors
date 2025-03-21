@@ -27,16 +27,16 @@ const oscOctaves = Array.sparse([
   
   const keytrackIso = ['>', ['*', 396/127], 'round', ['-', 200], ['switch', [
     [99, 100],
-  ]], ['unitFormat', "%"]]
+  ]], ['units', "%"]]
   
   const fmSources = ["off", "Osc 1", "Osc 2", "Osc 3", "Noise", "LFO 1", "LFO 2", "LFO 3", "FilterEnv", "AmpEnv", "Env3", "Env4"]
   
   const glideModes = ["Portamento","fingered P","Glissando","fingered G"]
   
   const filterBalanceIso = ['switch', [
-    [[0, 64], ['>', ['*', -1], ['+', 64], ['unitFormat', " F1"]]],
+    [[0, 64], ['>', ['*', -1], ['+', 64], ['units', " F1"]]],
     [64, "Bal"],
-    [[65, 128], ['>', ['-', 64], ['unitFormat', " F2"]]],
+    [[65, 128], ['>', ['-', 64], ['units', " F2"]]],
   ]]
   
   const filterTypes = [
@@ -66,8 +66,8 @@ const oscOctaves = Array.sparse([
   ]
   
   const lfoRateIso = ['>', ['*', 0.5], 'floor', ['switch', [
-    [[0, 47], ['>', ['@', [1280, 1152, 1024, 896, 768, 640, 576, 512, 448, 384, 320, 288, 256, 224, 192, 160, 144, 128, 112, 96, 80, 72, 64, 56, 48, 40, 36, 32, 28, 24, 20, 18, 16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3.5, 3, 2.5, 2, 1.5]], ['unitFormat', "bars"]]],
-    [47, ['>', ['-', 46], ['unitFormat', "bar"]]],
+    [[0, 47], ['>', ['@', [1280, 1152, 1024, 896, 768, 640, 576, 512, 448, 384, 320, 288, 256, 224, 192, 160, 144, 128, 112, 96, 80, 72, 64, 56, 48, 40, 36, 32, 28, 24, 20, 18, 16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3.5, 3, 2.5, 2, 1.5]], ['units', "bars"]]],
+    [47, ['>', ['-', 46], ['units', "bar"]]],
     [[48, 64], ['options', ["1/2.", "1/1T", "1/2 ", "1/4.", "1/2T", "1/4 ", "1/8.", "1/4T", "1/8 ", "1/16.", "1/8T", "1/16 ", "1/32.", "1/16T", "1/32 ", "1/48"], {startIndex: 48}]],
   ]]]
     
@@ -116,9 +116,9 @@ const arpStepLengths = ["Legato", "-3", "-2", "-1", "0", "1", "2", "3"]
 const arpStepTimings = ["Random", "-3", "-2", "-1", "0", "1", "2", "3"]
 
 const tempoIso = ['>', ['switch', ([
-  [[0, 26], ['lerp', {'in': [0, 25], 'out': [40, 90]}]],
-  [[26, 101], ['lerp', {'in': [26, 100], 'out': [91, 165]}]],
-  [[101, 128], ['lerp', {'in': [101, 127], 'out': [170, 300]}]],
+  [[0, 26], ['lerp', [0, 25], [40, 90]]],
+  [[26, 101], ['lerp', [26, 100], [91, 165]]],
+  [[101, 128], ['lerp', [101, 127], [170, 300]]],
 ])], 'round']
 
 const arpAccentIso = ["❌", "↓↓↓", "↓↓", "↓", "-", "↑", "↑↑", "↑↑↑"]
@@ -145,7 +145,7 @@ const arpLengths = ["1/96", "1/48", "1/32", "1/16T", "1/32.", "1/16", "1/8T", "1
 
 const phaseIso = ['switch', [
   [0, "Free"],
-], ['>', ['lerp', {'in': [1, 128], 'out': [0, 361]}], 'round', ['unitFormat', "°"]]]
+], ['>', ['lerp', [1, 128], [0, 361]], 'round', ['units', "°"]]]
 
 
 const categorys = ["Init", "Arp ", "Atmo", "Bass", "Drum", "FX  ", "Keys", "Lead", "Mono", "Pad ", "Perc", "Poly", "Seq"]
@@ -163,70 +163,70 @@ const clockedDelayLengths = ["1/96", "1/48", "1/32 ", "1/16T", "1/32.", "1/16 ",
   
 // these are for effect 2. for effect 1, subtract 16 from parm
 const chorusParams = [
-  {b: "146", l: "Speed"},
-  {b: "147", l: "Depth"},
+  {b: 146, l: "Speed"},
+  {b: 147, l: "Depth"},
 ]
 
 const flangerParams = [
-  {b:"146", l: "Speed"}, // 0..127 0..127
-  {b:"147", l: "Depth"}, // 0..127 0..127
-  {b:"150", l: "Feedback"}, // 0..127 0..127
-  {b:"154", l: "Polarity", opts: polarities}, // 0..1 positive,negative
+  {b: 146, l: "Speed"}, // 0..127 0..127
+  {b: 147, l: "Depth"}, // 0..127 0..127
+  {b: 150, l: "Feedback"}, // 0..127 0..127
+  {b: 154, l: "Polarity", opts: polarities}, // 0..1 positive,negative
 ]
 
 const phaserParams = [
-  {b: "146", l: "Speed"}, // 0..127 0..127
-  {b: "147", l: "Depth"}, // 0..127 0..127
-  {b: "151", l: "Center"}, // 0..127 0..127
-  {b: "152", l: "Spacing"}, // 0..127 0..127
-  {b: "150", l: "Feedback"}, // 0..127 0..127
-  {b: "154", l: "Polarity", opts: polarities}, // 0..1 positive,negative
+  {b: 146 , l: "Speed"}, // 0..127 0..127
+  {b: 147 , l: "Depth"}, // 0..127 0..127
+  {b: 151 , l: "Center"}, // 0..127 0..127
+  {b: 152 , l: "Spacing"}, // 0..127 0..127
+  {b: 150 , l: "Feedback"}, // 0..127 0..127
+  {b: 154 , l: "Polarity", opts: polarities}, // 0..1 positive,negative
 ]
 
 const overdriveParams = [
-  {b: "147", l: "Drive"}, // 0..127 0..127
-  {b: "148", l: "Post Gain"}, // 0..127 0..127
-  {b: "151", l: "Cutoff"}, // 0..127 0..127
-  {b: "155", l: "Curve", opts: overdriveCurves}, // 0..11 Clipping..Sine Shaper
+  {b: 147, l: "Drive"}, // 0..127 0..127
+  {b: 148, l: "Post Gain"}, // 0..127 0..127
+  {b: 151, l: "Cutoff"}, // 0..127 0..127
+  {b: 155, l: "Curve", opts: overdriveCurves}, // 0..11 Clipping..Sine Shaper
 ]
 
 const freqFormatIso = [['switch', [
-  [[0, 1000], ['>', ['round', 1], ['unitFormat', "Hz"]]],
-  [[1000, 10001], ['>', ['*', 0.001], ['round', 2], ['unitFormat',"k"]]],
-], ['>', ['*', 0.001], ['round', 1], ['unitFormat', "k"]]]]
+  [[0, 1000], ['>', ['round', 1], ['units', "Hz"]]],
+  [[1000, 10001], ['>', ['*', 0.001], ['round', 2], ['units',"k"]]],
+], ['>', ['*', 0.001], ['round', 1], ['units', "k"]]]]
 
 const tripleFXParams = [
-  {b: "150", l: "S&H"},
-  {b: "151", l: "Overdrive"}, // 0..127 0..127
-  {b: "149", l: "Chorus Mix"}, // 0..127 0..127
-  {b: "146", l: "←Speed"}, // 0..127 0..127
-  {b: "147", l: "←Depth"}, // 0..127 0..127
+  {b: 150, l: "S&H"},
+  {b: 151, l: "Overdrive"}, // 0..127 0..127
+  {b: 149, l: "Chorus Mix"}, // 0..127 0..127
+  {b: 146, l: "←Speed"}, // 0..127 0..127
+  {b: 147, l: "←Depth"}, // 0..127 0..127
 ]
     
 const delayParams = [
-  {b: "149", l: "Length"}, // non-Clocked len
-  {b: "150", l: "Feedback"}, // 0..127 0..127
-  {b: "154", l: "Polarity", opts: polarities}, // 0..1 positive,negative
-  {b: "151", l: "Cutoff"}, // 0..127 0..127
-  {b: "155", l: "Spread", dispOff: -64},
+  {b: 149, l: "Length"}, // non-Clocked len
+  {b: 150, l: "Feedback"}, // 0..127 0..127
+  {b: 154, l: "Polarity", opts: polarities}, // 0..1 positive,negative
+  {b: 151, l: "Cutoff"}, // 0..127 0..127
+  {b: 155, l: "Spread", dispOff: -64},
 ]
 
 const clockedDelayParams = [
-  {b: "150", l: "Feedback"}, // 0..127 0..127
-  {b: "151", l: "Cutoff"}, // 0..127 0..127
-  {b: "154", l: "Polarity", opts: polarities}, // 0..1 positive,negative
-  {b: "155", l: "Spread", dispOff: -64}, // 0..127 -64..+63
-  {b: "156", l: "Length", opts: clockedDelayLengths} // 0..29 1/96..10 bars
+  {b: 150, l: "Feedback"}, // 0..127 0..127
+  {b: 151, l: "Cutoff"}, // 0..127 0..127
+  {b: 154, l: "Polarity", opts: polarities}, // 0..1 positive,negative
+  {b: 155, l: "Spread", dispOff: -64}, // 0..127 -64..+63
+  {b: 156, l: "Length", opts: clockedDelayLengths} // 0..29 1/96..10 bars
 ]
 
 const reverbParams = [
-  {b: "152", l: "Highpass"},
-  {b: "151", l: "Lowpass"},
-  {b: "153", l: "Diffusion"},
-  {b: "146", l: "Size"},
-  {b: "147", l: "Shape"},
-  {b: "148", l: "Decay"},
-  {b: "154", l: "Damping"},
+  {b: 152, l: "Highpass"},
+  {b: 151, l: "Lowpass"},
+  {b: 153, l: "Diffusion"},
+  {b: 146, l: "Size"},
+  {b: 147, l: "Shape"},
+  {b: 148, l: "Decay"},
+  {b: 154, l: "Damping"},
 ]
 
 
@@ -259,45 +259,45 @@ const parms = [
     ["pitch/src", {opts: modSources}],
     ["pitch/amt", {dispOff: -64}],
   ] },
-  ["glide/on", 53, {max: 1}],
-  ["glide/mode", 56, {opts: glideModes}],
-  ["glide/rate", 57],
-  ["mono", 58, {bit: 0}],
-  ["unison", 58, {bits: [4, 7], opts: unisonModes}],
-  ["unison/detune", 59],
+  ["glide/on", {b: 53, max: 1}],
+  ["glide/mode", {b: 56, opts: glideModes}],
+  ["glide/rate", {b: 57}],
+  ["mono", {b: 58, bit: 0}],
+  ["unison", {b: 58, bits: [4, 7], opts: unisonModes}],
+  ["unison/detune", {b: 59}],
   { prefix: "osc", count: 3, bx: 2, block:
     { inc: 1, b: 61, block: [
       ["level"],
       ["balance", {iso: filterBalanceIso}],
     ] }
   },
-  ["noise/level", 67],
-  ["noise/balance", 68, {iso: filterBalanceIso}],
-  ["noise/color", 69, {dispOff: -64}],
-  ["ringMod/level", 71],
-  ["ringMod/balance", 72, {iso: filterBalanceIso}],
+  ["noise/level", {b: 67}],
+  ["noise/balance", {b: 68, iso: filterBalanceIso}],
+  ["noise/color", {b: 69, dispOff: -64}],
+  ["ringMod/level", {b: 71}],
+  ["ringMod/balance", {b: 72, iso: filterBalanceIso}],
   { prefix: "filter", count: 2, bx: 20, block: [
-    ["type", 77, {opts: filterTypes}],
-    ["cutoff", 78],
-    ["reson", 80],
-    ["drive", 81],
-    ["drive/curve", 82, {opts: driveCurves}],
-    ["keyTrk", 86, {iso: keytrackIso}],
-    ["env/amt", 87, {dispOff: -64}],
-    ["velo", 88, {dispOff: -64}],
-    ["cutoff/src", 89, {opts: modSources}],
-    ["cutoff/amt", 90, {dispOff: -64}],
-    ["fm/src", 91, {opts: fmSources}],
-    ["fm/amt", 92],
-    ["pan", 93, {dispOff: -64}],
-    ["pan/src", 94, {opts: modSources}],
-    ["pan/amt", 95, {dispOff: -64}],
+    ["type", {b: 77, opts: filterTypes}],
+    ["cutoff", {b: 78}],
+    ["reson", {b: 80}],
+    ["drive", {b: 81}],
+    ["drive/curve", {b: 82, opts: driveCurves}],
+    ["keyTrk", {b: 86, iso: keytrackIso}],
+    ["env/amt", {b: 87, dispOff: -64}],
+    ["velo", {b: 88, dispOff: -64}],
+    ["cutoff/src", {b: 89, opts: modSources}],
+    ["cutoff/amt", {b: 90, dispOff: -64}],
+    ["fm/src", {b: 91, opts: fmSources}],
+    ["fm/amt", {b: 92}],
+    ["pan", {b: 93, dispOff: -64}],
+    ["pan/src", {b: 94, opts: modSources}],
+    ["pan/amt", {b: 95, dispOff: -64}],
   ] },
-  ["filter/routing", 117, {opts: ["Para", "Serial"]}],
-  ["volume", 121],
-  ["amp/velo", 122, {dispOff: -64}],
-  ["amp/mod/src", 123, {opts: modSources}],
-  ["amp/mod/amt", 124, {dispOff: -64}],
+  ["filter/routing", {b: 117, opts: ["Para", "Serial"]}],
+  ["volume", {b: 121}],
+  ["amp/velo", {b: 122, dispOff: -64}],
+  ["amp/mod/src", {b: 123, opts: modSources}],
+  ["amp/mod/amt", {b: 124, dispOff: -64}],
   { prefix: "fx", count: 2, bx: 16, block: i => (
     { inc: 1, b: 128, block: [
       ["type", {opts: i == 0 ? effectTypes : effect2Types}],
@@ -305,28 +305,28 @@ const parms = [
     ] }
   )} ,
   { prefix: "param", count: 14, bx: 1, block: [
-    ['', 130]
+    ['', {b: 130}]
   ] },
   { prefix: "lfo", count: 3, bx: 12, block: [
-    ["shape", 160, {opts: lfoShapes}],
-    ["speed", 161],
-    ["sync", 163, {max: 1}],
-    ["clock", 164, {max: 1}],
-    ["phase", 165, {iso: phaseIso}],
-    ["delay", 166],
-    ["fade", 167, {dispOff: -64}],
-    ["keyTrk", 170, {iso: keytrackIso}],
+    ["shape", {b: 160, opts: lfoShapes}],
+    ["speed", {b: 161}],
+    ["sync", {b: 163, max: 1}],
+    ["clock", {b: 164, max: 1}],
+    ["phase", {b: 165, iso: phaseIso}],
+    ["delay", {b: 166}],
+    ["fade", {b: 167, dispOff: -64}],
+    ["keyTrk", {b: 170, iso: keytrackIso}],
   ] },
   { prefix: "env", count: 4, bx: 12, block: [
-    ["mode", 196, {bits: [0, 3], opts: envelopeModes}],
-    ["trigger", 196, {p: -1, bit: 5, opts: envelopeTriggers}],
-    ["attack", 199],
-    ["attack/level", 200],
-    ["decay", 201],
-    ["sustain", 202],
-    ["decay2", 203],
-    ["sustain2", 204],
-    ["release", 205],
+    ["mode", {b: 196, bits: [0, 3], opts: envelopeModes}],
+    ["trigger", {b: 196, p: -1, bit: 5, opts: envelopeTriggers}],
+    ["attack", {b: 199}],
+    ["attack/level", {b: 200}],
+    ["decay", {b: 201}],
+    ["sustain", {b: 202}],
+    ["decay2", {b: 203}],
+    ["sustain2", {b: 204}],
+    ["release", {b: 205}],
   ] },
   { prefix: "modif", count: 4, bx: 4, block:
     { inc: 1, b: 245, block: [
@@ -344,30 +344,30 @@ const parms = [
     ] }
   },
   { prefix: "arp", block: [
-    ["mode", 311, {opts: arpModes}],
-    ["pattern", 312, {max: 16, iso: ['switch', [
+    ["mode", {b: 311, opts: arpModes}],
+    ["pattern", {b: 312, max: 16, iso: ['switch', [
       [0, "Off"],
       [1, "User"],
     ], ['-', 1]] }],
-    ["clock", 314, {opts: arpClocks}],
-    ["length", 315, {opts: arpLengths}],
-    ["octave", 316, {max: 9, dispOff: 1}],
-    ["direction", 317, {opts: arpDirections}],
-    ["sortOrder", 318, {opts: arpSorts}],
-    ["velo", 319, {opts: arpVeloModes}],
-    ["timingFactor", 320],
-    ["pattern/reset", 322, {max: 1}],
-    ["pattern/length", 323, {max: 15, dispOff: 1}],
-    ["tempo", 326, {iso: tempoIso}],
+    ["clock", {b: 314, opts: arpClocks}],
+    ["length", {b: 315, opts: arpLengths}],
+    ["octave", {b: 316, max: 9, dispOff: 1}],
+    ["direction", {b: 317, opts: arpDirections}],
+    ["sortOrder", {b: 318, opts: arpSorts}],
+    ["velo", {b: 319, opts: arpVeloModes}],
+    ["timingFactor", {b: 320}],
+    ["pattern/reset", {b: 322, max: 1}],
+    ["pattern/length", {b: 323, max: 15, dispOff: 1}],
+    ["tempo", {b: 326, iso: tempoIso}],
   ] },
   { prefix: '', count: 16, bx: 1, block: [
-    ["step", 327, {bits: [4, 7], dispOff: -4, opts: arpSteps}],
-    ["glide", 327, {bit: 3}],
-    ["accent", 327, {bits: [0, 3], max: 7, dispOff: -4, iso: arpAccentIso}],
-    ["length", 343, {bits: [4, 7], max: 7, dispOff: -4, iso: arpLenIso}],
-    ["timing", 343, {bits: [0, 3], max: 7, dispOff: -4, iso: arpTimingIso}],
+    ["step", {b: 327, bits: [4, 7], dispOff: -4, opts: arpSteps}],
+    ["glide", {b: 327, bit: 3}],
+    ["accent", {b: 327, bits: [0, 3], max: 7, dispOff: -4, iso: arpAccentIso}],
+    ["length", {b: 343, bits: [4, 7], max: 7, dispOff: -4, iso: arpLenIso}],
+    ["timing", {b: 343, bits: [0, 3], max: 7, dispOff: -4, iso: arpTimingIso}],
   ] },
-  ["category", 379, {opts: categorys}],
+  ["category", {b: 379, opts: categorys}],
 ]
 
 const dumpByte = 0x10

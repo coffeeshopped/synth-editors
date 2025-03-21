@@ -2,7 +2,7 @@ const Voice = require('./blofeld_voice.js')
 
 const modItems = (label, pre) => [
   [label, [pre, "amt"]],
-  [`← ${label} Src`, [pre, "src"]],
+  [{select: `← ${label} Src`}, [pre, "src"]],
 ]
 
 const modEffect = pre => ['patchChange', {
@@ -122,6 +122,7 @@ const pathFn = values => {
     case 2: 
       return 3
     }
+    return 4
   })()
   const segWidth = 1 / segCount
   var x = 0
@@ -374,12 +375,12 @@ const modsController = {
   ],
 }
 
-const fxParams = type => type < fxMap.length ? fxMap[type] : null
+const fxParams = type => type < Voice.fxMap.length ? Voice.fxMap[type] : []
 
 const paramIndex = (type, knob) => {
   const fxMap = fxParams(type)
-  if (!fxMap || knob < fxMap.length) { return null }
-  return (fxMap[knob].path.i(0) || 146) - 146
+  if (!fxMap || !(knob < fxMap.length)) { return null }
+  return (fxMap[knob].b || 146) - 146
 }
 
 const fxKnobCount = 14
@@ -408,12 +409,12 @@ const fxController = {
     // configure knobs when fxType changes
     ['patchChange', "type", v => {
       const fxMap = fxParams(v)
-      return fxKnobCount.map(i => [
+      return fxKnobCount.map(i => ([
         ['hideItem', i >= fxMap.length, i],
       ]).concat(i >= fxMap.length ? [] : [
         ['setCtrlLabel', i, fxMap[i].l],
         ['configCtrl', i, { opts: fxMap[i] }],
-      ])
+      ]))
     }],
   ]).concat(fxKnobCount.map(k => ['controlChange', k, (state, locals) => {
     const fxType = state.values[state.prefix+"/type"]
@@ -461,15 +462,15 @@ const arp = {
   effects: [
     ['patchChange', "arp/pattern/length", v => {
       const pathItems = ["step", "length", "timing", "accent", "glide"]
-      return (16).map(step => pathItems.map(i =>
-        ['dimItem', step > v, ['step', i], {dimAlpha: 0.25}]
+      return (16).flatMap(step => pathItems.map(i =>
+        ['dimItem', step > v, ['step', i], 0.25]
       ))
     }],
-    ['patchChange', "arp/pattern", v => {
-      (["step", "length", "time", "accent", "glide"]).map(i =>
+    ['patchChange', "arp/pattern", v => 
+      (["step", "length", "timing", "accent", "glide"]).map(i =>
         ['hidePanel', v != 1, i]
       )
-    }],
+    ],
   ], 
   simpleGridLayout: [
     [["fx0", 1]],
@@ -477,7 +478,7 @@ const arp = {
     [["mode", 14.5], ["cat", 1.5]],
     [["step", 1]],
     [["length", 1]],
-    [["time", 1]],
+    [["timing", 1]],
     [["accent", 1]],
     [["glide", 1]],
   ],
