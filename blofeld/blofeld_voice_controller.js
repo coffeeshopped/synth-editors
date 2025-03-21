@@ -1,3 +1,4 @@
+const Voice = require('./blofeld_voice.js')
 
 const modItems = (label, pre) => [
   [label, [pre, "amt"]],
@@ -66,7 +67,7 @@ const oscController = index => {
     ], 
     effects: [
       dim,
-      ['patchChange', "sample", v => ['configCtrl', "shape", {opts:  $0 == 0 ? waveformOptions : sampleOptions}]],
+      ['patchChange', "sample", v => ['configCtrl', "shape", {opts: v == 0 ? Voice.waveforms : Voice.samples}]],
       fmCombo.cmd,
       modEffect('pw'),
     ],
@@ -246,7 +247,7 @@ const lfoController = {
   ], 
   effects: [
     ['indexChange', i => ['setCtrlLabel', "shape", `LFO ${i + 1}`]],
-    ['patchChange', "clock", v => ['configCtrl', "speed", { iso: v == 0 ? null : lfoRateIso }]],
+    ['patchChange', "clock", v => ['configCtrl', "speed", { iso: v == 0 ? null : Voice.lfoRateIso }]],
     ['dimsOn', "sync", "phase"],
   ],
 }

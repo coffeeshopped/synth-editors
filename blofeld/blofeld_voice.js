@@ -379,6 +379,9 @@ module.exports = {
   patchTruss,
   bankTruss: Blofeld.createBankTruss(dumpByte, patchTruss, "blofeld-bank-init"),
   tempoIso,
+  lfoRateIso,
+  samples,
+  waveforms,
   fxMap: [
     [],
     chorusParams,
