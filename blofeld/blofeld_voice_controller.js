@@ -56,12 +56,12 @@ const oscController = index => {
         ["PW", "pw"],
       ].concat(
         modItems("PWM", "pw"),
-        fmCombo.items
-      ).concat([
-        ["Key Track", "keyTrk"],
-        ["Bend", "bend"],
-        ["Brilliance", "brilliance"],
-      ]).concat(
+        fmCombo.items,
+        [
+          ["Key Track", "keyTrk"],
+          ["Bend", "bend"],
+          ["Brilliance", "brilliance"],
+        ],
         items
       )]],
     ], 
@@ -280,11 +280,13 @@ const voiceController = {
       ["Ring Mod", "ringMod/level"],
       ["Balance", "ringMod/balance"],
     ]]],
-    ['panel', 'noise', { color: 1, }, [[
+    ['panel', 'noise', { color: 1 }, [[
       ["Nz Color", "noise/color"],
     ]]],
-    ['panel', "pitch", {color: 1}, [modItems("Pitch Mod", "pitch")]],
-    ['panel', 'route', { color: 2, }, [[
+    ['panel', "pitch", { color: 1 }, [
+      modItems("Pitch Mod", "pitch")
+    ]],
+    ['panel', 'route', { color: 2 }, [[
       [{switsch: "Routing"}, "filter/routing"],
     ]]],
     ['panel', 'fEnv', { prefix: "env/0", color: 2, }, [[

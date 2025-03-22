@@ -239,22 +239,22 @@ const parms = [
       ["bend", { rng: [40, 89], dispOff: -64}],
       ["keyTrk", { iso: keytrackIso}],
       ["fm/src", { opts: fmSources}],
-      ["fm/amt"],
+      ["fm/amt", {}],
       ["shape", { opts: i == 2 ? osc3Waveforms : waveforms}],
-      ["pw"],
+      ["pw", {}],
       ["pw/src", { opts: modSources}],
       ["pw/amt", { dispOff: -64}],
-    ] })
-  },
+    ] }
+  ) },
   { prefix: "osc", count: 2, bx: 16, block:
     { inc: 1, b: 14, block: [
       ["limitWT", {opts: ["On", "Off"]}],
       ["sample", {opts: ["WT","Sample"]}],
-      ["brilliance"],
+      ["brilliance", {}],
     ] }
   },
   { inc: 1, b: 48, block: [
-    ["osc/2/brilliance"],
+    ["osc/2/brilliance", {}],
     ["osc/2/sync", {max: 1}],
     ["pitch/src", {opts: modSources}],
     ["pitch/amt", {dispOff: -64}],
@@ -267,7 +267,7 @@ const parms = [
   ["unison/detune", {b: 59}],
   { prefix: "osc", count: 3, bx: 2, block:
     { inc: 1, b: 61, block: [
-      ["level"],
+      ["level", {}],
       ["balance", {iso: filterBalanceIso}],
     ] }
   },
@@ -301,7 +301,7 @@ const parms = [
   { prefix: "fx", count: 2, bx: 16, block: i => (
     { inc: 1, b: 128, block: [
       ["type", {opts: i == 0 ? effectTypes : effect2Types}],
-      ["mix"],
+      ["mix", {}],
     ] }
   )} ,
   { prefix: "param", count: 14, bx: 1, block: [
@@ -372,7 +372,7 @@ const parms = [
 
 const dumpByte = 0x10
 
-const patchTruss = Blofeld.createPatchTruss("Voice", 383, "blofeld-init", [363, 379], parms, 7, dumpByte)
+const patchTruss = Blofeld.createPatchTruss("Voice", 383, "blofeld-init", [363, 379], parms, 7, dumpByte, true)
   
 module.exports = {
   dumpByte,

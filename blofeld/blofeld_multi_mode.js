@@ -88,7 +88,7 @@ const parms = [
   ] },
 ]
   
-const patchTruss = Blofeld.createPatchTruss("Multi", 416, "blofeld-multi-init", [0, 16], parms, 7, dumpByte)
+const patchTruss = Blofeld.createPatchTruss("Multi", 416, "blofeld-multi-init", [0, 16], parms, 7, dumpByte, true)
 
 module.exports = {
   dumpByte,

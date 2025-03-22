@@ -16,8 +16,8 @@ const sysexData = (dumpByte, bank, location, hasBankAndLocation) => {
 const paramData = (bufferBytes, parm) => sysex([
   bufferBytes,
   ['>', parm, [
-    ['bits', 0, 7, 'b'],
-    ['bits', 7, 9, 'b']
+    ['bits', [0, 7], 'b'],
+    ['bits', [7, 9], 'b']
   ]],
   ['byte', parm],
 ])
@@ -29,7 +29,7 @@ const createPatchTruss = (displayId, bodyDataCount, initFile, namePack, parms, p
   namePack: namePack,
   parms: parms,
   initFile: initFile, 
-  createFile: sysexData(0x7f, dumpByte, 0x7f, 0x00, hasBankAndLocation), 
+  createFile: sysexData(dumpByte, 0x7f, 0x00, hasBankAndLocation), 
   parseBody: parseOffset,
 })
 
@@ -38,7 +38,7 @@ const createBankTruss = (dumpByte, patchTruss, initFile) => ({
   patchTruss: patchTruss,
   patchCount: 128,
   createFile: {
-    locationMap: location => sysexData(0x7f, dumpByte, 0, location, true),
+    locationMap: location => sysexData(dumpByte, 0, location, true),
   },
   locationIndex: 6,
   initFile: initFile,
