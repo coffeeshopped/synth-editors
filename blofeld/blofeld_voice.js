@@ -25,9 +25,9 @@ const oscOctaves = Array.sparse([
   
   const osc3Waveforms = ["off","Pulse","Saw","Triangle","Sine"]
   
-  const keytrackIso = ['>', ['*', 396/127], 'round', ['-', 200], ['switch', [
+  const keytrackIso = ['>', ['*', 396.0/127], 'round', ['-', 200], ['switch', [
     [99, 100],
-  ]], ['units', "%"]]
+  ], '='], ['units', "%"]]
   
   const fmSources = ["off", "Osc 1", "Osc 2", "Osc 3", "Noise", "LFO 1", "LFO 2", "LFO 3", "FilterEnv", "AmpEnv", "Env3", "Env4"]
   
@@ -237,7 +237,7 @@ const parms = [
       ["coarse", { rng: [52, 77], dispOff: -64 }],
       ["fine", { dispOff: -64}],
       ["bend", { rng: [40, 89], dispOff: -64}],
-      ["keyTrk", { iso: keytrackIso}],
+      ["keyTrk", { iso: keytrackIso }],
       ["fm/src", { opts: fmSources}],
       ["fm/amt", {}],
       ["shape", { opts: i == 2 ? osc3Waveforms : waveforms}],

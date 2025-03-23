@@ -70,7 +70,7 @@ const voicePatchChange = (throttle, location) => ({
   type: 'singlePatch',
   throttle: throttle,
   param: (path, parm, value) => [[voiceParamData(location, parm.b), 10]],
-  patch: Blofeld.sysexData(Voice.dumpByte, 0x7f, location, true), 
+  patch: [[Blofeld.sysexData(Voice.dumpByte, 0x7f, location, true), 10]], 
   name: Voice.patchTruss.namePack.rangeMap(i => [
     voiceParamData(location, i), 10
   ]),
