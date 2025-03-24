@@ -37,7 +37,7 @@ module.exports = {
       }
       else {
         // NORMAL PARAM SEND
-        return [[Matrix.sysex([0x06, parm.p, negMap(v)]), 10]]
+        return [[Matrix.sysex([0x06, parm.p, negMap(value)]), 10]]
       } 
     }, 
     patch: patchOut,
