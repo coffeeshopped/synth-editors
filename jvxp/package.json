@@ -8,7 +8,7 @@
       "name": "jv1080",
       "manufacturer": "Roland",
       "model": "JV-1080",
-      "module": "JV1080.js"
+      "module": "jv1080.js"
     }
   ]
 }

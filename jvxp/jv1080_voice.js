@@ -1,4 +1,4 @@
-const JVXP = require('./JVXP.js')
+const JVXP = require('./jvxp.js')
 
 const structures = (10).map(i => `xv-struct-${i+1}`)
 

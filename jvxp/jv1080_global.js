@@ -1,4 +1,4 @@
-const JVXP = require('./JVXP.js')
+const JVXP = require('./jvxp.js')
 
 const tapSources = ["Off","Hold-1","Sustain","Soft","Hold-2"]
 const systemControls = (96).map(i => `CC ${i}`).concat(["Bender","Aftertouch"])

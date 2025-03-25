@@ -1,5 +1,5 @@
-const VoiceCtrlr = require('./JV1080VoiceController.js')
-const SRJVBoard = require('./SRJVBoard.js')
+const VoiceCtrlr = require('./jv1080_voice_controller.js')
+const SRJVBoard = require('./srjv_board.js')
 
 //    let showXP = PerfPart.self is XP50PerfPartPatch.Type
 //    let show2080 = PerfPart.self is JV2080PerfPartPatch.Type

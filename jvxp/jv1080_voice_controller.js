@@ -1,8 +1,8 @@
 require('./utils.js')
 
-const Voice = require('./JV1080Voice.js')
-const SRJVBoard = require('./SRJVBoard.js')
-const FX = require('./JVFX.js')
+const Voice = require('./jv1080_voice.js')
+const SRJVBoard = require('./srjv_board.js')
+const FX = require('./jvfx.js')
   
 const common = (cfg) => {  
   var effects = []

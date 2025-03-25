@@ -1,4 +1,4 @@
-const JVXP = require('./JVXP.js')
+const JVXP = require('./jvxp.js')
 
 const commonPatchWerk = { 
   single: "Rhythm Common",

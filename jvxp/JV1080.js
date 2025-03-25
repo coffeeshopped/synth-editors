@@ -1,11 +1,11 @@
-const JVXP = require('./JVXP.js')
-const JVXPModule = require('./JVXPModule.js')
-const Voice = require('./JV1080Voice.js')
-const Global = require('./JV1080Global.js')
-const Perf = require('./JV1080Perf.js')
-const Rhythm = require('./JV1080Rhythm.js')
+const JVXP = require('./jvxp.js')
+const JVXPModule = require('./jvxp_module.js')
+const Voice = require('./jv1080_voice.js')
+const Global = require('./jv1080_global.js')
+const Perf = require('./jv1080_perf.js')
+const Rhythm = require('./jv1080_rhythm.js')
 
-const PerfCtrlr = require('./JV1080PerfController.js')
+const PerfCtrlr = require('./jv1080_perf_controller.js')
 
 const editor = JVXP.editorTruss("JV-1080", null, Global.patchWerk, Perf.patchWerk, Voice.patchWerk, Rhythm.patchWerk, Voice.bankWerk, Perf.bankWerk, Rhythm.bankWerk)
 

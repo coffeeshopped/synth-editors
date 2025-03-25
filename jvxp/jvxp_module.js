@@ -1,7 +1,7 @@
 
-const GlobalCtrlr = require('./JV1080GlobalController.js')
-const VoiceCtrlr = require('./JV1080VoiceController.js')
-const RhythmCtrlr = require('./JV1080RhythmController.js')
+const GlobalCtrlr = require('./jv1080_global_controller.js')
+const VoiceCtrlr = require('./jv1080_voice_controller.js')
+const RhythmCtrlr = require('./jv1080_rhythm_controller.js')
 
 const moduleTruss = (editorTruss, subid, sections) => ({
   editor: editorTruss,

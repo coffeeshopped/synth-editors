@@ -1,6 +1,6 @@
-const JVXP = require('./JVXP.js')
-const Voice = require('./JV1080Voice.js')
-const SRJVBoard = require('./SRJVBoard.js')
+const JVXP = require('./jvxp.js')
+const Voice = require('./jv1080_voice.js')
+const SRJVBoard = require('./srjv_board.js')
 
 //      static var fileDataAddress: RolandAddress {
 //        return JV1080PerfPatch.fileDataAddress + startAddress()

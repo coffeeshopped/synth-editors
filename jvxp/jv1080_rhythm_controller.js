@@ -1,5 +1,5 @@
-const VoiceCtrlr = require('./JV1080VoiceController.js')
-const Rhythm = require('./JV1080Rhythm.js')
+const VoiceCtrlr = require('./jv1080_voice_controller.js')
+const Rhythm = require('./jv1080_rhythm.js')
 
 const pitch = {
   builders: [
