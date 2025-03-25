@@ -1,20 +1,23 @@
+const JVXP = require('./jvxp.js')
+const JVXPModule = require('./jvxp_module.js')
 
-public enum XP30 {
-  
-  enum Editor {
-    // hard-coded deviceId
-    static let truss = JVXP.editorTruss("XP-30", deviceId: .constant(16), global: JV1010.Global.patchWerk, perf: XP50.Perf.patchWerk, voice: JV2080.Voice.patchWerk, rhythm: JV1080.Rhythm.patchWerk, voiceBank: JV2080.Voice.bankWerk, perfBank: XP50.Perf.bankWerk, rhythmBank: JV1080.Rhythm.bankWerk)
-  }
+const JV1010Perf = require('./jv1010_perf.js')
 
-  
-  public enum Module {
-    
-    public static let truss = JVXP.moduleTruss(Editor.truss, subid: "xp30", sections: sections)
-    
-    static let sections = JVXP.sections(perf: perf, clkSrc: true, cat: true)
-    
-    static let perf = JV1080.Perf.Controller.controller(showXP: true, show2080: false, config: JV1010.Perf.Part.config)
+// hard-coded deviceId
+const editor = JVXP.editorTruss("XP-30", 16, {
+  global: 'jv1010',
+  perf: 'xp50',
+  voice: 'jv2080',
+})
 
-  }
-  
+module.exports = {
+  module: JVXPModule.moduleTruss(editor, "xp30", { 
+    perf: { 
+      showXP: true, 
+      show2080: false,
+      config: JV1010Perf.config 
+    }, 
+    clkSrc: true,
+    cat: true,
+  }),
 }

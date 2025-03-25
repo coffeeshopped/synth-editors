@@ -9,6 +9,42 @@
       "manufacturer": "Roland",
       "model": "JV-1080",
       "module": "jv1080.js"
+    },
+    {
+      "name": "jv2080",
+      "manufacturer": "Roland",
+      "model": "JV-2080",
+      "module": "jv2080.js"
+    },
+    {
+      "name": "jv1010",
+      "manufacturer": "Roland",
+      "model": "JV-1010",
+      "module": "jv1010.js"
+    },
+    {
+      "name": "xp30",
+      "manufacturer": "Roland",
+      "model": "XP-30",
+      "module": "xp30.js"
+    },
+    {
+      "name": "xp50",
+      "manufacturer": "Roland",
+      "model": "XP-50",
+      "module": "xp50.js"
+    },
+    {
+      "name": "xp60",
+      "manufacturer": "Roland",
+      "model": "XP-60",
+      "module": "xp60.js"
+    },
+    {
+      "name": "xp80",
+      "manufacturer": "Roland",
+      "model": "XP-80",
+      "module": "xp80.js"
     }
   ]
 }

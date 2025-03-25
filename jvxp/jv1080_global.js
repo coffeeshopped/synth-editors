@@ -51,5 +51,6 @@ const parms = [
 ]
 
 module.exports = {
-  patchWerk: JVXP.globalPatchWerk(parms, 0x28, "jv1080-global-init")
+  patchWerk: JVXP.globalPatchWerk(parms, 0x28, "jv1080-global-init"),
+  parms,
 }

@@ -18,7 +18,7 @@ extension XV5050 {
       ]
     }) + .prefix([.ctrl], count: 4, bx: 1, block: { index, offset in
       [
-        .p([.assign], 0x0d, .options(ctrlAssignOptions)),
+        .p([.assign], 0x0d, .options(ctrlAssigns)),
       ]
     }) + .prefix([.param], count: 32, bx: 4, block: { index, offset in
       [
@@ -58,7 +58,7 @@ extension XV5050 {
       return opts
     }()
     
-    static let ctrlAssignOptions: [Int:String] = OptionsParam.makeOptions(17.map { $0 == 0 ? "Off" : "\($0)" })
+    static let ctrlAssigns: [Int:String] = OptionsParam.makeOptions(17.map { $0 == 0 ? "Off" : "\($0)" })
   }
   
   enum Chorus {

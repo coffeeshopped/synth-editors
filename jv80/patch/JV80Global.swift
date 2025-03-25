@@ -16,12 +16,12 @@ extension JV80 {
       .p([.hold, .polarity], 0x06, .opts(polarityOptions)),
       .p([.pedal, .i(0), .polarity], 0x07, .opts(polarityOptions)),
       .p([.pedal, .i(0), .mode], 0x08, .opts(pedalModeOptions)),
-      .p([.pedal, .i(0), .assign], 0x09, .opts(pedalAssignOptions)),
+      .p([.pedal, .i(0), .assign], 0x09, .opts(pedalAssigns)),
       .p([.pedal, .i(1), .polarity], 0x0a, .opts(polarityOptions)),
       .p([.pedal, .i(1), .mode], 0x0b, .opts(pedalModeOptions)),
-      .p([.pedal, .i(1), .assign], 0x0c, .opts(pedalAssignOptions)),
+      .p([.pedal, .i(1), .assign], 0x0c, .opts(pedalAssigns)),
       .p([.ctrl, .mode], 0x0d, .opts(pedalModeOptions)),
-      .p([.ctrl, .assign], 0x0e, .opts(pedalAssignOptions)),
+      .p([.ctrl, .assign], 0x0e, .opts(pedalAssigns)),
       .p([.aftertouch, .threshold], 0x0f),
 
       .p([.rcv, .volume], 0x10, .max(1)),
@@ -49,7 +49,7 @@ extension JV80 {
     
     static let pedalModeOptions = ["Off","Int","MIDI","Int+MIDI"]
     
-    static let pedalAssignOptions = 96.map { "CC\($0)" } + ["Aftertouch", "Bend Up", "Bend Down", "Pgm Up", "Pgm Down"]
+    static let pedalAssigns = 96.map { "CC\($0)" } + ["Aftertouch", "Bend Up", "Bend Down", "Pgm Up", "Pgm Down"]
 
     static let sendChannelOptions = 16.map { "\($0 + 1)" } + ["Rx Ch", "Off"]
   }

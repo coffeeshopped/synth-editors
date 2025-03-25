@@ -1,19 +1,22 @@
+const JVXP = require('./jvxp.js')
+const JVXPModule = require('./jvxp_module.js')
 
-public enum JV2080 {
-  
-  enum Editor {
-    
-    static let truss = JVXP.editorTruss("JV-2080", global: Global.patchWerk, perf: Perf.patchWerk, voice: Voice.patchWerk, rhythm: JV1080.Rhythm.patchWerk, voiceBank: Voice.bankWerk, perfBank: Perf.bankWerk, rhythmBank: JV1080.Rhythm.bankWerk)
+const Perf = require('./jv2080_perf.js')
 
-  }
-  
-  public enum Module {
-    
-    public static let truss = JVXP.moduleTruss(Editor.truss, subid: "jv2080", sections: sections)
-    
-    static let sections = JVXP.sections(perf: perf, clkSrc: true, cat: true)
-    
-    static let perf = JV1080.Perf.Controller.controller(showXP: false, show2080: true, config: Perf.Part.config)
+const editor = JVXP.editorTruss("JV-2080", null, {
+  global: 'jv2080',
+  perf: 'jv2080',
+  voice: 'jv2080',
+})
 
-  }
+module.exports = {
+  module: JVXPModule.moduleTruss(editor, "jv2080", { 
+    perf: { 
+      showXP: false, 
+      show2080: true,
+      config: Perf.config 
+    }, 
+    clkSrc: true,
+    cat: true,
+  }),
 }

@@ -254,15 +254,18 @@ const intBWaves = ["1 Kalimba", "2 Marimba Wave", "3 Log Drum", "4 Vibes", "5 Bo
 const patchWerk = JVXP.voicePatchWerk(commonPatchWerk, tonePatchWerk, "jv1080-init")
 
 module.exports = {
-  patchWerk: patchWerk,
+  patchWerk,
   bankWerk: JVXP.voiceBankWerk(patchWerk),
-  fxTypes: fxTypes,
-  fxControlSources: fxControlSources,
-  chorusOuts: chorusOuts,
-  reverbTypes: reverbTypes,
-  reverbHFDamps: reverbHFDamps,
-  toneParms: toneParms,
-  intAWaves: intAWaves,
-  intBWaves: intBWaves,
+  fxTypes,
+  fxControlSources,
+  chorusOuts,
+  reverbTypes,
+  reverbHFDamps,
+  toneParms,
+  intAWaves,
+  intBWaves,
   blankWaves: (255).map(i => `${i+1}`),
+  // used by other JVXP modules
+  tonePatchWerk,
+  commonParms,
 }

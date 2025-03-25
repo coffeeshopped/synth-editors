@@ -48,7 +48,6 @@ const commonParms = [
 
 const commonPatchWerk = JVXP.perfCommonPatchWerk(commonParms, 0x40)
 
-
 const partParms = [
   ['midi/rcv', { b: 0x00, max: 1 }],
   ['channel', { b: 0x01, max: 15, dispOff: 1 }],
@@ -118,14 +117,24 @@ const rhythmPresetOptionMap = Array.sparse([
 
 const patchWerk = JVXP.perfPatchWerk(commonPatchWerk, partPatchWerk, "jv1080-perf-init")
 
+const blankPatches = (255).map(i => `${i+1}`)
+
 module.exports = {
-  patchWerk: patchWerk,
+  patchWerk,
   bankWerk: JVXP.perfBankWerk(patchWerk),
   config: {
     voicePresets: voicePresetOptionMap, 
     rhythmPresets: rhythmPresetOptionMap, 
-    blank: (255).map(i => `${i+1}`), 
+    blank: blankPatches, 
     patchGroups: patchGroups, 
     hasOutSelect: false,
   },
+  // used by other modules
+  commonParms,
+  blankPatches,
+  fxSrcOptions,
+  partParms,
+  patchGroups,
+  voicePresetOptionMap,
+  rhythmPresetOptionMap,
 }

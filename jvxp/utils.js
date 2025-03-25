@@ -17,6 +17,13 @@ Array.sparse = (arr) => {
   return a
 }
 
+// returns a copy!
+Array.prototype.mergeSparse = function(arr) {
+  const c = Array.from(this)
+  arr.forEach((e, i) => c[i] = e)
+  return c
+}
+
 Number.prototype.map = function(mapFn) {
   var arr = []
   for(let i=0; i<this; ++i) {
