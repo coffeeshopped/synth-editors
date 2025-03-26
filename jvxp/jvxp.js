@@ -39,7 +39,7 @@ const editorTruss = (name, deviceId, files) => {
       ['bank/rhythm/0', 0x10400000, rhythm.bankWerk],
     ]).concat((15).map(i => {
       const p = indexToPathPart(i)
-      return [`part/${p}`, [0x02, p, 0, 0], voice]
+      return [`part/${p}`, [0x02, p, 0, 0], voice.patchWerk]
     })),
     extraParamOuts: ([
       ['perf', ['bankNames', "bank/patch/0", 'patch/name']],

@@ -87,14 +87,13 @@ const editor = {
     ["perf", ['bankNames', "bank/fseq", "fseq/name"]],
   ].concat((4).map(part => [["part", part], ['patchOut', "perf", (change, patch) => {
     var out = []
-    var v = null
-    v = change["part/part/filter/on"]
+    var v = change[`part/${part}/filter/on`]
     if (v !== null) {
-      out.push({ path: 'filter/on', p: v })
+      out.push(['filter/on', v])
     }
-    v = change["fseq/part"]
+    v = change[`fseq/${part}`]
     if (v !== null) {
-      out.push({ path: 'fseq/on', p: v == part + 1 ? 1 : 0 })
+      out.push(['fseq/on', v == part + 1 ? 1 : 0])
     }
     return out
   }]])),

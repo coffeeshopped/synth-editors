@@ -20,7 +20,7 @@ Array.sparse = (arr) => {
 // returns a copy!
 Array.prototype.mergeSparse = function(arr) {
   const c = Array.from(this)
-  arr.forEach((e, i) => c[i] = e)
+  arr.forEach((e) => c[e[0]] = e[1])
   return c
 }
 
