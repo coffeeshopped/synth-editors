@@ -160,7 +160,7 @@ const sysexDataWithLocation = location => sysexDataWithHeader(0x01, location)
 
 // returns: array of instructions for processing body data and returning sysex data
 const sysexDataWithHeader = (cmd, location) => ['>',
-  ['+', 'nibblizeLSB', 'checksum'],
+  [['nibblizeLSB'], ['checksum']],
   [0xf0, 0x10, 0x06, cmd, location, 'b', 0xf7],
 ]
 
