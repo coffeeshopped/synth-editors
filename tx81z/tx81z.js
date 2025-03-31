@@ -127,7 +127,8 @@ const editor = Object.assign(Op4.editorTrussSetup, {
     ["bank", {
       type: 'wholeBank',
       throttle: 0,
-      multi: [[Op4.voiceBankSysexData, 100]]
+      multiBankTruss: voiceBankTruss,
+      waitInterval: 100,
     }],
     ["bank/perf", Perf.wholeBankTransform],
   ],
