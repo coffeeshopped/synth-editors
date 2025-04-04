@@ -3,10 +3,7 @@ const reservePaths = (8).map(i => ['part', i, 'voice', 'reserve'])
 
 const partController = presetVoices => {
   const presetMap = presetVoices.map((e, i) => [i + 32, e])
-  return {
-    index: 'part', 
-    label: 'voice/number', 
-    fn: i => `Inst ${i + 1}`,
+  return ['index', 'part', 'voice/number', i => `Inst ${i + 1}`, {
     color: 2, 
     builders: [
       ['grid', [[
@@ -29,16 +26,15 @@ const partController = presetVoices => {
       ]]]
     ], 
     effects: [
-      [
-        ['paramChange', "patch/name", parm => {
-          const options = parm.options || []
-          return ['configCtrl', "voice/number", ['opts', options.concat(presetMap)]]
-        }],
-        ['dimsOn', "voice/reserve"],
+      ['paramChange', "patch/name", parm =>
+        ['configCtrl', "voice/number", {
+          opts: (parm.opts || []).mergeSparse(presetMap),
+        }]
       ],
+      ['dimsOn', "voice/reserve"],
       ['voiceReserve', reservePaths, 8, ["voice/reserve"]],
-    ]
-  }
+    ],
+  }]
 }
 
 module.exports = {

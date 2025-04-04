@@ -94,4 +94,10 @@ module.exports = {
   createVoiceBankTruss,
   voiceBankSysexData,
   freqRatio,
+  voiceBankTransform: (voiceBankTruss) => ({
+    type: 'wholeBank',
+    throttle: 0,
+    multiBankTruss: voiceBankTruss,
+    waitInterval: 100,
+  })
 }

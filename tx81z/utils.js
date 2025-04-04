@@ -20,3 +20,18 @@ Number.prototype.map = function(mapFn) {
   }
   return arr
 }
+
+// create a sparse array from an array of arrays.
+// each sub-array is two elements: [index, element]
+Array.sparse = (arr) => {
+  const a = Array()
+  arr.forEach(e => a[e[0]] = e[1])
+  return a
+}
+
+// returns a copy!
+Array.prototype.mergeSparse = function(arr) {
+  const c = Array.from(this)
+  arr.forEach(e => c[e[0]] = e[1])
+  return c
+}

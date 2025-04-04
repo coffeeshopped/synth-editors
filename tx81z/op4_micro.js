@@ -1,6 +1,6 @@
 const Op4 = require('./op4.js')
 
-const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexIndex) => {
+const werk = (editorPath, bodyDataCount, parms, initFile, subCmdByte, sysexIndex) => {
   
   const sysexData = ['>',
     [["enc", `LM  MCRTE${sysexIndex}`], "b"],
@@ -11,7 +11,7 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
 
   const truss = {
     type: 'singlePatch',
-    id: `tx81z.${displayType}`,
+    id: `tx81z.${editorPath}`,
     bodyDataCount: bodyDataCount,
     parms: parms, 
     initFile: initFile, 
@@ -30,15 +30,15 @@ const werk = (displayType, bodyDataCount, parms, initFile, subCmdByte, sysexInde
       throttle: 100, 
       coalesce: 10, 
       param: (path, parm, value) => {
-        const key = path[0]
+        const key = pathPart(path, 0)
         var note = 0
         var fine = 0
         if (path[path.length - 1] == 'note') {
           note = Math.max(0, value)
-          fine = ['trussValues', truss, [[key, 'fine']]]
+          fine = ['e', editorPath, [key, 'fine']]
         }
         else {
-          note = ['trussValues', truss, [[key, 'note']]]
+          note = ['e', editorPath, [key, 'note']]
           fine = Math.max(0, value)
         }
         return [[patchWerk.paramData([subCmdByte, key, note, fine]), 0]]
@@ -68,8 +68,8 @@ const fullParms = [
   },
 ]
 
-const octWerk = werk("micro.oct", 24, octParms, "", 0x7d, 0)
-const fullWerk = werk("micro.full", 256, fullParms, "", 0x7e, 1)
+const octWerk = werk("micro/octave", 24, octParms, "", 0x7d, 0)
+const fullWerk = werk("micro/key", 256, fullParms, "", 0x7e, 1)
 
 module.exports = {
   octWerk: octWerk,

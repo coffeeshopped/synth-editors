@@ -29,7 +29,7 @@ const parms = [
   { prefix: 'part', count: 8, bx: 12, block: i => [
     ["voice/reserve", { b: 0, max: 8 }],
     ["voice/number", { b: 2, packIso: voiceNumberPack(i * 12 + 2 ), max: 159 }],
-    ["channel", { b: 3, opts: ((16).map(i => `${i + 1}`) + ["Omni"]) }],
+    ["channel", { b: 3, opts: (16).map(i => `${i + 1}`).concat(["Omni"]) }],
     ["note/lo", { b: 4, iso: noteIso }],
     ["note/hi", { b: 5, iso: noteIso }],
     ["detune", { b: 6, max: 14, dispOff: -7 }],
@@ -70,14 +70,14 @@ const patchChangeTransform = (patchWerk) => ({
   throttle: 30, 
   editorVal: Op4.sysexChannel,
   param: (path, parm, value) => {
-    if (path.last() == 'number') {
+    if (pathLast(path) == 'number') {
       return [
-        [patchWerk.paramData(editorVal, [parm.b - 1, value.bit(7)]), 50],
-        [patchWerk.paramData(editorVal, [parm.b, value.bits(0, 7)]), 0],
+        [patchWerk.paramData([parm.b - 1, ['bit', 7, value]]), 50],
+        [patchWerk.paramData([parm.b, ['bits', [0, 7], value]]), 0],
       ]
     }
     else {
-      return [[patchWerk.paramData(editorVal, [parm.b, bodyData[parm.b]]), 0]]
+      return [[patchWerk.paramData([parm.b, ['byte', parm.b]]), 0]]
     }
   }, 
   patch: patchWerk.sysexData, 

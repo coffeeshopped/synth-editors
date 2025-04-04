@@ -7,11 +7,11 @@ const noteLabel = i => (["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "
 const noteController = showOctave => ({
   prefix: {index: []},
   builders: [
-    ['grid', {color: 1}, [[
-      {l: "?", id: 'id'},
-      [{knob: "Note", id: 'note'}],
-      [{knob: "Fine", id: 'fine'}],
-    ]]]
+    ['grid', {color: 1}, [
+      [{l: "?", id: 'id'}],
+      [[{knob: "Note", id: 'note'}, null]],
+      [[{knob: "Fine", id: 'fine'}, null]],
+    ]]
   ], 
   effects: [
     ['indexChange', i => [
@@ -48,7 +48,9 @@ module.exports = {
   octController: ['oneRow', 12, noteController(false)],
   fullController: {
     builders: [
-      ['children', 12, "p", noteController(true), (parentI, off) => 12 * parentI + off],
+      ['children', 12, "p", noteController(true), {
+        index: (parentI, off) => 12 * parentI + off
+      }],
       ['switcher', (11).map(i => `${i-2}`), {l: "Octave", color: 1}],
     ], 
     gridLayout: [

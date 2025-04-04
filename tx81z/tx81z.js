@@ -1,11 +1,11 @@
 const Op4 = require('./op4.js')
-const Op4micro = require('./op4micro.js')
-const Perf = require('./tx81zPerf.js')
+const Op4micro = require('./op4_micro.js')
+const Perf = require('./tx81z_perf.js')
 const VCED = require('./vced.js')
 const ACED = require('./aced.js')
-const VoiceController = require('./tx81zVoiceCtrlr.js')
-const PerfController = require('./tx81zPerfCtrlr.js')
-const MicroController = require('./tx81zMicroCtrlr.js')
+const VoiceController = require('./tx81z_voice_ctrlr.js')
+const PerfController = require('./tx81z_perf_ctrlr.js')
+const MicroController = require('./tx81z_micro_ctrlr.js')
 
 const synth = "TX81Z"
 
@@ -27,7 +27,6 @@ const werkMap = [
 const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "tx81z-init", [])
 const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32, "tx81z-voice-bank-init", compactMap)
 
-const voiceBankTransform = Op4.patchBankTransform
 // 
 // const backupTruss = {
 //   type: 'backup',
@@ -70,7 +69,7 @@ const patchChangeTransform = werkMap => ({
   throttle: 100,
   editorVal: opOns,
   param: (path, parm, value) => {
-    const first = path[0]
+    const first = pathPart(path, 0)
     const isOpOn = first == 'voice' && path[path.length - 1] == 'on'
     const parmByte = isOpOn ? 93 : parm.b
     var data = [first, ['byte', parmByte]]
@@ -124,50 +123,42 @@ const editor = Object.assign(Op4.editorTrussSetup, {
     ["perf", Perf.patchTransform],
     ["micro/octave", Op4micro.octWerk.patchChangeTransform],
     ["micro/key", Op4micro.fullWerk.patchChangeTransform],
-    ["bank", {
-      type: 'wholeBank',
-      throttle: 0,
-      multiBankTruss: voiceBankTruss,
-      waitInterval: 100,
-    }],
+    ["bank", Op4.voiceBankTransform(voiceBankTruss)],
     ["bank/perf", Perf.wholeBankTransform],
   ],
   
 })
 
 
-
-const moduleTruss = {
-  editor: editor,
-  manu: "Yamaha",
-  subid: "tx81z",
-  sections: [
-    ['first', [
-      'channel',
-      ['voice', "Voice", VoiceController],
-      ['perf', PerfController.ctrlr(Perf.presetVoices)],
-      ['voice', "Micro Oct", MicroController.octController, "micro/octave"],
-      ['voice', "Micro Full", MicroController.fullController, "micro/key"],
-    ]],
-    ['banks', [
-      ['bank', "Voice Bank", "bank"],
-      ['bank', "Perf Bank", "bank/perf"],
-    ]],
-    // 'backup',
-  ],
-  dirMap: [
-    ['bank', "Voice Bank"],
-    ['micro/octave', "Micro Octave*"],
-    ['micro/key', "Micro Full*"],
-    ['bank/perf', "Perf Bank"],
-  ],
-  colorGuide: [
-    "#a2cd50",
-    "#f93d31",
-    "#00d053",
-  ],
-}
-
 module.exports = {
-  module: moduleTruss,
+  module: {
+    editor: editor,
+    manu: "Yamaha",
+    subid: "tx81z",
+    sections: [
+      ['first', [
+        'channel',
+        ['voice', "Voice", VoiceController],
+        ['perf', PerfController.ctrlr(Perf.presetVoices)],
+        ['voice', "Micro Oct", MicroController.octController, "micro/octave"],
+        ['voice', "Micro Full", MicroController.fullController, "micro/key"],
+      ]],
+      ['banks', [
+        ['bank', "Voice Bank", "bank"],
+        ['bank', "Perf Bank", "bank/perf"],
+      ]],
+      // 'backup',
+    ],
+    dirMap: [
+      ['bank', "Voice Bank"],
+      ['micro/octave', "Micro Octave*"],
+      ['micro/key', "Micro Full*"],
+      ['bank/perf', "Perf Bank"],
+    ],
+    colorGuide: [
+      "#a2cd50",
+      "#f93d31",
+      "#00d053",
+    ],
+  },
 }

@@ -1,5 +1,5 @@
 const Op4 = require('./op4.js')
-const Op4VoiceCtrlr = require('./op4voiceCtrlr.js')
+const Op4VoiceCtrlr = require('./op4_voice_ctrlr.js')
 
 const opPath = Op4VoiceCtrlr.opPath
 
