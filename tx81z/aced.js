@@ -70,5 +70,5 @@ const compactTruss = {
 module.exports = {
   patchTruss: patchTruss,
   compactTruss: compactTruss,
-  patchWerk: Op4.patchWerk(0x13, null, sysexData),
+  patchWerk: Op4.patchWerk(0x13, sysexData),
 }

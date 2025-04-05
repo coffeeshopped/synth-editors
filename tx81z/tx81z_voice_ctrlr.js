@@ -5,7 +5,6 @@ const opPath = Op4VoiceCtrlr.opPath
 
 const AllPaths = ["attack", "decay/0", "decay/1", "release", "decay/level", "level/scale", "rate/scale", "env/bias/sens", "amp/mod", "velo", "level", "coarse", "detune", "extra/wave", "extra/osc/mode", "extra/fixed/range", "extra/fine", "extra/shift"]
 
-
 const miniOpController = index => {
   const modePath = opPath(index, "extra/osc/mode")
   const rangePath = opPath(index, "extra/fixed/range")
@@ -42,30 +41,30 @@ const opController = index => {
   return {
     builders: [
       ['grid', Op4VoiceCtrlr.opItems(index, [[
-        [{t: 'checkbox', l: "On"}, "on"],
-        [{t: 'imgSelect', l: "Wave", id: "wave", w: 75, h: 64}, "extra/wave"],
-        [{t: 'switch', l: "Fixed"}, "extra/osc/mode"],
+        [{checkbox: "On"}, "on"],
+        [{imgSelect: "Wave", id: "wave", w: 75, h: 64}, "extra/wave"],
+        [{switch: "Fixed"}, "extra/osc/mode"],
       ],[
-        [{t: 'knob', l: "Range"}, "extra/fixed/range"],
-        [{t: 'knob', l: "Coarse"}, "coarse"],
-        [{t: 'knob', l: "Fine"}, "extra/fine"],
-        [{t: 'knob', l: "Detune"}, "detune"],
+        ["Range", "extra/fixed/range"],
+        ["Coarse", "coarse"],
+        ["Fine", "extra/fine"],
+        ["Detune", "detune"],
       ],[
         Op4VoiceCtrlr.envItem(index),
-        [{t: 'knob', l: "Level"}, "level"],
-        [{t: 'knob', l: "Velocity"}, "velo"],
+        ["Level", "level"],
+        ["Velocity", "velo"],
       ],[
-        [{t: 'knob', l: "Attack"}, "attack"],
-        [{t: 'knob', l: "Decay 1"}, "decay/0"],
-        [{t: 'knob', l: "Sustain"}, "decay/level"],
-        [{t: 'knob', l: "Decay 2"}, "decay/1"],
-        [{t: 'knob', l: "Release"}, "release"],
+        ["Attack", "attack"],
+        ["Decay 1", "decay/0"],
+        ["Sustain", "decay/level"],
+        ["Decay 2", "decay/1"],
+        ["Release", "release"],
       ],[
-        [{t: 'knob', l: "L Scale"}, "level/scale"],
-        [{t: 'knob', l: "Shift (dB)"}, "extra/shift"],
-        [{t: 'knob', l: "EBS"}, "env/bias/sens"],
-        [{t: 'checkbox', l: "Amp Mod"}, "amp/mod"],
-        [{t: 'knob', l: "R Scale"}, "rate/scale"],
+        ["L Scale", "level/scale"],
+        ["Shift (dB)", "extra/shift"],
+        ["EBS", "env/bias/sens"],
+        [{checkbox: "Amp Mod"}, "amp/mod"],
+        ["R Scale", "rate/scale"],
       ]])]
     ], 
     effects: [

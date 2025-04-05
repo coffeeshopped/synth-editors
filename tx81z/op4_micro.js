@@ -7,7 +7,7 @@ const werk = (editorPath, bodyDataCount, parms, initFile, subCmdByte, sysexIndex
     ['yamCmd', ['channel', 0x7e, 0x00, 0x22], "b"],
   ]
 
-  const patchWerk = Op4.patchWerk(0x10, null, sysexData)
+  const patchWerk = Op4.patchWerk(0x10, sysexData)
 
   const truss = {
     type: 'singlePatch',
@@ -43,7 +43,7 @@ const werk = (editorPath, bodyDataCount, parms, initFile, subCmdByte, sysexIndex
         }
         return [[patchWerk.paramData([subCmdByte, key, note, fine]), 0]]
       }, 
-      patch: patchWerk.sysexData,
+      patch: sysexData,
     },
   }
 }

@@ -105,7 +105,7 @@ const compactTruss = {
 }
 
 
-const createPatchWerk = (parms, compactParms) => Op4.patchWerk(0x10, patchTruss.namePack, sysexData)
+const createPatchWerk = (parms, compactParms) => Op4.patchWerk(0x10, sysexData)
 
 const patchWerk = createPatchWerk(parms, compactParms)
 

@@ -18,11 +18,6 @@ const werkMap = [
 const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "dx100-init", [])
 const voiceBankTruss = Op4.createVoiceBankTruss(patchTruss, 24,  "dx100-voice-bank-init", compactMap)
 
-t.midiOuts = [
-  ([.patch], Op4.patchChangeTransform(truss: Voice.patchTruss, map: Voice.map)),
-  ([.bank], Op4.patchBankTransform(map: Voice.map)),
-]
-
 const editor = Object.assign(Op4.editorTrussSetup, {
   name: synth,
   trussMap: [
@@ -37,7 +32,7 @@ const editor = Object.assign(Op4.editorTrussSetup, {
   ],
 
   midiOuts: [
-    ["patch", patchChangeTransform(werkMap)],
+    ["patch", Op4.patchChangeTransform(werkMap)],
     ["bank", Op4.voiceBankTransform(voiceBankTruss)],
   ],
   

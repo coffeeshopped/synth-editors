@@ -120,8 +120,6 @@ const compactParms = ([3,1,2,0]).map((op, i) => ({
 
 const sysexData = ['yamCmd', ['channel', 0x03, 0x00, 0x5d], "b"]
 
-const nameRange = [77, 87]
-
 const patchTruss = {
   type: 'singlePatch',
   id: 'tx81z.vced',
@@ -130,7 +128,7 @@ const patchTruss = {
   parseBody: 6,
   createFile: sysexData,
   parms: parms,
-  namePack: nameRange,
+  namePack: [77, 87],
   randomize: () => [
     // TODO 
     //      let algos = Self.algorithms()
@@ -176,6 +174,6 @@ const compactTruss = {
 module.exports = {
   patchTruss: patchTruss,
   compactTruss: compactTruss,
-  patchWerk: Op4.patchWerk(0x12, nameRange, sysexData),
+  patchWerk: Op4.patchWerk(0x12, sysexData),
 }
 
