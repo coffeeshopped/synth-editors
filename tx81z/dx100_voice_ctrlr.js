@@ -25,7 +25,7 @@ const miniOpController = index => {
 }
 
 const opController = index => {
-  const coarseLookup = Op4.coarseRatioLookup.map { "\($0)" }
+  const coarseLookup = Op4.coarseRatioLookup.map(x => `${x}`)
   const coarsePath = opPath(index, "coarse")
   
   return {
@@ -36,7 +36,7 @@ const opController = index => {
         ["Detune", "detune"],
         [{checkbox: "Amp Mod"}, "amp/mod"],
       ],[
-        Op4.envItem(index: index),
+        Op4VoiceCtrlr.envItem(index),
         ["Level", "level"],
         ["Velocity", "velo"],
       ],[
@@ -49,7 +49,7 @@ const opController = index => {
         ["EBS", "env/bias/sens"],
         ["Decay 2", "decay/1"],
         ["R Scale", "rate/scale"],
-      ]]])
+      ]])]
     ], 
     effects: [
       ['dimsOn', opPath(index, "on")],
@@ -61,61 +61,62 @@ const opController = index => {
   }
 }
 
-extension DX100.Voice {
-  
-  public enum Controller {
-    
-    static var controller: PatchController {
-
-      return .patch([
-        ['child', Op4.algoCtrlr(MiniOp.controller), "algo", color: 2, clearBG: true],
-        ['child', Op.controller(index: 0), "op0", color: 1],
-        ['child', Op.controller(index: 1), "op1", color: 1],
-        ['child', Op.controller(index: 2), "op2", color: 1],
-        ['child', Op.controller(index: 3), "op3", color: 1],
-        ['panel', 'algoKnob', { prefix: "voice", color: 2, }, [[
-          ["Algorithm", "algo"],
-        ],[
-          ["Feedback", "feedback"],
-          [{checkbox: "Mono"}, "poly"],
-        ]]],
-        ['panel', 'transpose', { prefix: "voice", color: 2, }, [[
-          ["transpose"],
-          ["P Bend", "bend"],
-        ],[
-          ["porta/time"],
-          [{checkbox: "Fingered"}, "porta/mode"],
-        ]]],
-        ['panel', 'lfo', { prefix: "voice", color: 2, }, [[
-          [{switsch: "LFO Wave"}, "lfo/wave"],
-          ["Speed", "lfo/speed"],
-        ],[
-          [{checkbox: "Key Sync"}, "lfo/sync"],
-          ["Pitch Depth", "pitch/mod/depth"],
-          ["Pitch Sens", "pitch/mod/sens"],
-        ],[
-          ["Delay", "lfo/delay"],
-          ["Amp Depth", "amp/mod/depth"],
-          ["Amp Sens", "amp/mod/sens"],
-        ]]],
-        ['panel', 'mods', { prefix: "voice", color: 2, }, [[
-          ["Mod→Pitch", "modWheel/pitch"],
-          ["Amp", "modWheel/amp"],
-        ],[
-          ["Foot→Volume", "foot/volume"],
-        ],[
-          ["Breath→Pitch", "breath/pitch"],
-          ["Amp", "breath/amp"],
-          ["P Bias", "breath/pitch/bias"],
-          ["EG Bias", "breath/env/bias"],
-        ]]]
-      ], layout: [
-        ['row', [["algo",5],["algoKnob",2],["transpose",2],["lfo",3],["mods",4]]],
-        ['row', [["op0",1],["op1",1],["op2",1],["op3",1]]],
-        ['col', [["algo",3],["op0",4]]],
-      ])
-    }
-    
-  }
-  
+module.exports = {
+  miniOpController,
+  opController,
+  ctrlr: {
+    builders: [
+      ['child', Op4VoiceCtrlr.algoCtrlr(miniOpController), "algo", {color: 2, clearBG: true}],
+      ['child', opController(0), "op0", { color: 1 }],
+      ['child', opController(1), "op1", { color: 1 }],
+      ['child', opController(2), "op2", { color: 1 }],
+      ['child', opController(3), "op3", { color: 1 }],
+      ['panel', 'algoKnob', { prefix: "voice", color: 2 }, [[
+        ["Algorithm", "algo"],
+      ],[
+        ["Feedback", "feedback"],
+        [{checkbox: "Mono"}, "poly"],
+      ]]],
+      ['panel', 'transpose', { prefix: "voice", color: 2, }, [[
+        ["transpose"],
+        ["P Bend", "bend"],
+      ],[
+        ["Porta Time" , "porta/time"],
+        [{checkbox: "Fingered"}, "porta/mode"],
+      ]]],
+      ['panel', 'lfo', { prefix: "voice", color: 2, }, [[
+        [{switsch: "LFO Wave"}, "lfo/wave"],
+        ["Speed", "lfo/speed"],
+      ],[
+        [{checkbox: "Key Sync"}, "lfo/sync"],
+        ["Pitch Depth", "pitch/mod/depth"],
+        ["Pitch Sens", "pitch/mod/sens"],
+      ],[
+        ["Delay", "lfo/delay"],
+        ["Amp Depth", "amp/mod/depth"],
+        ["Amp Sens", "amp/mod/sens"],
+      ]]],
+      ['panel', 'mods', { prefix: "voice", color: 2, }, [[
+        ["Mod→Pitch", "modWheel/pitch"],
+        ["Amp", "modWheel/amp"],
+        '-',
+        '-',
+      ],[
+        ["Foot→Volume", "foot/volume"],
+        '-',
+        '-',
+        '-',
+      ],[
+        ["Breath→Pitch", "breath/pitch"],
+        ["Amp", "breath/amp"],
+        ["P Bias", "breath/pitch/bias"],
+        ["EG Bias", "breath/env/bias"],
+      ]]]
+    ], 
+    layout: [
+      ['row', [["algo",5],["algoKnob",2],["transpose",2],["lfo",3],["mods",4]]],
+      ['row', [["op0",1],["op1",1],["op2",1],["op3",1]]],
+      ['col', [["algo",3],["op0",4]]],
+    ],
+  },
 }

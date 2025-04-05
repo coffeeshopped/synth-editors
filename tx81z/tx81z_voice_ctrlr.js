@@ -106,7 +106,7 @@ module.exports = {
       ["Algorithm", "algo"],
     ],[
       ["Feedback", "feedback"],
-      [{t: 'checkbox', l: "Mono"}, "poly"],
+      [{checkbox: "Mono"}, "poly"],
     ]]],
     ['panel', "transpose", { color: 2 }, [[
       ["Transpose", "voice/transpose"],
@@ -115,13 +115,13 @@ module.exports = {
       ["Reverb", "extra/reverb"],
     ],[
       ["Porta Time", "voice/porta/time"],
-      [{t: 'checkbox', l: "Fingered"}, "voice/porta/mode"],
+      [{checkbox: "Fingered"}, "voice/porta/mode"],
     ]]],
     ['panel', "lfo", { prefix: "voice", color: 2 }, [[
-      [{t: 'switch', l: "LFO Wave"}, "lfo/wave"],
+      [{switch: "LFO Wave"}, "lfo/wave"],
       ["Speed", "lfo/speed"],
     ],[
-      [{t: 'checkbox', l: "Key Sync"}, "lfo/sync"],
+      [{checkbox: "Key Sync"}, "lfo/sync"],
       ["Pitch Depth", "pitch/mod/depth"],
       ["Pitch Sens", "pitch/mod/sens"],
     ],[

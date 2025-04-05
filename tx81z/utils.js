@@ -21,6 +21,14 @@ Number.prototype.map = function(mapFn) {
   return arr
 }
 
+Number.prototype.flatMap = function(mapFn) {
+  var arr = []
+  for(let i=0; i<this; ++i) {
+    arr = arr.concat(mapFn(i))
+  }
+  return arr
+}
+
 // create a sparse array from an array of arrays.
 // each sub-array is two elements: [index, element]
 Array.sparse = (arr) => {

@@ -1,7 +1,7 @@
 const Algorithms = require('./algorithms.js')
 
 const opPathFn = i => (p => 
-  p.startsWith('extra/') ? `extra/op/${i}/` + p.substring(6) : `voice/op/${i}/` + p
+  (p && p.startsWith('extra/')) ? `extra/op/${i}/` + p.substring(6) : `voice/op/${i}/` + p
 )
 
 const opPath = (index, path) => opPathFn(index)(path)

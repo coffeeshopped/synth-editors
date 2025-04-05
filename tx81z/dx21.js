@@ -1,9 +1,9 @@
 const Op4 = require('./op4.js')
 const VCED = require('./vced.js')
-const VoiceController = require('./dx100_voice_ctrlr.js')
+const VoiceController = require('./dx21_voice_ctrlr.js')
 const TX81Z = require('./tx81z.js')
 
-const synth = "DX100"
+const synth = "DX21"
 
 const voiceMap = [
   ['voice', VCED.patchTruss],
@@ -17,8 +17,10 @@ const werkMap = [
   ["voice", VCED.patchWerk],
 ]
 
-const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "dx100-init", [])
-const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 24,  "dx100-voice-bank-init", compactMap)
+const voicePatchTruss = Op4.createVoicePatchTruss(synth, voiceMap, "dx21-voice-init", [])
+
+const voiceBankTruss = Op4.createVoiceBankTruss(voicePatchTruss, 32,  "dx21-voice-bank-init", compactMap)
+
 
 const editor = Object.assign(Op4.editorTrussSetup, {
   name: synth,
@@ -40,11 +42,12 @@ const editor = Object.assign(Op4.editorTrussSetup, {
   
 })
 
+
 module.exports = {
   module: {
     editor: editor,
     manu: "Yamaha",
-    subid: "dx100",
+    subid: "dx21",
     sections: [
       ['first', [
         'channel',

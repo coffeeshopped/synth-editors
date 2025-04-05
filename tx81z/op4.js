@@ -1,6 +1,4 @@
 require('./utils.js')
-const VCED = require('./vced.js')
-const ACED = require('./aced.js')
 
 /// Umbrella utils for TX81Z, DX100, DX21, DX11
 
@@ -94,42 +92,5 @@ module.exports = {
   createVoiceBankTruss,
   voiceBankSysexData,
   freqRatio,
-  patchChangeTransform: werkMap => ({
-    type: 'multiDictPatch',
-    throttle: 100,
-    editorVal: opOns,
-    param: (path, parm, value) => {
-      const first = pathPart(path, 0)
-      const isOpOn = first == 'voice' && path[path.length - 1] == 'on'
-      const parmByte = isOpOn ? 93 : parm.b
-      var data = [first, ['byte', parmByte]]
-      switch (first) {
-        case 'voice':
-          // TODO: opOn stuff
-          // const v = isOpOn ? opOnByte(editorVal, path[2], value) : subval
-          data.push(VCED.patchWerk.paramData([parmByte, 'b']))
-          break
-        case 'extra':
-          data.push(ACED.patchWerk.paramData([parmByte, 'b']))
-          break
-        case 'aftertouch':
-          // offset byte by 23 to get param address
-          data.push(ACED.patchWerk.paramData([parmByte + 23, 'b']))
-          break
-        default:
-          return null
-      }
-      return [[data, 0]]
-    }, 
-    patch: werkMap.map(pair => [[pair[0], pair[1].sysexData], 100]),
-    name: VCED.patchTruss.namePack.rangeMap(i => [
-      ['voice', VCED.patchWerk.paramData([i, ['byte', i]])], 10
-    ]),
-  }),
-  voiceBankTransform: (voiceBankTruss) => ({
-    type: 'wholeBank',
-    throttle: 0,
-    multiBankTruss: voiceBankTruss,
-    waitInterval: 100,
-  })
+  coarseRatioLookup,
 }
