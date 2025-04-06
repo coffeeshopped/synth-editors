@@ -1,18 +1,20 @@
+const Op4 = require('./op4.js')
 
+// TODO: I think the fwd/bkwd is wrong.
+// also, could probably generalize this kind of Iso with a name/param
+const pitchBiasPack = ['>',
+  {
+    forward: v => v < 0 ? v + 51 : v - 50, 
+    backward: b => b > 50 ? b - 51 : b + 50,
+  }, 
+  ['byte', 86],
+]
 
-const pitchBiasPack = {
-  let iso = Iso<Int,Int>(forward: {
-    $0 < 0 ? $0 + 51 : $0 - 50
-  }, backward: {
-    $0 > 50 ? $0 - 51 : $0 + 50
-  })
-  return iso >>> PackIso.byte(86)
-}()
 
 const parms = [
   { inc: 1, b: 0, block: [
     ['aftertouch/pitch', { max: 99 }],
-    ['aftertouch/amp', { max: 99 }],
+    ['aftertouch/amp', { max: 99 }], 
     ['aftertouch/pitch/bias', { max: 100, dispOff: -50 }],
     ['aftertouch/env/bias', { max: 99 }],
   ] },

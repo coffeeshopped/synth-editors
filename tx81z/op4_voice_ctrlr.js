@@ -90,11 +90,40 @@ const envPathFn = values => {
   return cmds
 }
 
+const pitch = {
+  prefix: {fixed: "voice/pitch/env" }, 
+  builders: [
+    ['grid', [[
+      {
+        display: 'rateLevelEnv',
+        pointCount: 3,
+        sustain: 999,
+        bipolar: true,
+        l: "Pitch",
+        maps: (3).flatMap(i => [
+          ['u', ['rate', i], 99],
+          ['src', ["level", i], v => (v - 50) / 50],
+        ]),
+        id: "env"
+      }
+      ],[
+      ["R1", "rate/0"],
+      ["R2", "rate/1"],
+      ["R3", "rate/2"],
+      ],[
+      ["L1", "level/0"],
+      ["L2", "level/1"],
+      ["L3", "level/2"],
+    ]]]
+  ],
+}
+
 module.exports = {
-  opPath: opPath,
-  opPaths: opPaths,
-  opItems: opItems,
-  envItem: envItem,
+  pitch,
+  opPath,
+  opPaths,
+  opItems,
+  envItem,
   algoCtrlr: miniOp => ['fm', Algorithms.algorithms, miniOp, {
     algo: 'voice/algo',
   }],

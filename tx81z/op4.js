@@ -4,48 +4,6 @@ require('./utils.js')
 
 // const algorithms = Op4.VCED.algorithms()
 
-const editorTrussSetup = {
-  extraParamOuts: [
-    ["perf", ['bankNames', 'bank', 'patch/name', (i, name) => `I${i + 1}. ${name}` ]]
-  ],
-  extraValues: [
-    ["patch", (4).map((i) => [["voice", "op", i, "on"], 1])],
-  ],
-  // when a new voice patch is pushed or replaced, reset op on values all to 1
-  commandEffects: [
-    ['patchPushReplaceChange', "patch", (4).map((i) => [["voice", "op", i, "on"], 1])],
-  ],
-  midiChannels: [
-    ["patch", 'basic'],
-    ["micro/octave", 'basic'],
-    ["micro/key", 'basic'],
-  ],
-}
-  
-
-const createVoicePatchTruss = (synthName, map, initFile, validSizes) => ({
-  type: 'multiPatch',
-  id: `${synthName}.voice`,
-  trussMap: map,
-  namePath: "voice",
-  initFile: initFile,
-  validSizes: validSizes,
-  includeFileDataCount: true,
-})
-
-const createVoiceBankTruss = (patchTruss, patchCount, initFile, compactTrussMap) => ({
-  type: 'compactMultiBank',
-  patchTruss: patchTruss, 
-  patchCount: patchCount, 
-  initFile: initFile,
-  fileDataCount: 4104,
-  compactTrussMap: compactTrussMap,
-  createFile: voiceBankSysexData,
-  parseBody: 6, 
-})
-
-const voiceBankSysexData = ['yamCmd', ['channel', 0x04, 0x20, 0x00]]
-
 const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
 
 const fetchWithHeader = header => fetch([0x7e, ['enc', `LM  ${header}`]])
@@ -86,11 +44,6 @@ module.exports = {
   fetchWithHeader,
   paramData,
   patchWerk,
-  // microSysexMap,
-  editorTrussSetup,
-  createVoicePatchTruss,
-  createVoiceBankTruss,
-  voiceBankSysexData,
   freqRatio,
   coarseRatioLookup,
 }
