@@ -32,7 +32,7 @@ const opController = index => {
     builders: [
       ['grid', Op4VoiceCtrlr.opItems(index, [[
         [{checkbox: "On"}, "on"],
-        [{knob: "Coarse", id: coarsePath}, null],
+        [{knob: "Ratio", id: coarsePath}, null],
         ["Detune", "detune"],
         [{checkbox: "Amp Mod"}, "amp/mod"],
       ],[
@@ -53,7 +53,9 @@ const opController = index => {
     ], 
     effects: [
       ['dimsOn', opPath(index, "on")],
-      ['ctrlBlocks', opPath(index, "coarse"), {opts: coarseLookup}],
+      ['ctrlBlocks', opPath(index, "coarse"), {
+        parm: { opts: coarseLookup }
+      }],
       ['editMenu', "env", {
         paths: Op4VoiceCtrlr.opPaths(index, ["attack", "decay/0", "decay/1", "decay/level", "release"]), type: "TX81ZEnvelope",
       }],

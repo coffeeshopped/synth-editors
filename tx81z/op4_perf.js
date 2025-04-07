@@ -35,12 +35,6 @@ const createBankTruss = (patchCount, patchTruss, compactTruss) => ({
   parseBody: 16,
 })
 
-const wholeBankTransform = bankTruss => ({
-  type: 'wholeBank',
-  singleBankTruss: bankTruss,
-  waitInterval: 100,
-})
-
 const patchTransform = {
   type: 'singlePatch',
   throttle: 30, 
@@ -71,7 +65,7 @@ const setup = config => {
     bankTruss,
     presetVoices: config.presetVoices,
     patchTransform,
-    bankTransform: wholeBankTransform(bankTruss),
+    bankTransform: bankTruss,
   }
 }
 

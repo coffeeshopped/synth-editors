@@ -45,7 +45,7 @@ const patchTransform = keys => ({
   editorVal: opOns,
   param: (path, parm, value) => {
     const first = pathPart(path, 0)
-    const isOpOn = first == 'voice' && path[path.length - 1] == 'on'
+    const isOpOn = first == 'voice' && pathLast(path) == 'on'
     const parmByte = isOpOn ? 93 : parm.b
     var data = [first, ['byte', parmByte]]
     switch (first) {
@@ -70,13 +70,6 @@ const patchTransform = keys => ({
   name: VCED.patchTruss.namePack.rangeMap(i => [
     ['voice', VCED.patchWerk.paramData([i, ['byte', i]])], 10
   ]),
-})
-
-const bankTransform = (voiceBankTruss) => ({
-  type: 'wholeBank',
-  throttle: 0,
-  multiBankTruss: voiceBankTruss,
-  waitInterval: 100,
 })
 
 const setup = (config) => {

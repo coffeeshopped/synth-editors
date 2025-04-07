@@ -45,5 +45,6 @@ module.exports = {
   paramData,
   patchWerk,
   freqRatio,
+  coarseRatio,
   coarseRatioLookup,
 }

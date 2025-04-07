@@ -59,6 +59,7 @@ const editorTruss = (name, voice, perf, fetchTransforms) => {
     name: name,
     trussMap: trussMap,
     fetchTransforms: fetchTransforms,
+    midiOuts: midiOuts,
     extraParamOuts: [
       ["perf", ['bankNames', 'bank', 'patch/name', (i, name) => `I${i + 1}. ${name}` ]]
     ],
@@ -80,7 +81,7 @@ const editorTruss = (name, voice, perf, fetchTransforms) => {
 const moduleTruss = (editor, subid, voiceCtrlr, perf, colorGuide) => {
   const firstSection = ['first', [
     'channel',
-    ['voice', "Voice", voiceCtrlr],
+    ['voice', "Voice", voiceCtrlr.ctrlr],
   ]]
   const banks = ['banks', [
     ['bank', "Voice Bank", "bank"],

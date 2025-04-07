@@ -1,6 +1,6 @@
 {
   "name": "op4",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Yamaha TX81Z",
   "api": 1,
   "modules": [
@@ -9,6 +9,24 @@
       "manufacturer": "Yamaha",
       "model": "TX81Z",
       "module": "tx81z.js"
+    },
+    {
+      "name": "dx100",
+      "manufacturer": "Yamaha",
+      "model": "DX100",
+      "module": "dx100.js"
+    },
+    {
+      "name": "dx11",
+      "manufacturer": "Yamaha",
+      "model": "DX11",
+      "module": "dx11.js"
+    },
+    {
+      "name": "dx21",
+      "manufacturer": "Yamaha",
+      "model": "DX21",
+      "module": "dx21.js"
     }
   ]
 }

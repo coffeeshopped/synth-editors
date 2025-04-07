@@ -15,7 +15,8 @@ const opItems = (index, items) => {
   const p = opPathFn(index)
   return items.map(item => item.map(x => {
     // don't process env display
-    if (x.env) { return x }
+    // if path is null, don't process
+    if (x.env || !x[1]) { return x }
     
     var cfg = x[0]
     const path = x[1]
