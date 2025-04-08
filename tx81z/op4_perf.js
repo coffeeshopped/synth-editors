@@ -38,7 +38,6 @@ const createBankTruss = (patchCount, patchTruss, compactTruss) => ({
 const patchTransform = {
   type: 'singlePatch',
   throttle: 30, 
-  editorVal: Op4.sysexChannel,
   param: (path, parm, value) => {
     if (pathLast(path) == 'number') {
       return [
