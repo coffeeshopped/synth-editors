@@ -87,7 +87,6 @@ const envPathFn = values => {
     ['scale', 1, level]
   )
   
-  
   return cmds
 }
 

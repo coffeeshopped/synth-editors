@@ -23,17 +23,31 @@ const createCompactTruss = compactParms => ({
   parms: compactParms,
 })
 
-const createBankTruss = (patchCount, patchTruss, compactTruss) => ({
-  type: 'compactSingleBank',
-  patchTruss: patchTruss,
-  patchCount: patchCount,
-  paddedPatchCount: 32,
-  initFile: "",
-  fileDataCount: 2450, 
-  compactTruss: compactTruss, 
-  createFile: ['yamCmd', ['channel', 0x7e, 0x13, 0x0a], [['enc', "LM  8976PM"], 'b']],
-  parseBody: 16,
-})
+const createBankTruss = (patchCount, patchTruss, compactTruss) => {
+  // if patchCount < 32, need to add padding 0's
+  // banks always hold 32 patches, even on the synths that only have 24 "real" patches
+  const patchPad = 32 - patchCount
+  const padData = (compactTruss.bodyDataCount * patchPad).map(i => 0)
+  return {
+    type: 'compactSingleBank',
+    patchTruss: patchTruss,
+    patchCount: patchCount,
+    fileDataCount: 2450, 
+    createFile: {
+      wrapper: ['>',
+        ['b', padData],
+        ['yamCmd', ['channel', 0x7e, 0x13, 0x0a], [['enc', "LM  8976PM"], 'b']]
+      ],
+      patchBodyTransform: ['trussTransform', { from: patchTruss, to: compactTruss }],
+    },
+    parseBody: {
+      offset: 16,
+      patchByteCount: compactTruss.bodyDataCount,
+      patchBodyTransform: ['trussTransform', { from: compactTruss, to: patchTruss }],
+    },
+  }
+}
+
 
 const patchTransform = {
   type: 'singlePatch',

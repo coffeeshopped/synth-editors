@@ -79,14 +79,14 @@ module.exports = {
         ["Feedback", "feedback"],
         [{checkbox: "Mono"}, "poly"],
       ]]],
-      ['panel', 'transpose', { prefix: "voice", color: 2, }, [[
+      ['panel', 'transpose', { prefix: "voice", color: 2 }, [[
         ["transpose"],
         ["P Bend", "bend"],
       ],[
         ["Porta Time" , "porta/time"],
         [{checkbox: "Fingered"}, "porta/mode"],
       ]]],
-      ['panel', 'lfo', { prefix: "voice", color: 2, }, [[
+      ['panel', 'lfo', { prefix: "voice", color: 2 }, [[
         [{switsch: "LFO Wave"}, "lfo/wave"],
         ["Speed", "lfo/speed"],
       ],[
@@ -98,7 +98,7 @@ module.exports = {
         ["Amp Depth", "amp/mod/depth"],
         ["Amp Sens", "amp/mod/sens"],
       ]]],
-      ['panel', 'mods', { prefix: "voice", color: 2, }, [[
+      ['panel', 'mods', { prefix: "voice", color: 2 }, [[
         ["Mod→Pitch", "modWheel/pitch"],
         ["Amp", "modWheel/amp"],
         '-',
