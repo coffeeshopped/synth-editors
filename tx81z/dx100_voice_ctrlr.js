@@ -12,8 +12,8 @@ const miniOpController = index => {
   return Op4VoiceCtrlr.miniOpController(index, ['patchChange', {
     paths: [coarsePath, detunePath], 
     fn: values => {
-      const coarse = values[coarsePath]
-      const detune = values[detunePath]
+      const coarse = values[coarsePath] || 0
+      const detune = values[detunePath] || 0
       const detuneOff = detune - 3
       const detuneString = (detuneOff == 0 ? "" : detuneOff < 0 ? detuneOff : `+${detuneOff}`)
   

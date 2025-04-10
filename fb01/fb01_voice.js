@@ -25,13 +25,6 @@ const FB01 = require('./fb01.js')
 //    set(value: 0, forParameterKey: "Op\(randomOut)Fine")
 //  }
   
-
-const freqRatio = (coarse, fine) => {
-  const c = coarse == 0 ? 0.5 : coarse
-  const f = fine < 4 ? ([1, 1.41, 1.57, 1.73])[fine] : 1
-  return c * f
-}
-
 const levelScaleTypePack = (byte) => ['splitter', [
   {
     byte: byte,

@@ -63,59 +63,68 @@ const envItem = {
   id: 'env',
 }
 
+const OpPaths = ['level', 'level/scale/type', 'velo', 'level/scale', 'level/adjust', 'detune', 'coarse', 'rate/scale', 'attack', 'amp/mod', 'attack/velo', 'decay/0', 'fine', 'decay/1', 'decay/level', 'release']
+
+const freqRatio = (coarse, fine) => {
+  const c = coarse == 0 ? 0.5 : coarse
+  const f = fine < 4 ? ([1, 1.41, 1.57, 1.73])[fine] : 1
+  return c * f
+}
+
 const miniOpController = {
-
-  let paths: [SynthPath] = parms.paths.compactMap {
-    guard $0.starts(with: "op/0") else { return nil }
-    return $0.subpath(from: 2)
-  }
-
-  return .patch(prefix: .index("op"), [
-    .items(color: 1, [
-      (envItem(), "env"),
-      (.label("?", align: .leading, size: 11, id: "op"), "op"),
-      (.label("x", align: .trailing, size: 11, bold: false, id: "osc/mode"), "freq"),
-    ])
-  ], effects: [
-    .patchChange(paths: ["coarse", "fine"], { values in
-      guard let coarse = values["coarse"],
-            let fine = values["fine"] else { return [] }
-      return [
-        ['setCtrlLabel', "osc/mode", String(format: "%2.2f", freqRatio(coarse: coarse, fine: fine))],
-      ]
-    }),
-    ['dimsOn', "on", id: nil],
-    ['editMenu', "env", paths: paths, type: "FB01Op", init: nil, rand: nil],
-    .indexChange({ [['setCtrlLabel', "op", "\(4 - $0)")] }],
-  ], layout: [
+  prefix: { index: "op" }, 
+  builders: [
+    ['items', {color: 1}, [
+      [envItem, "env"],
+      [{l: "?", align: 'leading', size: 11, id: "op"}, "op"],
+      [{l: "x", align: 'trailing', size: 11, bold: false, id: "osc/mode"}, "freq"],
+    ]]
+  ], 
+  effects: [
+    ['patchChange', {
+      paths: ["coarse", "fine"], 
+      fn: values => {
+        const coarse = values['coarse'] || 0
+        const detune = values['fine'] || 0
+        return [['setCtrlLabel', "osc/mode", freqRatio(coarse, fine)]]
+      }
+    }],
+    ['dimsOn', "on"],
+    ['indexChange', v => ['setCtrlLabel', 'op', `${4 - v}`]],
+    ['editMenu', "env", {
+      paths: OpPaths, 
+      type: "FB01Op",
+    }],
+  ], 
+  layout: [
     ['row', [["op",1],["freq",4]]],
     ['row', [["env",1]]],
-    .colFixed(["op", "env"], fixed: "op", height: 11, spacing: 2),
-  ])
+    ['colFixed', ["op", "env"], { fixed: "op", height: 11, spacing: 2 }],
+  ],
 }
 
 
-
 const opController = {
-  return .patch(prefix: .index("op"), [
-    .grid(color: 1, [[
-      "Ratio", nil, id: "ratio",
+  prefix: {index: "op"}, 
+  builders: [
+    ['grid', {color: 1}, [[
+      [{switch: "Ratio", id: "ratio"}, null],
       ["Coarse", "coarse"],
       ["Fine", "fine"],
       ["Detune", "detune"],
     ],[
-      ["Level", nil, id: "level"],
+      [{knob: "Level", id: "level"}, null],
       ["Velocity", "velo"],
       [{checkbox: "Amp Mod"}, "amp/mod"],
       ["L Adjust", "level/adjust"],
     ],[
-      ["Velo(A]", "attack/velo"),
-      envItem(),
+      ["Velo(A)", "attack/velo"],
+      envItem,
       [{checkbox: "On"}, "on"],
     ],[
       ["Attack", "attack"],
       ["Decay 1", "decay/0"],
-      ["Sustain", nil, id: "decay/level"],
+      [{knob: "Sustain", id: "decay/level"}, null],
       ["Release", "release"],
     ],[
       ["L Scale", "level/scale"],
@@ -123,28 +132,31 @@ const opController = {
       ["Decay 2", "decay/1"],
       ["R Scale", "rate/scale"],
     ]]]
-  ], effects: [
-    ['dimsOn', "on", id: nil],
-    .indexChange({ [['setCtrlLabel', "env", "\(4 - $0)")] }],
-    .patchChange(paths: ["coarse","fine"], { values in
-      guard let coarse = values["coarse"],
-        let fine = values["fine"] else { return [] }
-      return [
-        .configCtrl("ratio", .opts(ParamOptions(optArray: [
-          String(format: "%2.2f", freqRatio(coarse: coarse, fine: fine)),
-        ]))),
-      ]
-    }),
-    .editMenu("env", paths: [
-      "attack",
-      "decay/0",
-      "decay/1",
-      "decay/level",
-      "release",
-    ], type: "FB01Envelope", init: nil, rand: nil),
+  ], 
+  effects: [
+    ['dimsOn', "on"],
+    ['ctrlBlocks', "level", {
+      value: v => 127 - v, 
+      cc: v => 127 - v,
+    }],
+    ['ctrlBlocks', "decay/level", {
+      value: v => 15 - v, 
+      cc: v => 15 - v,
+    }],
+    ['indexChange', i => [['setCtrlLabel', "env", `${4 - i}`]]],
+    ['patchChange', {
+      paths: ["coarse","fine"], 
+      fn: values => {
+        const coarse = values['coarse'] || 0
+        const detune = values['fine'] || 0
+        return [['configCtrl', "ratio", { opts: [`${freqRatio(coarse, fine)}`] }]]
+      }
+    }],
+    ['editMenu', "env", {
+      paths: ["attack", "decay/0", "decay/1", "decay/level", "release"], 
+      type: "FB01Envelope",
+    }],
   ]
-                + .ctrlBlocks("level", value: { 127 - $0 }, cc: { 127 - $0 })
-                + .ctrlBlocks("decay/level", value: { 15 - $0 }, cc: { 15 - $0 }))
 }
 
 const algo = ['fm', Algorithms.algorithms, miniOpController, { algo: 'algo' }]
@@ -152,19 +164,22 @@ const algo = ['fm', Algorithms.algorithms, miniOpController, { algo: 'algo' }]
 module.exports = {
   builders: [
     ['child', algo, "algo", {color: 2, clearBG: true}],
-    ['children', 4, "op", color: 1, Op.controller, indexFn: { p, offset in 3 - offset }],
-    ['panel', 'algoKnob', { color: 2, }, [[
+    ['children', 4, "op", opController, {
+      color: 1,
+      indexFn: (p, offset) => 3 - offset,
+    }],
+    ['panel', 'algoKnob', { color: 2 }, [[
       ["Algorithm", "algo"],
     ],[
       ["Feedback", "feedback"],
       [{checkbox: "Mono"}, "poly"],
     ]]],
-    .panel("transpose", color: 2, [
-      `knob("Transpose"/${[.transpose}`)],
-      `knob("P Bend"/${[.bend}`)],
-      `knob("Porta Time"/${[.porta}`)],
-    ]),
-    ['panel', 'lfo', { color: 2, }, [[
+    ['panel', "transpose", {color: 2}, [
+      ["Transpose", 'transpose'],
+      ["P Bend", 'bend'],
+      ["Porta Time", 'porta'],
+    ]],
+    ['panel', 'lfo', { color: 2 }, [[
       [{checkbox: "LFO Load"}, "lfo/load"],
       [{select: "LFO Wave"}, "lfo/wave"],
       ["Speed", "lfo/speed"],
@@ -177,10 +192,10 @@ module.exports = {
       ["Amp Depth", "amp/mod/depth"],
       ["Amp Sens", "amp/mod/sens"],
     ]]],
-  ], effects: [
-  ], layout: [
+  ], 
+  layout: [
     ['row', [["algo",5],["algoKnob",2],["transpose",1],["lfo",4]]],
     ['row', [["op0",1], ["op1",1], ["op2",1], ["op3",1]]],
     ['col', [["algo",3],["op0",5]]],
-  ]
+  ],
 }
