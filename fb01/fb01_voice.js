@@ -1,5 +1,4 @@
-const FB01 = require('./fb01.js')
-
+require('./utils.js')
 //  override func randomize() {
 //    super.randomize()
 //    let algoIndex = value("Algorithm")!
@@ -106,27 +105,6 @@ const patchTruss = {
   ],
 }
 
-const paramData = (instrument, paramAddress) => 
-  FB01.paramData(instrument, [
-    0x40 + paramAddress,
-    // grab data from the patch rather than a passed value,
-    // because a byte can contain multiple param values.
-    ['bits', [0, 3], ['byte', paramAddress]],
-    ['bits', [4, 7], ['byte', paramAddress]],
-  ])
-
-  
-const patchTransform = (instrument) => ({
-  type: 'singlePatch',
-  throttle: 30,
-  param: (path, parm, value) =>
-    [paramData(instrument, parm.b), 10]
-  ,
-  patch: sysexData(instrument),
-  name: patchTruss.namePack.rangeMap(i => [
-    paramData(instrument, i), 10
-  ]),
-})
 
 // offset of 74 is from:
 // 7 bytes in header
@@ -143,7 +121,7 @@ const bankTruss = (bank) => ({
       'nibblizeLSB',
       [0x01, 0x00, 'b' ['yamChk', 'b']],
     ],
-  } 
+  },
   parseBody: {
     offset: 74,
     patchByteCount: 131,
@@ -154,14 +132,10 @@ const bankTruss = (bank) => ({
   },
 })
 
-// 
-// static func transform(bank: Int) -> MidiTransform {
-//   .single(throttle: 30, sysexChannel, .wholeBank({ editorVal, bodyData in
-//     [(.sysex(sysexData(bodyData, channel: editorVal, bank: bank)), 10)]
-//   }))
-// }
-
-module.exports {
+module.exports = {
+  patchTruss,
+  bankTruss,
+  sysexData,
   lfoWaveOptions,
   ctrlOptions,
 }
