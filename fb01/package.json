@@ -1,0 +1,14 @@
+{
+  "name": "fb01",
+  "version": "0.0.1",
+  "description": "Yamaha FB-01",
+  "api": 1,
+  "modules": [
+    {
+      "name": "fb01",
+      "manufacturer": "Yamaha",
+      "model": "FB-01",
+      "module": "fb01.js"
+    }
+  ]
+}

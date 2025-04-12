@@ -32,7 +32,7 @@ const partController = ['index', "part", "part", i => `${i + 1}`, {
       ["Porta", "porta"],
     ],[
       ["Bend", "bend"],
-      [{checkbox: "mono"}, "Mono"],
+      [{checkbox: "Mono"}, "mono"],
     ],[
       [{select: "Pitch Ctrl"}, "pitch/mod/depth/ctrl"],
       { l: "?", id: "part", width: 1 },

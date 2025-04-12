@@ -52,7 +52,7 @@ const envPathFn = values => {
 const envItem = {
   env: envPathFn,
   l: "",
-  map: [
+  maps: [
     ['u', "attack", 31],
     ['u', "decay/0", 31],
     ['u', "decay/1", 31],
@@ -85,8 +85,8 @@ const miniOpController = {
       paths: ["coarse", "fine"], 
       fn: values => {
         const coarse = values['coarse'] || 0
-        const detune = values['fine'] || 0
-        return [['setCtrlLabel', "osc/mode", freqRatio(coarse, fine)]]
+        const fine = values['fine'] || 0
+        return [['setCtrlLabel', "osc/mode", `${freqRatio(coarse, fine)}`]]
       }
     }],
     ['dimsOn', "on"],
@@ -148,7 +148,7 @@ const opController = {
       paths: ["coarse","fine"], 
       fn: values => {
         const coarse = values['coarse'] || 0
-        const detune = values['fine'] || 0
+        const fine = values['fine'] || 0
         return [['configCtrl', "ratio", { opts: [`${freqRatio(coarse, fine)}`] }]]
       }
     }],
@@ -162,40 +162,44 @@ const opController = {
 const algo = ['fm', Algorithms.algorithms, miniOpController, { algo: 'algo' }]
 
 module.exports = {
-  builders: [
-    ['child', algo, "algo", {color: 2, clearBG: true}],
-    ['children', 4, "op", opController, {
-      color: 1,
-      indexFn: (p, offset) => 3 - offset,
-    }],
-    ['panel', 'algoKnob', { color: 2 }, [[
-      ["Algorithm", "algo"],
-    ],[
-      ["Feedback", "feedback"],
-      [{checkbox: "Mono"}, "poly"],
-    ]]],
-    ['panel', "transpose", {color: 2}, [
-      ["Transpose", 'transpose'],
-      ["P Bend", 'bend'],
-      ["Porta Time", 'porta'],
-    ]],
-    ['panel', 'lfo', { color: 2 }, [[
-      [{checkbox: "LFO Load"}, "lfo/load"],
-      [{select: "LFO Wave"}, "lfo/wave"],
-      ["Speed", "lfo/speed"],
-    ],[
-      [{checkbox: "Key Sync"}, "lfo/sync"],
-      ["Pitch Depth", "pitch/mod/depth"],
-      ["Pitch Sens", "pitch/mod/sens"],
-    ],[
-      [{select: "PMD Ctrl"}, "pitch/mod/depth/ctrl"],
-      ["Amp Depth", "amp/mod/depth"],
-      ["Amp Sens", "amp/mod/sens"],
-    ]]],
-  ], 
-  layout: [
-    ['row', [["algo",5],["algoKnob",2],["transpose",1],["lfo",4]]],
-    ['row', [["op0",1], ["op1",1], ["op2",1], ["op3",1]]],
-    ['col', [["algo",3],["op0",5]]],
-  ],
+  ctrlr: {
+    builders: [
+      ['child', algo, "algo", {color: 2, clearBG: true}],
+      ['children', 4, "op", opController, {
+        color: 1,
+        indexFn: (p, offset) => 3 - offset,
+      }],
+      ['panel', 'algoKnob', { color: 2 }, [[
+        ["Algorithm", "algo"],
+      ],[
+        ["Feedback", "feedback"],
+        [{checkbox: "Mono"}, "poly"],
+      ]]],
+      ['panel', "transpose", {color: 2}, [[
+        ["Transpose", 'transpose'],
+      ],[
+        ["P Bend", 'bend'],
+      ],[
+        ["Porta Time", 'porta'],
+      ]]],
+      ['panel', 'lfo', { color: 2 }, [[
+        [{checkbox: "LFO Load"}, "lfo/load"],
+        [{select: "LFO Wave"}, "lfo/wave"],
+        ["Speed", "lfo/speed"],
+      ],[
+        [{checkbox: "Key Sync"}, "lfo/sync"],
+        ["Pitch Depth", "pitch/mod/depth"],
+        ["Pitch Sens", "pitch/mod/sens"],
+      ],[
+        [{select: "PMD Ctrl"}, "pitch/mod/depth/ctrl"],
+        ["Amp Depth", "amp/mod/depth"],
+        ["Amp Sens", "amp/mod/sens"],
+      ]]],
+    ], 
+    layout: [
+      ['row', [["algo",5],["algoKnob",2],["transpose",1],["lfo",4]]],
+      ['row', [["op0",1], ["op1",1], ["op2",1], ["op3",1]]],
+      ['col', [["algo",3],["op0",5]]],
+    ],
+  },
 }
