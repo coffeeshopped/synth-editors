@@ -47,9 +47,9 @@ const parms = [
   ['ctrl/channel', { b: 0x20, opts: 17.map { $0 == 16 ? "Off" : "\($0+1)" } }],
 ]
 
-const patchWerk = {
+const patchWerk = (config) => ({
   single: "Global",
-  parms: parms, 
-  size: 0x21, 
-  initFile: "jv880-global",
-}
+  parms: parms.concat(config.extraParms), 
+  size: config.size, 
+  initFile: config.initFile,
+})

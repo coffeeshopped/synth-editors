@@ -1,8 +1,4 @@
 
-const patchWerk = JV8X.Voice.patchWerk(tone: Tone.patchWerk)
-
-const bankWerk = JV8X.Voice.bankWerk(patchWerk)
-
 //      override class func startAddress(_ path: SynthPath?) -> RolandAddress {
 //        return (path?.endex ?? 0) == 0 ? 0x01402000 : 0x02402000
 //      }
@@ -158,26 +154,63 @@ const toneParms = [
   ['reverb', { b: 0x71 }],
   ['chorus', { b: 0x72 }],
 ]  
+
+
+const werks = (config) => {
+  const tone = {
+    single: "Voice Tone", 
+    parms: toneParms.concat(config.extraParms), 
+    size: config.size,
+    randomize: () => [
+      ["on", 1],
+      ["wave/group", 0],
+      ["delay/mode", 0],
+      ["delay/time", 0],
+      ["tone/level", 127],
+      ["pan", 64],
+      ["random/pitch", 0],
+      ["pitch/keyTrk", 12],
+      ["pitch/env/depth", 64],
+      ["velo/range/lo", 1],
+      ["velo/range/hi", 127],
+      ["out/assign", 0],
+    ]
+  }
   
-const tonePatchWerk = {
-  single: "Voice Tone", 
-  parms: toneParms, 
-  size: 0x73,
-  randomize: () => [
-    ["on", 1],
-    ["wave/group", 0],
-    ["delay/mode", 0],
-    ["delay/time", 0],
-    ["tone/level", 127],
-    ["pan", 64],
-    ["random/pitch", 0],
-    ["pitch/keyTrk", 12],
-    ["pitch/env/depth", 64],
-    ["velo/range/lo", 1],
-    ["velo/range/hi", 127],
-  ]
+  const patch = {
+    multi: "Voice",
+    map: [
+      ['common', 0x0000, commonPatchWerk],
+      ['tone/0', 0x0800, tone],
+      ['tone/1', 0x0900, tone],
+      ['tone/2', 0x0a00, tone],
+      ['tone/3', 0x0b00, tone],
+    ],
+    initFile: "jv880-voice",
+  }
+  
+  return {
+    patch: patch,
+    bank: {
+      multiBank: patch,
+      patchCount: 64,
+      initFile: "jv880-voice-bank", 
+      iso: .init(address: {
+        RolandAddress([$0, 0, 0])
+      }, location: {
+        // have to do this because the address passed here is an absolute address, not an offset
+        // whereas above in "address:", we are creating an offset address
+        $0.sysexBytes(count: 4)[1] - 0x40
+      }),
+    },
+  }
 }
-    
+
+
   //      static func isValid(fileSize: Int) -> Bool {
   //        return fileSize == fileDataCount || fileSize == fileDataCount + 1 // allow for JV-880 patches
   //      }
+  
+  module.exports = {
+    werks,
+  }
