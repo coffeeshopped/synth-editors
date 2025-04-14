@@ -7,6 +7,18 @@
 //      return Int(addressBytes(forSysex: data)[1]) - 0x40
 //    }
 
+/// MSB first. lower 4 bits of each byte used
+// 2 bytes per value
+const multiPack = (byte) => ['splitter', (2).map(i => {
+  let loValBit = (2 - (i + 1)) * 4
+  let hiValBit = loValBit + 3
+  return {
+    byte: (byte + i), // RolandAddress(intValue: i)).intValue(), 
+    byteBits: [0, 4], 
+    valueBits: [loValBit, hiValBit + 1],
+  }
+})]
+
 const chorusTypes = ["Chorus 1", "Chorus 2", "Chorus 3"]
 const chorusOuts = ["Mix", "Reverb"]
 const reverbTypes = ["Room 1","Room 2","Stage 1","Stage 2","Hall 1","Hall 2","Delay","Pan Delay"]
@@ -59,13 +71,13 @@ const pitchKeyfollowOptions = ["-100", "-70", "-50", "-30", "-10", "0", "10", "2
 
 const veloTSens = ["-100", "-70", "-50", "-40", "-30", "-20", "-10", "0", "10", "20", "30", "40", "50", "70", "100"]
 
-const blankWaveOptions = (1...255).map { "\($0)" }
+const blankWaveOptions = (255).map(i => `${i+1}`)
 
 const waveOptions = ["1: Ac Piano 1", "2: SA Rhodes 1", "3: SA Rhodes 2", "4: E.Piano 1", "5: E.Piano 2", "6: Clav 1", "7: Organ 1", "8: Jazz Organ", "9: Pipe Organ", "10: Nylon GTR", "11: 6STR GTR", "12: GTR HARM", "13: Mute GTR 1", "14: Pop Strat", "15: Stratus", "16: SYN GTR", "17: Harp 1", "18: SYN Bass", "19: Pick Bass", "20: E.Bass", "21: Fretless 1", "22: Upright BS", "23: Slap Bass 1", "24: Slap & Pop", "25: Slap Bass 2", "26: Slap Bass 3", "27: Flute 1", "28: Trumpet 1", "29: Trombone 1", "30: Harmon Mute1", "31: Alto Sax 1", "32: Tenor Sax 1", "33: French 1", "34: Blow Pipe", "35: Bottle", "36: Trumpet SECT", "37: ST.Strings-A", "38: ST.Strings-L", "39: Mono Strings", "40: Pizz", "41: SYN VOX 1", "42: SYN VOX 2", "43: Male Ooh", "44: ORG VOX", "45: VOX Noise", "46: Soft Pad", "47: JP Strings", "48: Pop Voice", "49: Fine Wine", "50: Fantasynth", "51: Fanta Bell", "52: ORG Bell", "53: Agogo", "54: Bottle Hit", "55: Vibes", "56: Marimba wave", "57: Log Drum", "58: DIGI Bell 1", "59: DIGI Chime", "60: Steel Drums", "61: MMM VOX", "62: Spark VOX", "63: Wave Scan", "64: Wire String", "65: Lead Wave", "66: Synth Saw 1", "67: Synth Saw 2", "68: Synth Saw 3", "69: Synth Square", "70: Synth Pulse1", "71: Synth Pulse2", "72: Triangle", "73: Sine", "74: ORG Click", "75: White Noise", "76: Wind Agogo", "77: Metal Wind", "78: Feedbackwave", "79: Anklungs", "80: Wind Chimes", "81: Rattles", "82: Tin Wave", "83: Spectrum 1", "84: 808 SNR 1", "85: 90's Snare", "86: Piccolo SN", "87: LA Snare", "88: Whack Snare", "89: Rim Shot", "90: Bright Kick", "91: Verb Kick", "92: Round Kick", "93: 808 Kick", "94: Closed HAT 1", "95: Closed HAT 2", "96: Open HAT 1", "97: Crash 1", "98: Ride 1", "99: Ride Bell 1", "100: Power Tom Hi", "101: Power Tom Lo", "102: Cross Stick1", "103: 808 Claps", "104: Cowbell 1", "105: Tambourine", "106: Timbale", "107: CGA Mute Hi", "108: CGA Mute Lo", "109: CGA Slap", "110: Conga Hi", "111: Conga Lo", "112: Maracas", "113: Cabasa Cut", "114: Cabasa Up", "115: Cabasa Down", "116: REV Steel DR", "117: REV Tin Wave", "118: REV SN i", "119: REV SN 2", "120: REV SN 3", "121: REV SN 4", "122: REV Kick 1", "123: REV Cup", "124: REV Tom", "125: REV Cow Bell", "126: REV TAMS", "127: REV Conga", "128: REV Maracas", "129: REV Crash 1"]
 
 const toneParms = [
   ['wave/group', { b: 0x00, opts: ["Int","Exp","PCM"] }],
-  ['wave/number', { b: 0x01, packIso: JV8X.multiPack(0x01), opts: waveOptions }],
+  ['wave/number', { b: 0x01, packIso: multiPack(0x01), opts: waveOptions }],
   ['on', { b: 0x03, max: 1 }],
   ['fxm/on', { b: 0x04, max: 1 }],
   ['fxm/depth', { b: 0x05, max: 15, dispOff: 1 }],
@@ -86,7 +98,7 @@ const toneParms = [
     ['level/offset', { b: 0x23, opts: lfoLevelOffsetOptions }],
     ['key/trigger', { b: 0x24, max: 1 }],
     ['rate', { b: 0x25 }],
-    ['delay', { b: 0x26, packIso: JV8X.multiPack(0x26 + offset), max: 128 }],
+    ['delay', { b: 0x26, packIso: multiPack(0x26 + offset), max: 128 }],
     ['fade/mode', { b: 0x28, opts: ["In","Out"] }],
     ['fade/time', { b: 0x29 }],
     ['pitch', { b: 0x2a, rng: [4, 125], dispOff: -64 }],
@@ -133,10 +145,10 @@ const toneParms = [
   
   ['tone/level', { b: 0x5c }],
   ['bias/level', { b: 0x5d, opts: veloTSens }],
-  ['pan', { b: 0x5e, packIso: JV8X.multiPack(0x5e), max: 128, dispOff: -64 }],
+  ['pan', { b: 0x5e, packIso: multiPack(0x5e), max: 128, dispOff: -64 }],
   ['pan/keyTrk', { b: 0x60, opts: veloTSens }],
   ['delay/mode', { b: 0x61, opts: ["Normal","Hold","Play-mate"] }],
-  ['delay/time', { b: 0x62, packIso: JV8X.multiPack(0x62), max: 128 }],
+  ['delay/time', { b: 0x62, packIso: multiPack(0x62), max: 128 }],
   ['amp/env/velo/curve', { b: 0x64, max: 6, dispOff: 1 }],
   ['amp/env/velo/sens', { b: 0x65, rng: [1, 128], dispOff: -64 }],
   ['amp/env/velo/time/0', { b: 0x66, opts: veloTSens }],
@@ -195,13 +207,16 @@ const werks = (config) => {
       multiBank: patch,
       patchCount: 64,
       initFile: "jv880-voice-bank", 
-      iso: .init(address: {
-        RolandAddress([$0, 0, 0])
-      }, location: {
-        // have to do this because the address passed here is an absolute address, not an offset
-        // whereas above in "address:", we are creating an offset address
-        $0.sysexBytes(count: 4)[1] - 0x40
-      }),
+      // TODO:
+      // iso: {
+      //   address: {
+      //     RolandAddress([$0, 0, 0])
+      //   }, 
+      //   location: {
+      //   // have to do this because the address passed here is an absolute address, not an offset
+      //   // whereas above in "address:", we are creating an offset address
+      //   $0.sysexBytes(count: 4)[1] - 0x40
+      // }),
     },
   }
 }
@@ -213,4 +228,8 @@ const werks = (config) => {
   
   module.exports = {
     werks,
+    multiPack,
+    chorusTypes,
+    chorusOuts,
+    reverbTypes,
   }

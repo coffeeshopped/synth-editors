@@ -1,4 +1,16 @@
 
+/// MSB first. lower 4 bits of each byte used
+// 2 bytes per value
+const multiPack = (byte) => ['splitter', (2).map(i => {
+  let loValBit = (2 - (i + 1)) * 4
+  let hiValBit = loValBit + 3
+  return {
+    byte: (byte + i), // RolandAddress(intValue: i)).intValue(), 
+    byteBits: [0, 4], 
+    valueBits: [loValBit, hiValBit + 1],
+  }
+})]
+
 const randomPitches = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200"]
 
 const veloTSens = ["-100", "-70", "-50", "-40", "-30", "-20", "-10", "0", "10", "20", "30", "40", "50", "70", "100"]
@@ -9,9 +21,9 @@ const veloTSens = ["-100", "-70", "-50", "-40", "-30", "-20", "-10", "0", "10", 
 
 const noteParms = [
   ['wave/group', { b: 0x00, opts: ["Int","Exp","PCM"] }],
-  ['wave/number', { b: 0x01, packIso: JV8X.multiPack(0x01), max: 254 }],
+  ['wave/number', { b: 0x01, packIso: multiPack(0x01), max: 254 }],
   ['on', { b: 0x03, max: 1 }],
-  ['coarse', { b: 0x04, .iso(Miso.noteName(zeroNote: "C-1")) }],
+  ['coarse', { b: 0x04, iso: ['noteName', "C-1"] }],
   ['mute/group', { b: 0x5, max: 31 }],
   ['env/sustain', { b: 0x6, max: 1 }],
   ['fine', { b: 0x07, rng: [14, 114], dispOff: -64 }],
@@ -47,7 +59,7 @@ const noteParms = [
   ['filter/env/level/3', { b: 0x23 }],
 
   ['level', { b: 0x24 }],
-  ['pan', { b: 0x25, packIso: JV8X.multiPack(0x25), max: 128, dispOff: -64 }],
+  ['pan', { b: 0x25, packIso: multiPack(0x25), max: 128, dispOff: -64 }],
   ['amp/env/velo/sens', { b: 0x27, rng: [1, 127], dispOff: -64 }],
   ['amp/env/velo/time', { b: 0x28, opts: veloTSens }],
   ['amp/env/time/0', { b: 0x29 }],

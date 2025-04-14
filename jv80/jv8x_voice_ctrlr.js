@@ -161,26 +161,24 @@ const filter = {
 }
 
 const amp = {
-  builders: [
-    ['grid', [[
-      ["Level", "tone/level"],
-      ["Key→Level", "bias/level"],
-      [{knob: "Pan", id: "pan"}, null],
-      [{knob: "Random Pan", id: "random/pan" }, null],
-      ["Key→Pan", "pan/keyTrk"],
-    ],[
-      ampEnv.env,
-      ["Key→Env T", "amp/env/time/keyTrk"],
-      ["Velo→Env", "amp/env/velo/sens"],
-      ["Velo Crv", "amp/env/velo/curve"],
-    ],
-    (4).map(i => [`T${i+1}`, ["amp/env/time", i]]).concat([
-      ["Velo→T1", "amp/env/velo/time/0"],
-    ]),
-    (3).map(i => [`L${i+1}`, ["amp/env/level", i]]).concat([
-      ["Velo→T4", "amp/env/velo/time/3"],      
-    ])
-    ]]
+  gridBuilder: [[
+    ["Level", "tone/level"],
+    ["Key→Level", "bias/level"],
+    [{knob: "Pan", id: "pan"}, null],
+    [{knob: "Random Pan", id: "random/pan" }, null],
+    ["Key→Pan", "pan/keyTrk"],
+  ],[
+    ampEnv.env,
+    ["Key→Env T", "amp/env/time/keyTrk"],
+    ["Velo→Env", "amp/env/velo/sens"],
+    ["Velo Crv", "amp/env/velo/curve"],
+  ],
+  (4).map(i => [`T${i+1}`, ["amp/env/time", i]]).concat([
+    ["Velo→T1", "amp/env/velo/time/0"],
+  ]),
+  (3).map(i => [`L${i+1}`, ["amp/env/level", i]]).concat([
+    ["Velo→T4", "amp/env/velo/time/3"],      
+  ])
   ], 
   effects: [
     .patchChange("pan", {

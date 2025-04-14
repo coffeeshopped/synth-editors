@@ -3,16 +3,14 @@ const Voice = require('./jv8x_voice.js')
 const Rhythm = require('./jv8x_rhythm.js')
 const Perf = require('./jv8x_perf.js')
 
-/// MSB first. lower 4 bits of each byte used
-static func multiPack(_ byte: RolandAddress) -> PackIso {
-  Roland.msbMultiPackIso(2)(byte)
-}
+const SRJVBoard = require('./srjv_board.js')
+const SOPCMCard = require('./sopcm_card.js')
 
 const cardTruss = {
   json: "JV-880 Card", 
   parms: [
-    ['int', {b: 0, opts: SRJVBoard.boardNameOptions }],
-    ['pcm', {b: 1, opts: SOPCMCard.cardNameOptions }],
+    ['int', {b: 0, opts: SRJVBoard.boardNames }],
+    ['pcm', {b: 1, opts: SOPCMCard.cardNames }],
   ], 
   initFile: "jv880-cards",
 }

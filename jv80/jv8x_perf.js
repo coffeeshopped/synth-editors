@@ -1,16 +1,17 @@
+const Voice = require('./jv8x_voice.js')
 
 const commonParms = [
   ['key/mode', { b: 0x0c }],
-  ['reverb/type', { b: 0x0d, opts: JV80Voice.reverbTypes }],
+  ['reverb/type', { b: 0x0d, opts: Voice.reverbTypes }],
   ['reverb/level', { b: 0x0e }],
   ['reverb/time', { b: 0x0f }],
   ['reverb/feedback', { b: 0x10 }],
-  ['chorus/type', { b: 0x11, opts: JV80Voice.chorusTypes }],
+  ['chorus/type', { b: 0x11, opts: Voice.chorusTypes }],
   ['chorus/level', { b: 0x12 }],
   ['chorus/depth', { b: 0x13 }],
   ['chorus/rate', { b: 0x14 }],
   ['chorus/feedback', { b: 0x15 }],
-  ['chorus/out/assign', { b: 0x16, opts: JV80Voice.chorusOuts }],
+  ['chorus/out/assign', { b: 0x16, opts: Voice.chorusOuts }],
   { prefix: "part", count: 8, bx: 1, block: [
     ["voice/reserve", 0x17, { max: 28 }],
   ] },
@@ -26,9 +27,9 @@ const commonPatchWerk = {
 const partParms = [
   ['send/on', { b: 0x00, max: 1 }],
   ['send/channel', { b: 0x01, max: 15, dispOff: 1 }],
-  ['send/pgmChange', { b: 0x02, packIso: JV8X.multiPack(0x02), max: 128 }],
-  ['send/volume', { b: 0x04, packIso: JV8X.multiPack(0x04), max: 128 }],
-  ['send/pan', { b: 0x06, packIso: JV8X.multiPack(0x06), max: 128 }],
+  ['send/pgmChange', { b: 0x02, packIso: Voice.multiPack(0x02), max: 128 }],
+  ['send/volume', { b: 0x04, packIso: Voice.multiPack(0x04), max: 128 }],
+  ['send/pan', { b: 0x06, packIso: Voice.multiPack(0x06), max: 128 }],
   ['send/key/range/lo', { b: 0x08 }],
   ['send/key/range/hi', { b: 0x09 }],
   ['send/key/transpose', { b: 0x0a, rng: [28, 101], dispOff: -64 }],
@@ -46,7 +47,7 @@ const partParms = [
 
   ['on', { b: 0x15, max: 1 }],
   ['channel', { b: 0x16, max: 15, dispOff: 1 }],
-  ['patch/number', { b: 0x17, packIso: JV8X.multiPack(0x17), max: 255 }],
+  ['patch/number', { b: 0x17, packIso: Voice.multiPack(0x17), max: 255 }],
   ['level', { b: 0x19 }],
   ['pan', { b: 0x1a, dispOff: -64 }],
   ['coarse', { b: 0x1b, rng: [16, 113], dispOff: -64 }],

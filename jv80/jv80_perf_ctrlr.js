@@ -63,3 +63,7 @@ const ctrlr = {
     ['oneRow', 8, internl],
   ]],
 }
+
+module.exports = {
+  ctrlr,
+}

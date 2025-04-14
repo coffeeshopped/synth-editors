@@ -1,15 +1,16 @@
+require('./utils.js')
 
 const polarities = ["Standard", "Reverse"]
 
 const pedalModes = ["Off","Int","MIDI","Int+MIDI"]
 
-const pedalAssigns = (96).map { "CC\($0)" } + ["Aftertouch", "Bend Up", "Bend Down", "Pgm Up", "Pgm Down"]
+const pedalAssigns = (96).map(i => `CC${i}`).concat(["Aftertouch", "Bend Up", "Bend Down", "Pgm Up", "Pgm Down"])
 
 const sendChannelOptions = (16).map(i => `${i + 1}`).concat(["Rx Ch", "Off"])
 
 const parms = [
   // Switching to GM mode makes the synth stop responding to sysex!
-  ['mode', { b: 0x00, opts: ["Performance","Patch"]), //,"GM"] }]
+  ['mode', { b: 0x00, opts: ["Performance","Patch"] }], //,"GM"] }]
   ['tune', { b: 0x01, rng: [1, 128], dispOff: -64 }],
   ['key/transpose', { b: 0x02, rng: [28, 101], dispOff: -64 }],
   ['transpose', { b: 0x03, max: 1 }],
@@ -44,7 +45,7 @@ const parms = [
 
   ['patch/channel', { b: 0x1e, max: 15, dispOff: 1 }],
   ['patch/send/channel', { b: 0x1f, opts: sendChannelOptions }],
-  ['ctrl/channel', { b: 0x20, opts: 17.map { $0 == 16 ? "Off" : "\($0+1)" } }],
+  ['ctrl/channel', { b: 0x20, opts: (17).map(i => i == 16 ? "Off" : `${i+1}`) }],
 ]
 
 const patchWerk = (config) => ({

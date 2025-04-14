@@ -6,13 +6,13 @@ const common = {
   prefix: { fixed: "common" }, 
   color: 1, 
   builders: [
-    ['panel', 'reverb', { }, [[
+    ['panel', 'reverb', [[
       [{select: "Reverb"}, "reverb/type"],
       ["Level", "reverb/level"],
       ["Time", "reverb/time"],
       ["Feedback", "reverb/feedback"],
       ]]],
-    ['panel', 'chorus', { }, [[
+    ['panel', 'chorus', [[
       [{switsch: "Chorus"}, "chorus/type"],
       ["Level", "chorus/level"],
       ["Depth", "chorus/depth"],
@@ -20,7 +20,7 @@ const common = {
       ["Feedback", "chorus/feedback"],
       [{switsch: "Output"}, "chorus/out/assign"],
       ]]],
-    ['panel', 'reserve', { }, [[
+    ['panel', 'reserve', [[
       [{ knob: "Voice Reserve 1", id: "part/0/voice/reserve"}, null],
       [{ knob: "2", id: "part/1/voice/reserve"}, null],
       [{ knob: "3", id: "part/2/voice/reserve"}, null],
@@ -109,7 +109,7 @@ const parts = hideOut => ['oneRow', 8, part(hideOut)]
 const ctrlr = {
   builders: [
     ['switcher', ["Common","Parts"], {color: 1}],
-    ['panel', 'space', { }, [[]]],
+    ['panel', 'space', [[]]],
   ], 
   layout: [
     ['row', [["switch",6], ["space", 10]]],

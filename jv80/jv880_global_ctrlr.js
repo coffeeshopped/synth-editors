@@ -21,18 +21,19 @@ const scale = {
   ],
 }
 
-const ctrlr =  {
-  return .patch(color: 1, [
-    ['child', scale(), "scale"],
-    ['panel', 'mode', { }, [[
+const ctrlr = {
+  color: 1, 
+  builders: [
+    ['child', scale, "scale"],
+    ['panel', 'mode', [[
       [{switsch: "Mode"}, "mode"],
       ["Tune", "tune"],
     ]]],
-    ['panel', 'fx', { }, [[
+    ['panel', 'fx', [[
       [{checkbox: "Reverb"}, "reverb"],
       [{checkbox: "Chorus"}, "chorus"],
     ]]],
-    ['panel', 'rx', { }, [[
+    ['panel', 'rx', [[
       [{checkbox: "RX Volume"}, "rcv/volume"],
       [{checkbox: "CC"}, "rcv/ctrl/change"],
       [{checkbox: "Ch Press"}, "rcv/aftertouch"],
@@ -42,16 +43,16 @@ const ctrlr =  {
       [{checkbox: "Bank Sel"}, "rcv/bank/select"],
       ["Patch Channel", "patch/channel"],
     ]]],
-    ['panel', 'etc', { }, [[
+    ['panel', 'etc', [[
       ["Ctrl Chan", "ctrl/channel"],
       [{switsch: "Out Mode"}, "out/mode"],
       [{switsch: "Rhythm Edit K"}, "rhythm/edit/key"],
     ]]],
-    ['panel', 'scaleSwitch', { }, [[
+    ['panel', 'scaleSwitch', [[
       [{checkbox: "Scale Tune"}, "scale/tune"],
     ]]],
-  ], effects: [
-  ], layout: [
+  ], 
+  layout: [
     ['row', [["mode",4], ["fx",2], ["etc",3]]],
     ['row', [["rx",8]]],
     ['row', [["scaleSwitch",1], ["scale",12]]],
