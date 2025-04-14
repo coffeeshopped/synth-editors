@@ -1,57 +1,54 @@
+const Rhythm = require('./jv8x_rhythm.js')
 const VoiceCtrlr = require('./jv8x_voice_ctrlr.js')
 
 const pitch = {
   color: 1, 
-  builders: [
-    ['grid', [[
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-      ["Random Pitch", "random/pitch"],
-      ["Velo→T1", "pitch/env/velo/time"],
-    ],[
-      VoiceCtrlr.pitchEnv.env,
-      ["Env Depth", "pitch/env/depth"],
-      ["Velo→Env", "pitch/env/velo/sens"],
-    ],[
-      ["T1", "pitch/env/time/0"],
-      ["T2", "pitch/env/time/1"],
-      ["T3", "pitch/env/time/2"],
-      ["T4", "pitch/env/time/3"],
-    ],[
-      ["L1", "pitch/env/level/0"],
-      ["L2", "pitch/env/level/1"],
-      ["L3", "pitch/env/level/2"],
-      ["L4", "pitch/env/level/3"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+    ["Random Pitch", "random/pitch"],
+    ["Velo→T1", "pitch/env/velo/time"],
+  ],[
+    VoiceCtrlr.pitchEnv.env,
+    ["Env Depth", "pitch/env/depth"],
+    ["Velo→Env", "pitch/env/velo/sens"],
+  ],[
+    ["T1", "pitch/env/time/0"],
+    ["T2", "pitch/env/time/1"],
+    ["T3", "pitch/env/time/2"],
+    ["T4", "pitch/env/time/3"],
+  ],[
+    ["L1", "pitch/env/level/0"],
+    ["L2", "pitch/env/level/1"],
+    ["L3", "pitch/env/level/2"],
+    ["L4", "pitch/env/level/3"],
+  ]], 
   effects: [VoiceCtrlr.pitchEnv.menu],
 }
 
 const filter = {
   color: 2,
-  builders: [
-    ['grid', [[
-      [{switsch: "Filter"}, "filter/type"],
-      ["Cutoff", "cutoff"],
-      ["Reson", "reson"],
-      [{switsch: "Reson Mode"}, "reson/mode"],
-      ["Velo→Time", "filter/env/velo/time"],
-    ],[
-      VoiceCtrlr.filterEnv.env,
-      ["Env Depth", "filter/env/depth"],
-      ["Velo→Env", "filter/env/velo/sens"],
-    ],[
-      ["T1", "filter/env/time/0"],
-      ["T2", "filter/env/time/1"],
-      ["T3", "filter/env/time/2"],
-      ["T4", "filter/env/time/3"],
-    ],[
-      ["L1", "filter/env/level/0"],
-      ["L2", "filter/env/level/1"],
-      ["L3", "filter/env/level/2"],
-      ["L4", "filter/env/level/3"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    [{switsch: "Filter"}, "filter/type"],
+    ["Cutoff", "cutoff"],
+    ["Reson", "reson"],
+    [{switsch: "Reson Mode"}, "reson/mode"],
+    ["Velo→Time", "filter/env/velo/time"],
+  ],[
+    VoiceCtrlr.filterEnv.env,
+    ["Env Depth", "filter/env/depth"],
+    ["Velo→Env", "filter/env/velo/sens"],
+  ],[
+    ["T1", "filter/env/time/0"],
+    ["T2", "filter/env/time/1"],
+    ["T3", "filter/env/time/2"],
+    ["T4", "filter/env/time/3"],
+  ],[
+    ["L1", "filter/env/level/0"],
+    ["L2", "filter/env/level/1"],
+    ["L3", "filter/env/level/2"],
+    ["L4", "filter/env/level/3"],
+  ]], 
   effects: [
     VoiceCtrlr.filterEnv.menu,
     ['dimsOn', "filter/type"],
@@ -60,36 +57,34 @@ const filter = {
 
 const amp = {
   color: 1, 
-  builders: [
-    ['grid', [[
-      ["Level", "level"],
-      [{knob: "Pan", id: "pan"}, null],
-      [{knob: "Random Pan", id: "random/pan"}, null],
-      ["Velo→Time", "amp/env/velo/time"],
-    ],[
-      VoiceCtrlr.ampEnv.env,
-      ["Velo", "amp/env/velo/sens"],
-    ],[
-      ["T1", "amp/env/time/0"],
-      ["T2", "amp/env/time/1"],
-      ["T3", "amp/env/time/2"],
-      ["T4", "amp/env/time/3"],
-    ],[
-      ["L1", "amp/env/level/0"],
-      ["L2", "amp/env/level/1"],
-      ["L3", "amp/env/level/2"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    ["Level", "level"],
+    [{knob: "Pan", id: "pan"}, null],
+    [{knob: "Random Pan", id: "random/pan"}, null],
+    ["Velo→Time", "amp/env/velo/time"],
+  ],[
+    VoiceCtrlr.ampEnv.env,
+    ["Velo", "amp/env/velo/sens"],
+  ],[
+    ["T1", "amp/env/time/0"],
+    ["T2", "amp/env/time/1"],
+    ["T3", "amp/env/time/2"],
+    ["T4", "amp/env/time/3"],
+  ],[
+    ["L1", "amp/env/level/0"],
+    ["L2", "amp/env/level/1"],
+    ["L3", "amp/env/level/2"],
+  ]], 
   effects: VoiceCtrlr.ampEffects,
 }
 
-const note = hideOut => ({
+const note = (hideOut, config) => ({
   prefix: {index: "note"}, 
   builders: [
     ['child', VoiceCtrlr.wave, "wave"],
-    ['child', pitch(), "pitch"],
-    ['child', filter(), "filter"],
-    ['child', amp(), "amp"],
+    ['child', pitch, "pitch"],
+    ['child', filter, "filter"],
+    ['child', amp, "amp"],
     ['panel', 'on', { color: 1 }, [[
       [{checkbox: "On"}, "on"],
       ]]],
@@ -109,7 +104,7 @@ const note = hideOut => ({
   ], 
   effects: [
     ['editMenu', "button", {
-      paths: Rhythm.notePatchWerk.parms, 
+      paths: Rhythm.werks(config.rhythm).note.parms, 
       type: "JV880RhythmNote",
     }],
     ['setup', [
@@ -124,9 +119,9 @@ const note = hideOut => ({
   ],
 })
 
-const controller = hideOut => ({
+const ctrlr = (hideOut, config) => ({
   builders: [
-    ['child', note(hideOut), "note"],
+    ['child', note(hideOut, config), "note"],
     ['switcher', [61, ['noteName', "C2"]], {cols: 16, color: 1}]
   ], 
   effects: [
@@ -141,3 +136,7 @@ const controller = hideOut => ({
     ['col', [["switch",3],["note",6]]],
   ],
 })
+
+module.exports = {
+  ctrlr,
+}

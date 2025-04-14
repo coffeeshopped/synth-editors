@@ -2,7 +2,6 @@ const Voice = require('./jv8x_voice.js')
 const SRJVBoard = require('./srjv_board.js')
 const SOPCMCard = require('./sopcm_card.js')
 
-
 const common = perf => ({
   prefix: {fixed: "common"}, 
   color: 1, 
@@ -110,51 +109,47 @@ const filterEnv = env("Filter", "filter/env", false)
 const ampEnv = env("Amp", "amp/env", false)
 
 const pitch = {
-  builders: [
-    ['grid', [[
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-      ["Random Pitch", "random/pitch"],
-      ["Key→Pitch", "pitch/keyTrk"],
-    ],[
-      pitchEnv.env,
-      ["Env Depth", "pitch/env/depth"],
-      ["Key→Env T", "pitch/env/time/keyTrk"],
-      ["Velo→Env", "pitch/env/velo/sens"],
-    ],
-    (4).map(i => [`T${i+1}`, ["pitch/env/time", i]]).concat([
-      ["Velo→T1", "pitch/env/velo/time/0"],
-    ]),
-    (4).map(i => [`L${i+1}`, ["pitch/env/level", i]]).concat([
-      ["Velo→T4", "pitch/env/velo/time/3"],      
-    ])
-    ]]
+  gridBuilder: [[
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+    ["Random Pitch", "random/pitch"],
+    ["Key→Pitch", "pitch/keyTrk"],
+  ],[
+    pitchEnv.env,
+    ["Env Depth", "pitch/env/depth"],
+    ["Key→Env T", "pitch/env/time/keyTrk"],
+    ["Velo→Env", "pitch/env/velo/sens"],
+  ],
+  (4).map(i => [`T${i+1}`, ["pitch/env/time", i]]).concat([
+    ["Velo→T1", "pitch/env/velo/time/0"],
+  ]),
+  (4).map(i => [`L${i+1}`, ["pitch/env/level", i]]).concat([
+    ["Velo→T4", "pitch/env/velo/time/3"],      
+  ])
   ], 
   effects: [pitchEnv.menu],
 }
 
 const filter = {
-  builders: [
-    ['grid', [[
-      [{switsch: "Filter"}, "filter/type"],
-      ["Cutoff", "cutoff"],
-      ["Reson", "reson"],
-      [{switsch: "Reson Mode"}, "reson/mode"],
-      ["Key→Cutoff", "cutoff/keyTrk"],
-    ],[
-      filterEnv.env,
-      ["Env Depth", "filter/env/depth"],
-      ["Key→Env T", "filter/env/time/keyTrk"],
-      ["Velo→Env", "filter/env/velo/sens"],
-      ["Velo Crv", "filter/env/velo/curve"],
-    ],
-    (4).map(i => [`T${i+1}`, ["filter/env/time", i]]).concat([
-      ["Velo→T1", "filter/env/velo/time/0"],
-    ]),
-    (4).map(i => [`L${i+1}`, ["filter/env/level", i]]).concat([
-      ["Velo→T4", "filter/env/velo/time/3"],      
-    ])
-    ]]
+  gridBuilder: [[
+    [{switsch: "Filter"}, "filter/type"],
+    ["Cutoff", "cutoff"],
+    ["Reson", "reson"],
+    [{switsch: "Reson Mode"}, "reson/mode"],
+    ["Key→Cutoff", "cutoff/keyTrk"],
+  ],[
+    filterEnv.env,
+    ["Env Depth", "filter/env/depth"],
+    ["Key→Env T", "filter/env/time/keyTrk"],
+    ["Velo→Env", "filter/env/velo/sens"],
+    ["Velo Crv", "filter/env/velo/curve"],
+  ],
+  (4).map(i => [`T${i+1}`, ["filter/env/time", i]]).concat([
+    ["Velo→T1", "filter/env/velo/time/0"],
+  ]),
+  (4).map(i => [`L${i+1}`, ["filter/env/level", i]]).concat([
+    ["Velo→T4", "filter/env/velo/time/3"],      
+  ])
   ], 
   effects: [
     filterEnv.menu,
@@ -200,42 +195,38 @@ const amp = {
 }
       
 const lfo = ['index', "lfo", "wave", i => `LFO ${i + 1}`, {
-  builders: [
-    ['grid', [[
-      [{select: "LFO"}, "wave"],
-      [{switsch: "Offset"}, "level/offset"],
-      [{checkbox: "Sync"}, "key/trigger"],
-      ["Rate", "rate"],
-      ["Delay", "delay"],
-      [{switsch: "Fade"}, "fade/mode"],
-      ["Fade Time", "fade/time"],
-      ["Pitch", "pitch"],
-      ["Filter", "filter"],
-      ["Amp", "amp"],
-    ]]]
-  ],
+  gridBuilder: [[
+    [{select: "LFO"}, "wave"],
+    [{switsch: "Offset"}, "level/offset"],
+    [{checkbox: "Sync"}, "key/trigger"],
+    ["Rate", "rate"],
+    ["Delay", "delay"],
+    [{switsch: "Fade"}, "fade/mode"],
+    ["Fade Time", "fade/time"],
+    ["Pitch", "pitch"],
+    ["Filter", "filter"],
+    ["Amp", "amp"],
+  ]],
 }]
 
 const toneCtrl = {
   prefix: {select: ["mod", "aftertouch", "expression"]}, 
-  builders: [
-    ['grid', [[
-      ['switcher', ["Mod","Aftertouch","Expression"]],
-    ], [
-      [{select: "Dest 1"}, "dest/0"],
-      ["Amt 1", "depth/0"],
-      [{select: "Dest 2"}, "dest/1"],
-      ["Amt 2", "depth/1"],
-    ], [
-      [{select: "Dest 3"}, "dest/2"],
-      ["Amt 3", "depth/2"],
-      [{select: "Dest 4"}, "dest/3"],
-      ["Amt 4", "depth/3"],
-    ]]]
-  ],
+  gridBuilder: [[
+    ['switcher', ["Mod","Aftertouch","Expression"]],
+  ], [
+    [{select: "Dest 1"}, "dest/0"],
+    ["Amt 1", "depth/0"],
+    [{select: "Dest 2"}, "dest/1"],
+    ["Amt 2", "depth/1"],
+  ], [
+    [{select: "Dest 3"}, "dest/2"],
+    ["Amt 3", "depth/2"],
+    [{select: "Dest 4"}, "dest/3"],
+    ["Amt 4", "depth/3"],
+  ]],
 }
 
-const tone = hideOut => ({
+const tone = (hideOut, config) => ({
   prefix: {index: "tone"}, 
   builders: [
     ['child', wave, "wave", {color: 1}],
@@ -271,7 +262,7 @@ const tone = hideOut => ({
   ], 
   effects: [
     ['editMenu', "button", {
-      paths: Voice.tonePatchWerk.parms, 
+      paths: Voice.werks(config.voice).tone.parms, 
       type: "JV880Tone",
     }],
     ['setup', [
@@ -293,28 +284,26 @@ const tone = hideOut => ({
 
 const palettePitch = {
   color: 1, 
-  builders: [
-    ['grid', [[
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-      ["Random Amt", "random/pitch"],
-      ["Key→Pitch", "pitch/keyTrk"],
-    ],[
-      pitchEnv.env,
-      ["Env→Pitch", "pitch/env/depth"],
-      ["Key→Env T", "pitch/env/time/keyTrk"],
-    ],
-    (4).map(i => [`T${i+1}`, ["pitch/env/time", i]]),
-    (4).map(i => [`L${i+1}`, ["pitch/env/level", i]]),
-    [
-      ["Velo→Env", "pitch/env/velo/sens"],
-      ["Velo→T1", "pitch/env/velo/time/0"],
-      ["Velo→T4", "pitch/env/velo/time/3"],
-    ],[
-      ["LFO 1", "lfo/0/pitch"],
-      ["LFO 2", "lfo/1/pitch"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+    ["Random Amt", "random/pitch"],
+    ["Key→Pitch", "pitch/keyTrk"],
+  ],[
+    pitchEnv.env,
+    ["Env→Pitch", "pitch/env/depth"],
+    ["Key→Env T", "pitch/env/time/keyTrk"],
+  ],
+  (4).map(i => [`T${i+1}`, ["pitch/env/time", i]]),
+  (4).map(i => [`L${i+1}`, ["pitch/env/level", i]]),
+  [
+    ["Velo→Env", "pitch/env/velo/sens"],
+    ["Velo→T1", "pitch/env/velo/time/0"],
+    ["Velo→T4", "pitch/env/velo/time/3"],
+  ],[
+    ["LFO 1", "lfo/0/pitch"],
+    ["LFO 2", "lfo/1/pitch"],
+  ]], 
   effects: [pitchEnv.menu],
 }
 
@@ -333,31 +322,29 @@ const palettePitchWave = {
 
 const paletteFilter = {
   color: 1, 
-  builders: [
-    ['grid', [[
-      [{switsch: "Filter"}, "filter/type"],
-      ["Cutoff", "cutoff"],
-      ["Reson", "reson"],
-      [{switsch: "Reson Mode"}, "reson/mode"],
-    ],[
-      filterEnv.env,
-      ["Env→Cutoff", "filter/env/depth"],
-      ["Key→Env T", "filter/env/time/keyTrk"],
-    ],
-    (4).map(i => [`T${i+1}`, ["filter/env/time", i]]),
-    (4).map(i => [`L${i+1}`, ["filter/env/level", i]]),
-    [
-      ["Velo→Env", "filter/env/velo/sens"],
-      ["Velo→T1", "filter/env/velo/time/0"],
-      ["Velo→T4", "filter/env/velo/time/3"],
-    ],[
-      ["Key→Cutoff", "cutoff/keyTrk"],
-      ["Env Velo Crv", "filter/env/velo/curve"],
-    ],[
-      ["LFO 1", "lfo/0/filter"],
-      ["LFO 2", "lfo/1/filter"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    [{switsch: "Filter"}, "filter/type"],
+    ["Cutoff", "cutoff"],
+    ["Reson", "reson"],
+    [{switsch: "Reson Mode"}, "reson/mode"],
+  ],[
+    filterEnv.env,
+    ["Env→Cutoff", "filter/env/depth"],
+    ["Key→Env T", "filter/env/time/keyTrk"],
+  ],
+  (4).map(i => [`T${i+1}`, ["filter/env/time", i]]),
+  (4).map(i => [`L${i+1}`, ["filter/env/level", i]]),
+  [
+    ["Velo→Env", "filter/env/velo/sens"],
+    ["Velo→T1", "filter/env/velo/time/0"],
+    ["Velo→T4", "filter/env/velo/time/3"],
+  ],[
+    ["Key→Cutoff", "cutoff/keyTrk"],
+    ["Env Velo Crv", "filter/env/velo/curve"],
+  ],[
+    ["LFO 1", "lfo/0/filter"],
+    ["LFO 2", "lfo/1/filter"],
+  ]], 
   effects: [
     filterEnv.menu,
     ['dimsOn', "filter/type"],
@@ -366,34 +353,32 @@ const paletteFilter = {
 
 const paletteAmp = {
   color: 1, 
-  builders: [
-    ['grid', [[
-      ["Level", "tone/level"],
-      ["Key→Level", "bias/level"],
-    ],[
-      ampEnv.env,
-      ["Velo Crv", "amp/env/velo/curve"],
-      ["Key→Env T", "amp/env/time/keyTrk"],
-    ],
-    (4).map(i => [`T${i+1}`, ["amp/env/time", i]]),
-    [
-      ["L1", "amp/env/level/0"],
-      ["L2", "amp/env/level/1"],
-      ["L3", "amp/env/level/2"],
-      '-',
-    ],[
-      ["Velo→Env", "amp/env/velo/sens"],
-      ["Velo→T1", "amp/env/velo/time/0"],
-      ["Velo→T4", "amp/env/velo/time/3"],
-    ],[
-      [{knob: "Pan", id: "pan"}, null],
-      [{knob: "Random Pan", id: "random/pan" }, null],
-      ["Key→Pan", "pan/keyTrk"],
-    ],[
-      ["LFO 1", "lfo/0/amp"],
-      ["LFO 2", "lfo/1/amp"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    ["Level", "tone/level"],
+    ["Key→Level", "bias/level"],
+  ],[
+    ampEnv.env,
+    ["Velo Crv", "amp/env/velo/curve"],
+    ["Key→Env T", "amp/env/time/keyTrk"],
+  ],
+  (4).map(i => [`T${i+1}`, ["amp/env/time", i]]),
+  [
+    ["L1", "amp/env/level/0"],
+    ["L2", "amp/env/level/1"],
+    ["L3", "amp/env/level/2"],
+    '-',
+  ],[
+    ["Velo→Env", "amp/env/velo/sens"],
+    ["Velo→T1", "amp/env/velo/time/0"],
+    ["Velo→T4", "amp/env/velo/time/3"],
+  ],[
+    [{knob: "Pan", id: "pan"}, null],
+    [{knob: "Random Pan", id: "random/pan" }, null],
+    ["Key→Pan", "pan/keyTrk"],
+  ],[
+    ["LFO 1", "lfo/0/amp"],
+    ["LFO 2", "lfo/1/amp"],
+  ]], 
   effects: ampEffects,
 }
 
@@ -486,7 +471,7 @@ const paletteOther = hideOut => ({
 const fourPalettes = (pasteType, pal) => 
   ['palettes', pal, 4, "tone", "Tone", pasteType]
 
-const ctrlr = (perf, hideOut) => ({
+const ctrlr = (perf, hideOut, config) => ({
   builders: [
     ['switcher', ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "FX/Other"], {color: 1}],
     ['panel', 'on', { color: 1 }, [[
@@ -506,7 +491,7 @@ const ctrlr = (perf, hideOut) => ({
     ["pitch", "filter", "amp", "lfo", "extra"]
   ), [
     ["common", common(perf)],
-    ["tone", tone(hideOut)],
+    ["tone", tone(hideOut, config)],
     ["pitch", fourPalettes("JV8XPitch", palettePitchWave)],
     ["filter", fourPalettes("JV8XFilter", paletteFilter)],
     ["amp", fourPalettes("JV8XAmp", paletteAmp)],

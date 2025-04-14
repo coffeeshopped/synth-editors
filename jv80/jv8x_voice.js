@@ -202,6 +202,7 @@ const werks = (config) => {
   }
   
   return {
+    tone: tone,
     patch: patch,
     bank: {
       multiBank: patch,

@@ -81,7 +81,7 @@ const editorTruss = (name, config) => {
   //    patch(forPath: "perf")?.patchChangesInput.value = .paramsChange(params)
 //  }
 
-const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut) => ({
+const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut, config) => ({
   editor: editor, 
   manu: "Roland", 
   subid: subid, 
@@ -98,15 +98,15 @@ const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut) => ({
         ],
       }],
       ['global', globalCtrlr.ctrlr],
-      ['voice', "Patch", VoiceCtrlr.ctrlr(false, hideOut)],
+      ['voice', "Patch", VoiceCtrlr.ctrlr(false, hideOut, config)],
     ]],
     ['basic', "Performance", ([
       ['perf', perfCtrlr.ctrlr],
     ]).concat(
       (7).map(i => 
-        ['voice', `Part ${i + 1}`, VoiceCtrlr.ctrlr(true, hideOut), ["part", i]]
+        ['voice', `Part ${i + 1}`, VoiceCtrlr.ctrlr(true, hideOut, config), ["part", i]]
       ),
-      [['custom', "Rhythm", "rhythm", RhythmCtrlr.ctrlr(hideOut)]]
+      [['custom', "Rhythm", "rhythm", RhythmCtrlr.ctrlr(hideOut, config)]]
     )],
     ['banks', [
       ['bank', "Patch Bank", "bank/patch/0"],

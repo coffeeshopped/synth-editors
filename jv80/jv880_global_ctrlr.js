@@ -1,24 +1,22 @@
 
 const scale = {
   prefix: ['indexFn', i => ['scale/tune', i == 0 ? 'patch' : i - 1]], 
-  builders: [
-    ['grid', [[
-      ['switcher', "Scale Part", ["Patch", "1", "2", "3", "4", "5", "6", "7", "8"]],
-    ],[
-      ["C", "note/0"],
-      ["C#", "note/1"],
-      ["D", "note/2"],
-      ["D#", "note/3"],
-      ["E", "note/4"],
-      ["F", "note/5"],
-      ["F#", "note/6"],
-      ["G", "note/7"],
-      ["G#", "note/8"],
-      ["A", "note/9"],
-      ["A#", "note/10"],
-      ["B", "note/11"],
-    ]]]
-  ],
+  gridBuilder: [[
+    ['switcher', "Scale Part", ["Patch", "1", "2", "3", "4", "5", "6", "7", "8"]],
+  ],[
+    ["C", "note/0"],
+    ["C#", "note/1"],
+    ["D", "note/2"],
+    ["D#", "note/3"],
+    ["E", "note/4"],
+    ["F", "note/5"],
+    ["F#", "note/6"],
+    ["G", "note/7"],
+    ["G#", "note/8"],
+    ["A", "note/9"],
+    ["A#", "note/10"],
+    ["B", "note/11"],
+  ]],
 }
 
 const ctrlr = {
@@ -57,6 +55,6 @@ const ctrlr = {
     ['row', [["rx",8]]],
     ['row', [["scaleSwitch",1], ["scale",12]]],
     ['col', [["mode",1], ["rx",1], ["scaleSwitch",2]]],
-  ])
+  ],
 }
 

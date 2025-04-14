@@ -2,7 +2,7 @@ const JV8X = require('./jv8x.js')
 const GlobalController = require('./jv880_global_ctrlr.js')
 const PerfController = require('./jv880_perf_ctrlr.js')
 
-const editor = JV8X.editorTruss("JV-880", {
+const config = {
   global: {
     size: 0x110,
     extraParms: [
@@ -15,7 +15,7 @@ const editor = JV8X.editorTruss("JV-880", {
         ]
       } },
       { prefix: "scale/tune/patch/note", count: 12, bx: 1, block: [
-        ["", { b: 0x0104, .dispOff: -64 }]
+        ["", { b: 0x0104, dispOff: -64 }]
       ] },
     ],
     initFile: "jv880-global",
@@ -38,6 +38,8 @@ const editor = JV8X.editorTruss("JV-880", {
       ['out/assign', { b: 0x33, opts: ["Main","Sub"] }],
     ],
   },
-})
+}
 
-const moduleTruss = JV8X.moduleTruss(editor, "jv880", GlobalController, PerfController, false)
+const editor = JV8X.editorTruss("JV-880", config)
+
+const moduleTruss = JV8X.moduleTruss(editor, "jv880", GlobalController, PerfController, false, config)

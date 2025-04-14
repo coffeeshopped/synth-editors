@@ -92,6 +92,7 @@ const werks = (config) => {
   }
   
   return {
+    note: note,
     patch: patch,
     bank: {
       multiBank: patch, 
