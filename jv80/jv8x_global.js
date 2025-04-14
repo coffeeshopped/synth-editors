@@ -54,3 +54,7 @@ const patchWerk = (config) => ({
   size: config.size, 
   initFile: config.initFile,
 })
+
+module.exports = {
+  patchWerk,
+}

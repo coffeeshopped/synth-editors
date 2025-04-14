@@ -40,35 +40,34 @@ const common = {
     ['row', [["chorus",6]]],
     ['row', [["reserve",4]]],
     ['col', [["reverb",1], ["chorus",1], ["reserve",2]]],
-  ])
+  ],
 }
 
 const part = hideOut => ['index', "part", "on", i => i == 7 ? "Rhythm" : `${i + 1}`, {
-  builders: [
-    ['grid', {color: 1}, [[
-      [{checkbox: "On"}, "on"],
-      ["Channel", "channel"],
-    ], [
-      [{switch: "Group", id: "patch/group"}, null],
-    ], [
-      [{select: "Patch", id: "patch/number"}, null],
-    ], [
-      ["Level", "level"],
-      ["Pan", "pan"],
-    ], [
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-    ], [
-      [{checkbox: "Reverb"}, "reverb"],
-      [{checkbox: "Chorus"}, "chorus"],
-    ], [
-      [{checkbox: "Rx Pgm Ch"}, "rcv/pgmChange"],
-      [{checkbox: "Rx Volume"}, "rcv/volume"],
-    ], [
-      [{checkbox: "Rx Hold"}, "rcv/hold"],
-      [{switsch: "Output"}, "out/assign"],
-    ]]],
-  ], 
+  color: 1,
+  gridBuilder: [[
+    [{checkbox: "On"}, "on"],
+    ["Channel", "channel"],
+  ], [
+    [{switch: "Group", id: "patch/group"}, null],
+  ], [
+    [{select: "Patch", id: "patch/number"}, null],
+  ], [
+    ["Level", "level"],
+    ["Pan", "pan"],
+  ], [
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+  ], [
+    [{checkbox: "Reverb"}, "reverb"],
+    [{checkbox: "Chorus"}, "chorus"],
+  ], [
+    [{checkbox: "Rx Pgm Ch"}, "rcv/pgmChange"],
+    [{checkbox: "Rx Volume"}, "rcv/volume"],
+  ], [
+    [{checkbox: "Rx Hold"}, "rcv/hold"],
+    [{switsch: "Output"}, "out/assign"],
+  ]],
   effects: [
     ['setup', [
       ['configCtrl', "patch/group", {opts: Perf.patchGroupOptions}],
@@ -99,7 +98,7 @@ const part = hideOut => ['index', "part", "on", i => i == 7 ? "Rhythm" : `${i + 
     ['controlChange', ["patch/group", "patch/number"], (state, locals) => {
       const group = locals["patch/group"] || 0
       const number = locals["patch/number"] || 0
-      return ["patch/number" : group * 64 + number]
+      return ["patch/number", group * 64 + number]
     }],
   ],
 }]
@@ -122,5 +121,5 @@ const ctrlr = {
 module.exports = {
   ctrlr,
   parts,
-  commmon,
+  common,
 }

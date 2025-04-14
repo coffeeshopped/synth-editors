@@ -63,8 +63,8 @@ const amp = {
   builders: [
     ['grid', [[
       ["Level", "level"],
-      ["Pan", nil, id: "pan"],
-      "Random Pan", nil, id: "random/pan",
+      [{knob: "Pan", id: "pan"}, null],
+      [{knob: "Random Pan", id: "random/pan"}, null],
       ["Velo→Time", "amp/env/velo/time"],
     ],[
       VoiceCtrlr.ampEnv.env,
@@ -83,58 +83,61 @@ const amp = {
   effects: VoiceCtrlr.ampEffects,
 }
 
-const note = hideOut => {
+const note = hideOut => ({
   prefix: {index: "note"}, 
   builders: [
     ['child', VoiceCtrlr.wave, "wave"],
     ['child', pitch(), "pitch"],
     ['child', filter(), "filter"],
     ['child', amp(), "amp"],
-    ['panel', 'on', { color: 1, }, [[
+    ['panel', 'on', { color: 1 }, [[
       [{checkbox: "On"}, "on"],
       ]]],
-    ['panel', 'mute', { color: 1, }, [[
+    ['panel', 'mute', { color: 1 }, [[
       ["Mute Group", "mute/group"],
       [{checkbox: "Env Sustain"}, "env/sustain"],
       ["Bend", "bend/range"],
       ]]],
-    ['panel', 'outs', { color: 1, }, [[
+    ['panel', 'outs', { color: 1 }, [[
       ["Dry", "out/level"],
       ["Reverb", "reverb"],
       ["Chorus", "chorus"],
       [{switsch: "Output"}, "out/assign"],
       ]]],
-    ['button', "Note", color: 1],
-    ['panel', 'space', { }, [[]]],
-  ], effects: [
-    ['editMenu', "button", paths: JV880.Rhythm.Note.patchWerk.truss.paramKeys(), type: "JV880RhythmNote", init: nil, rand: nil],
-    .setup([
-      ['dimItem', hideOut, "out/assign", dimAlpha: 0],
-    ]),
-  ], layout: [
+    ['button', "Note", {color: 1}],
+    ['panel', 'space', [[]]],
+  ], 
+  effects: [
+    ['editMenu', "button", {
+      paths: Rhythm.notePatchWerk.parms, 
+      type: "JV880RhythmNote",
+    }],
+    ['setup', [
+      ['hideItem', hideOut, "out/assign"],
+    ]],
+  ], 
+  layout: [
     ['row', [["on", 1], ["wave",2.5],["mute",3], ["outs",4], ["button", 2]]],
     ['row', [["pitch",4],["filter",5],["amp",4]]],
     ['row', [["space",1]]],
     ['col', [["on",1],["pitch",4],["space",1]]],
-  ])
-}
-
-let noteMiso = Miso.noteName(zeroNote: "C2")
+  ],
+})
 
 const controller = hideOut => ({
   builders: [
     ['child', note(hideOut), "note"],
-    ['switcher', "", 61.map { noteMiso.forward(Float($0)) }, cols: 16, color: 1]
+    ['switcher', [61, ['noteName', "C2"]], {cols: 16, color: 1}]
   ], 
   effects: [
-    .indexChange({ [
-      .midiNote(chan: 0, note: 36 + $0, velo: 100, len: 500),
-      .setIndex("note", $0)
-    ] })
+    ['indexChange', i => [
+      ['midiNote', {ch: 0, n: 36 + i, v: 100, l: 500}],
+      ['setIndex', "note", i],
+    ]]
   ], 
   layout: [
     ['row', [["switch",1]]],
     ['row', [["note",1]]],
     ['col', [["switch",3],["note",6]]],
-  ])
+  ],
 })

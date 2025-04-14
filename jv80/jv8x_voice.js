@@ -229,6 +229,7 @@ const werks = (config) => {
   module.exports = {
     werks,
     multiPack,
+    waveOptions,
     chorusTypes,
     chorusOuts,
     reverbTypes,

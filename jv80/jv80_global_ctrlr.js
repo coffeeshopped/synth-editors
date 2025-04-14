@@ -2,37 +2,37 @@
 const ctrlr =  {
   color: 1, 
   builders: [
-    ['panel', 'mode', { }, [[
+    ['panel', 'mode', [[
       [{switsch: "Mode"}, "mode"],
       ["Tune", "tune"],
       ["Key Transpose", "key/transpose"],
       [{checkbox: "Transpose"}, "transpose"],
       ]]],
-    ['panel', 'fx', { }, [[
+    ['panel', 'fx', [[
       [{checkbox: "Reverb"}, "reverb"],
       [{checkbox: "Chorus"}, "chorus"],
       ]]],
-    ['panel', 'hold', { }, [[
+    ['panel', 'hold', [[
       [{switsch: "Hold Pol"}, "hold/polarity"],
       ]]],
-    ['panel', 'pedal1', { }, [[
+    ['panel', 'pedal1', [[
       [{switsch: "Pedal 1 Pol"}, "pedal/0/polarity"],
       [{switsch: "Mode"}, "pedal/0/mode"],
       [{select: "Assign"}, "pedal/0/assign"],
       ]]],
-    ['panel', 'pedal2', { }, [[
+    ['panel', 'pedal2', [[
       [{switsch: "Pedal 2 Pol"}, "pedal/1/polarity"],
       [{switsch: "Mode"}, "pedal/1/mode"],
       [{select: "Assign"}, "pedal/1/assign"],
       ]]],
-    ['panel', 'ctrl', { }, [[
+    ['panel', 'ctrl', [[
       [{switsch: "C1 Mode"}, "ctrl/mode"],
       [{select: "Assign"}, "ctrl/assign"],
       ]]],
-    ['panel', 'after', { }, [[
+    ['panel', 'after', [[
       ["Aftert Thresh", "aftertouch/threshold"],
       ]]],
-    ['panel', 'rx', { }, [[
+    ['panel', 'rx', [[
       [{checkbox: "RX Volume"}, "rcv/volume"],
       [{checkbox: "CC"}, "rcv/ctrl/change"],
       [{checkbox: "Ch Press"}, "rcv/aftertouch"],
@@ -42,10 +42,10 @@ const ctrlr =  {
       [{checkbox: "Bank Sel"}, "rcv/bank/select"],
       ["Patch Channel", "patch/channel"],
       ]]],
-    ['panel', 'etc', { }, [[
+    ['panel', 'etc', [[
       ["Ctrl Chan", "ctrl/channel"],
       ]]],
-    ['panel', 'tx', { }, [[
+    ['panel', 'tx', [[
       [{checkbox: "TX Volume"}, "send/volume"],
       [{checkbox: "CC"}, "send/ctrl/change"],
       [{checkbox: "Ch Press"}, "send/aftertouch"],
@@ -61,7 +61,7 @@ const ctrlr =  {
     ['row', [["rx",8], ["ctrl",2], ["after",1]]],
     ['row', [["tx",8], ["etc",3]]],
     ['col', [["mode",1], ["rx",1], ["tx",1]]],
-  ])
+  ],
 }
 
 module.exports = {
