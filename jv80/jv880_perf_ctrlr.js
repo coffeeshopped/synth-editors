@@ -118,3 +118,9 @@ const ctrlr = {
   ], 
   pages: ['controllers', [common, parts(false)]],
 }
+
+module.exports = {
+  ctrlr,
+  parts,
+  commmon,
+}
