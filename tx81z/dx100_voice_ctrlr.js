@@ -34,7 +34,7 @@ const opController = index => {
         [{checkbox: "On"}, "on"],
         [{knob: "Ratio", id: coarsePath}, null],
         ["Detune", "detune"],
-        [{checkbox: "Amp Mod"}, "amp/mod"],
+        ["Amp Mod", "amp/mod"],
       ],[
         Op4VoiceCtrlr.envItem(index),
         ["Level", "level"],
