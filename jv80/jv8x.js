@@ -6,6 +6,9 @@ const Perf = require('./jv8x_perf.js')
 const SRJVBoard = require('./srjv_board.js')
 const SOPCMCard = require('./sopcm_card.js')
 
+const VoiceCtrlr = require('./jv8x_voice_ctrlr.js')
+const RhythmCtrlr = require('./jv8x_rhythm_ctrlr.js')
+
 const cardTruss = {
   json: "JV-880 Card", 
   parms: [
@@ -17,7 +20,7 @@ const cardTruss = {
 
 const editorTruss = (name, config) => {
   
-  const global = Global.werks(config.global)
+  const global = Global.patchWerk(config.global)
   const perf = Perf.werks(config.perf)
   const voice = Voice.werks(config.voice)
   const rhythm = Rhythm.werks(config.rhythm)
@@ -35,15 +38,15 @@ const editorTruss = (name, config) => {
     map: ([
       ['deviceId']
       ["global", 0x00000000, global],
-      ["perf", 0x00001000, perf],
-      ["patch", 0x00082000, voice],
-      ["rhythm", 0x00074000, rhythm],
-      ["bank/patch/0", 0x01402000, voiceBank],
-      ["bank/perf/0", 0x01001000, perfBank],
-      ["bank/rhythm/0", 0x017f4000, rhythmBank],
+      ["perf", 0x00001000, perf.patch],
+      ["patch", 0x00082000, voice.patch],
+      ["rhythm", 0x00074000, rhythm.patch],
+      ["bank/patch/0", 0x01402000, voice.bank],
+      ["bank/perf/0", 0x01001000, perf.bank],
+      ["bank/rhythm/0", 0x017f4000, rhythm.bank],
       ["pcm", cardTruss],
     ]).concat((7).map(i =>
-      [["part", i], [0x00, i, 0x20, 0x00], voice]
+      [["part", i], [0x00, i, 0x20, 0x00], voice.patch]
     )),
     extraParamOuts: ([
       ["perf", 'bankNames', "bank/patch/0", "patch/name"],
@@ -78,7 +81,7 @@ const editorTruss = (name, config) => {
   //    patch(forPath: "perf")?.patchChangesInput.value = .paramsChange(params)
 //  }
 
-const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut) => ({
+const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut, config) => ({
   editor: editor, 
   manu: "Roland", 
   subid: subid, 
@@ -95,15 +98,15 @@ const moduleTruss = (editor, subid, globalCtrlr, perfCtrlr, hideOut) => ({
         ],
       }],
       ['global', globalCtrlr.ctrlr],
-      ['voice', "Patch", VoiceController.ctrlr(false, hideOut)],
+      ['voice', "Patch", VoiceCtrlr.ctrlr(false, hideOut, config)],
     ]],
     ['basic', "Performance", ([
       ['perf', perfCtrlr.ctrlr],
     ]).concat(
       (7).map(i => 
-        ['voice', `Part ${i + 1}`, JV880.Voice.Controller.ctrlr(true, hideOut), ["part", i]]
+        ['voice', `Part ${i + 1}`, VoiceCtrlr.ctrlr(true, hideOut, config), ["part", i]]
       ),
-      [['custom', "Rhythm", "rhythm", RhythmController.ctrlr(hideOut)]]
+      [['custom', "Rhythm", "rhythm", RhythmCtrlr.ctrlr(hideOut, config)]]
     )],
     ['banks', [
       ['bank', "Patch Bank", "bank/patch/0"],

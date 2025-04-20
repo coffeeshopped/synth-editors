@@ -202,6 +202,7 @@ const werks = (config) => {
   }
   
   return {
+    tone: tone,
     patch: patch,
     bank: {
       multiBank: patch,
@@ -229,6 +230,7 @@ const werks = (config) => {
   module.exports = {
     werks,
     multiPack,
+    waveOptions,
     chorusTypes,
     chorusOuts,
     reverbTypes,

@@ -92,9 +92,10 @@ const werks = (config) => {
   }
   
   return {
+    note: note,
     patch: patch,
     bank: {
-      multiBank: patchWerk, 
+      multiBank: patch, 
       patchCount: 1, 
       initFile: "jv880-rhythm-bank",
     },

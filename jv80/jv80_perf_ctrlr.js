@@ -3,47 +3,45 @@ const JV880PerfCtrlr = require('./jv880_perf_ctrlr.js')
 const label = i => i == 7 ? "Rhythm" : `${i+1}`
 
 const transmit = ['index', "part", "on", label, {
-  color: 1
-  builders: [
-    ['grid', {prefix: "send"}, [[
-      [{checkbox: "On"}, "on"],
-      ["Channel", "channel"],
-    ], [
-      ["Pgm Ch", "pgmChange"],
-      ["Volume", "volume"],
-    ], [
-      ["Pan", "pan"],
-    ], [
-      ["Key Lo", "key/range/lo"],
-      ["Key Hi", "key/range/hi"],
-    ], [
-      ["Key Transpose", "key/transpose"],
-    ], [
-      ["Velo Sens", "velo/sens"],
-      ["Velo Hi", "velo/hi"],
-    ], [
-      ["Velo Curve", "velo/curve"],
-    ]]]
-  ],
+  color: 1,
+  prefix: {fixed: "send"},
+  gridBuilder: [[
+    [{checkbox: "On"}, "on"],
+    ["Channel", "channel"],
+  ], [
+    ["Pgm Ch", "pgmChange"],
+    ["Volume", "volume"],
+  ], [
+    ["Pan", "pan"],
+  ], [
+    ["Key Lo", "key/range/lo"],
+    ["Key Hi", "key/range/hi"],
+  ], [
+    ["Key Transpose", "key/transpose"],
+  ], [
+    ["Velo Sens", "velo/sens"],
+    ["Velo Hi", "velo/hi"],
+  ], [
+    ["Velo Curve", "velo/curve"],
+  ]],
 }]
 
 const internl = ['index', "part", "on", label, {
   color: 1,
-  builders: [
-    ['grid', {prefix: "int"}, [[
-      [{checkbox: "On"}, "on"],
-    ], [
-      ["Key Lo", "key/range/lo"],
-      ["Key Hi", "key/range/hi"],
-    ], [
-      ["Key Transpose", "key/transpose"],
-    ], [
-      ["Velo Sens", "velo/sens"],
-      ["Velo Hi", "velo/hi"],
-    ], [
-      ["Velo Curve", "velo/curve"],
-    ]]]
-  ],
+  prefix: {fixed: "int"},
+  gridBuilder: [[
+    [{checkbox: "On"}, "on"],
+  ], [
+    ["Key Lo", "key/range/lo"],
+    ["Key Hi", "key/range/hi"],
+  ], [
+    ["Key Transpose", "key/transpose"],
+  ], [
+    ["Velo Sens", "velo/sens"],
+    ["Velo Hi", "velo/hi"],
+  ], [
+    ["Velo Curve", "velo/curve"],
+  ]],
 }]
 
 const ctrlr = {
