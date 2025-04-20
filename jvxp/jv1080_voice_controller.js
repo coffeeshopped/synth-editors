@@ -106,8 +106,8 @@ const fx = {
   color: 2, 
   builders: [
     ['panel', "fx", [
-      ([[{select: "FX Type"}, 'type']]).concat((5).map(i => [{knob: `${i}`, id: `param/${i}`}, null])),
-      ([5, 12]).rangeMap(i => [{knob: `${i}`, id: `param/${i}`}, null])
+      ([["FX Type", 'type']]).concat((5).map(i => [{x: `${i}`, id: `param/${i}`}, null])),
+      ([5, 12]).rangeMap(i => [{x: `${i}`, id: `param/${i}`}, null])
     ]],
     ['panel', 'fxOut', { }, [[
       [{switsch: "FX Output"}, "out/assign"],

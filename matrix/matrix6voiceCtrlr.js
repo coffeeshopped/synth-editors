@@ -23,9 +23,9 @@ const envController = (label, index) => ({
     ],[
       ["Amp", "amp"],
       ["Velo", "velo"],
-      [{t: "select", l: "Trigger Mode"}, "trigger/mode"],
-      [{t: "switsch", l: "Mode"}, "mode"],
-      [{t: "switsch", l: "LFO Trigger"}, "lfo/trigger/mode"],
+      ["Trigger Mode", "trigger/mode"],
+      ["Mode", "mode"],
+      ["LFO Trigger", "lfo/trigger/mode"],
     ]]]
   ], 
   effects: [

@@ -34,7 +34,7 @@ const opController = index => {
         [{checkbox: "On"}, "on"],
         [{knob: "Ratio", id: coarsePath}, null],
         ["Detune", "detune"],
-        [{checkbox: "Amp Mod"}, "amp/mod"],
+        ["Amp Mod", "amp/mod"],
       ],[
         Op4VoiceCtrlr.envItem(index),
         ["Level", "level"],
@@ -77,20 +77,20 @@ module.exports = {
         ["Algorithm", "algo"],
       ],[
         ["Feedback", "feedback"],
-        [{checkbox: "Mono"}, "poly"],
+        ["Mono", "poly"],
       ]]],
       ['panel', 'transpose', { prefix: "voice", color: 2 }, [[
         ["transpose"],
         ["P Bend", "bend"],
       ],[
         ["Porta Time" , "porta/time"],
-        [{checkbox: "Fingered"}, "porta/mode"],
+        ["Fingered", "porta/mode"],
       ]]],
       ['panel', 'lfo', { prefix: "voice", color: 2 }, [[
-        [{switsch: "LFO Wave"}, "lfo/wave"],
+        ["LFO Wave", "lfo/wave"],
         ["Speed", "lfo/speed"],
       ],[
-        [{checkbox: "Key Sync"}, "lfo/sync"],
+        ["Key Sync", "lfo/sync"],
         ["Pitch Depth", "pitch/mod/depth"],
         ["Pitch Sens", "pitch/mod/sens"],
       ],[

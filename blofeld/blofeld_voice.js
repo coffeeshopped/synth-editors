@@ -363,9 +363,9 @@ const parms = [
   { prefix: '', count: 16, bx: 1, block: [
     ["step", {b: 327, bits: [4, 7], dispOff: -4, opts: arpSteps}],
     ["glide", {b: 327, bit: 3}],
-    ["accent", {b: 327, bits: [0, 3], max: 7, dispOff: -4, iso: arpAccentIso}],
-    ["length", {b: 343, bits: [4, 7], max: 7, dispOff: -4, iso: arpLenIso}],
-    ["timing", {b: 343, bits: [0, 3], max: 7, dispOff: -4, iso: arpTimingIso}],
+    ["accent", {b: 327, bits: [0, 3], max: 7, dispOff: -4, opts: arpAccentIso}],
+    ["length", {b: 343, bits: [4, 7], max: 7, dispOff: -4, opts: arpLenIso}],
+    ["timing", {b: 343, bits: [0, 3], max: 7, dispOff: -4, opts: arpTimingIso}],
   ] },
   ["category", {b: 379, opts: categorys}],
 ]

@@ -14,36 +14,39 @@ const fxRateParam = (() => {
   return options
 })()
 const fxCoarseParam = { max: 36, dispOff: -24 }
-const fxFineParam = { opts: (101).map(i => `${i*2 - 100}`) }
-const fxFdbkParam = { opts: (99).map(i => `${i*2 - 98}`) }
-const fxBalanceParam = { opts: (101).map(i => `D${100-i}:${i}E`) }
+const fxFineParam = { max: 100, iso: ['>', ['*', 2], ['-', 100]] }
+const fxFdbkParam = { max: 98, iso: ['>', ['*', 2], ['-', 98]] }
+const fxBalanceParam = { max: 100, iso: ['concat',
+  ['>', ['!-', 100], ['str', 'D%g:']], 
+  ['units', 'E']
+] }
 // "baseSwitch" is switcher but arg passed to iso fns is 0-based (adjusted based on range start)
 const fxDelayTime500Param = { max: 126, iso: ['baseSwitch', [
-  ['rng', 0, 50, ["*0.1"]],
-  ['rng', 50, 60, ["*0.5", "+5"]],
-  ['rng', 60, 90, ["*1", "+10"]],
-  ['rng', 90, 116, ["*10", "+40"]],
-  ['rng', 116, 127, ["*20", "+300"]],
+  [[0, 50], ["*", 0.1]],
+  [[50, 60], ['>', ["*", 0.5], ["+", 5]]],
+  [[60, 90], ['>', ["*", 1], ["+", 10]]],
+  [[90, 116], ['>', ["*", 10], ["+", 40]]],
+  [[116, 127], ['>', ["*", 20], ["+", 300]]],
 ]] }
 const fxDelayTime100Param = { max: 125, iso: ['baseSwitch', [
-  ['rng', 0, 50, ["*0.1"]],
-  ['rng', 50, 60, ["*0.5", "+5"]],
-  ['rng', 60, 100, ["*1", "+10"]],
-  ['rng', 100, 126, ["*2", "+50"]],
+  [[0, 50], ['>', ["*", 0.1]]],
+  [[50, 60], ['>', ["*", 0.5], ["+", 5]]],
+  [[60, 100], ['>', ["*", 1], ["+", 10]]],
+  [[100, 126], ['>', ["*", 2], ["+", 50]]],
 ]] }
 
 // 200...1000ms, note
-const fxDelayTime1000NoteParam = { max: 125, iso: ['switcher', [
-  ['rng', 0, 70, ["*5", "+200"]],
-  ['rng', 70, 116, ["-70", "*10", "+550"]],
-  ['rng', 116, 126, ["-116", ["@", ["16th", "8th trip", "Dot 16th", "8th", "1/4 trip", "Dot 8th", "1/4", "1/2 trip", "Dot 1/4", "1/2"]]]],
-], ""] }
+const fxDelayTime1000NoteParam = { max: 125, iso: ['baseSwitch', [
+  [[0, 70], ['>', ["*", 5], ["+", 200]]],
+  [[70, 116], ['>', ["*", 10], ["+", 550]]],
+  [[116, 126], ["@", ["16th", "8th trip", "Dot 16th", "8th", "1/4 trip", "Dot 8th", "1/4", "1/2 trip", "Dot 1/4", "1/2"]]],
+]] }
 
 // 200...1000ms (no note)
-const fxDelayTime1000Param = { max: 120, iso: ['switcher', [
-  ['rng', 0, 80, ["*5", "+200"]],
-  ['rng', 80, 121, ["-80", "*10", "+600"]],
-], ""] }
+const fxDelayTime1000Param = { max: 120, iso: ['baseSwitch', [
+  [[0, 80], ['>', ["*", 5], ["+", 200]]],
+  [[80, 121], ['>', ["*", 10], ["+", 600]]],
+]] }
 
 
 const Pairs = {
