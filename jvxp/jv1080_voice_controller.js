@@ -3,8 +3,10 @@ require('./utils.js')
 const Voice = require('./jv1080_voice.js')
 const SRJVBoard = require('./srjv_board.js')
 const FX = require('./jvfx.js')
-  
-const common = (cfg) => {  
+
+const structures = (10).map(i => `assets/xv-struct-${i + 1}.pdf`)
+
+const common = (cfg) => {
   var effects = []
   
   if (!cfg.showClockSource) {
@@ -29,43 +31,43 @@ const common = (cfg) => {
         ["Tempo", "tempo"],
         ["Level", "level"],
         ["Pan", "pan"],
-        [{checkbox: "Mono"}, "mono"],
-        [{checkbox: "Legato"}, "legato"],
+        ["Mono", "mono"],
+        ["Legato", "legato"],
         ["Analog Feel", "analogFeel"],
       ],[
         ["Oct Shift", "octave/shift"],
         ["Stretch Tune", "stretchTune"],
-        [{switsch: "Voice Priority"}, "voice/priority"],
-        [{checkbox: "Velo Range"}, "velo/range/on"],
+        ["Voice Priority", "voice/priority"],
+        ["Velo Range", "velo/range/on"],
         ["Bend Up", "bend/up"],
         ["Bend Down", "bend/down"],
       ]]],
       ['panel', 'porta', { color: 1 }, [[
-        [{checkbox: "Porta"}, "porta"],
+        ["Porta", "porta"],
         ["Time", "porta/time"],
-        [{checkbox: "Legato"}, "porta/legato"],
+        ["Legato", "porta/legato"],
       ],[
-        [{switsch: "Type"}, "porta/type"],
-        [{switsch: "Start"}, "porta/start"],
+        ["Type", "porta/type"],
+        ["Start", "porta/start"],
       ]]],
       ['panel', 'ctrl', { color: 1 }, [[
-        [{select: "Ctrl Src 2"}, "patch/ctrl/src/1"],
+        ["Ctrl Src 2", "patch/ctrl/src/1"],
       ],[
-        [{select: "Ctrl Src 3"}, "patch/ctrl/src/2"],
+        ["Ctrl Src 3", "patch/ctrl/src/2"],
       ]]],
       ['panel', 'hold', { color: 1 }, [[
         { l: "Hold/Peak" },
-        [{switsch: "FX Ctrl"}, "fx/ctrl/holdPeak"],
+        ["FX Ctrl", "fx/ctrl/holdPeak"],
       ],[
-        [{switsch: "Ctrl 1"}, "ctrl/0/holdPeak"],
-        [{switsch: "Ctrl 2"}, "ctrl/1/holdPeak"],
-        [{switsch: "Ctrl 3"}, "ctrl/2/holdPeak"],
+        ["Ctrl 1", "ctrl/0/holdPeak"],
+        ["Ctrl 2", "ctrl/1/holdPeak"],
+        ["Ctrl 3", "ctrl/2/holdPeak"],
       ]]],
       ['panel', 'struct', { color: 1 }, [[
-        [{imgSelect: "Structure 1/2", w: 200, h: 70}, "structure/0"],
+        [{imgSelect: "Structure 1/2", w: 200, h: 70, images: structures}, "structure/0"],
         ["Boost 1/2", "booster/0"],
       ],[
-        [{imgSelect: "Structure 3/4", w: 200, h: 70}, "structure/1"],
+        [{imgSelect: "Structure 3/4", w: 200, h: 70, images: structures}, "structure/1"],
         ["Boost 3/4", "booster/1"],
       ]]],
       ['panel', 'chorus', { color: 1 }, [[
@@ -74,18 +76,18 @@ const common = (cfg) => {
         ["Depth", "chorus/depth"],
         ["Pre-Delay", "chorus/predelay"],
         ["Feedback", "chorus/feedback"],
-        [{switsch: "Output"}, "chorus/out/assign"],
+        ["Output", "chorus/out/assign"],
       ]]],
       ['panel', 'reverb', { color: 1 }, [[
-        [{select: "Reverb"}, "reverb/type"],
+        ["Reverb", "reverb/type"],
         ["Level", "reverb/level"],
         ["Time", "reverb/time"],
-        [{select: "HF Damp"}, "reverb/hfdamp"],
+        ["HF Damp", "reverb/hfdamp"],
         ["Feedback", "reverb/feedback"],
       ]]],
       ['panel', "clock", {color: 1}, [
-        (cfg.showCategory ? [[{ select: "Category" }, 'category']] : []).concat(
-          [[{switsch: "Clock Src"}, 'clock/src']]
+        (cfg.showCategory ? [["Category", 'category']] : []).concat(
+          [["Clock Src", 'clock/src']]
         )
       ]],
     ], 
@@ -110,14 +112,14 @@ const fx = {
       ([5, 12]).rangeMap(i => [{x: `${i}`, id: `param/${i}`}, null])
     ]],
     ['panel', 'fxOut', { }, [[
-      [{switsch: "FX Output"}, "out/assign"],
+      ["FX Output", "out/assign"],
       ["FX Level", "out/level"],
       ["→Chorus", "chorus"],
       ["→Reverb", "reverb"],
     ],[
-      [{select: "Ctrl Src 1"}, "ctrl/src/0"],
+      ["Ctrl Src 1", "ctrl/src/0"],
       ["Amt 1", "ctrl/depth/0"],
-      [{select: "Ctrl Src 2"}, "ctrl/src/1"],
+      ["Ctrl Src 2", "ctrl/src/1"],
       ["Amt 2", "ctrl/depth/1"],
     ]]],
   ], 
@@ -280,7 +282,7 @@ const filterEnvs = {
 const filter = {
   builders: [
     ['grid', [[
-      [{select: "Filter"}, "filter/type"],
+      ["Filter", "filter/type"],
       ["Cutoff", "cutoff"],
       ["Reson", "reson"],
       ["LFO 1", "lfo/0/filter"],
@@ -340,7 +342,7 @@ const ampEnvs = {
 const amp = {
   builders: [
     ['grid', [[
-      [{switsch: "Bias Dir"}, "bias/direction"],
+      ["Bias Dir", "bias/direction"],
       ["Bias Pt", "bias/pt"],
       ["Bias Level", "bias/level"],
       ["LFO 1", "lfo/0/amp"],
@@ -373,15 +375,15 @@ const lfo = {
   builders: [
     ['grid', [[
       ['switcher', ["1","2"], { l: "LFO" }],
-      [{select: "Wave"}, "wave"],
+      ["Wave", "wave"],
       ["Rate", "rate"],
-      [{checkbox: "Key Trig"}, "key/trigger"],
+      ["Key Trig", "key/trigger"],
     ],[
       ["Delay", "delay"],
-      [{select: "Fade Mode"}, "fade/mode"],
+      ["Fade Mode", "fade/mode"],
       ["Fade Time", "fade/time"],
-      [{select: "Level Offset"}, "level/offset"],
-      [{switsch: "Ext Sync"}, "ext/sync"],
+      ["Level Offset", "level/offset"],
+      ["Ext Sync", "ext/sync"],
     ]]],
   ],
 }
@@ -391,13 +393,13 @@ const control = {
   builders: [
     ['grid', [[
       ['switcher', ["1","2","3"], { l: "Controller" }],
-      [{select: "Dest 1"}, "dest/0"],
+      ["Dest 1", "dest/0"],
       ["Amt 1", "depth/0"],
-      [{select: "Dest 2"}, "dest/1"],
+      ["Dest 2", "dest/1"],
       ["Amt 2", "depth/1"],
-      [{select: "Dest 3"}, "dest/2"],
+      ["Dest 3", "dest/2"],
       ["Amt 3", "depth/2"],
-      [{select: "Dest 4"}, "dest/3"],
+      ["Dest 4", "dest/3"],
       ["Amt 4", "depth/3"],
     ]]],
   ],
@@ -458,7 +460,7 @@ const paletteFilter = {
   color: 2, 
   builders: [
     ['grid', [[
-      [{select: "Filter"}, "filter/type"],
+      ["Filter", "filter/type"],
       ["Cutoff", "cutoff"],
       ["Reson", "reson"],
     ],[
@@ -496,7 +498,7 @@ const paletteAmp = {
   builders: [
     ['grid', [[
       ["Level", "tone/level"],
-      [{switsch: "Bias Dir"}, "bias/direction"],
+      ["Bias Dir", "bias/direction"],
       ["Bias Pt", "bias/pt"],
       ["Bias Level", "bias/level"],
     ],[
@@ -539,19 +541,19 @@ const palettePanOut = {
       ["LFO 2", "lfo/1/pan"],
     ]]],
     ['panel', 'fxm', { }, [[
-      [{checkbox: "FXM"}, "fxm/on"],
+      ["FXM", "fxm/on"],
       ["Color", "fxm/color"],
       ["Depth", "fxm/depth"],
     ]]],
     ['panel', 'out', { }, [[
-      [{select: "Output"}, "out/assign"],
+      ["Output", "out/assign"],
       ["Level", "out/level"],
     ],[
       ["Chorus", "chorus"],
       ["Reverb", "reverb"],
     ]]],
     ['panel', 'delay', { }, [[
-      [{select: "Delay"}, "delay/mode"],
+      ["Delay", "delay/mode"],
       ["Time", "delay/time"],
     ]]],
   ], 
@@ -569,15 +571,15 @@ const paletteLFO = {
       color: 1, 
       builders: [
         ['grid', [[
-          [{select: "Wave"}, "wave"],
+          ["Wave", "wave"],
           ["Rate", "rate"],
-          [{checkbox: "Key Trig"}, "key/trigger"],
-          [{switsch: "Ext Sync"}, "ext/sync"],
+          ["Key Trig", "key/trigger"],
+          ["Ext Sync", "ext/sync"],
         ],[
           ["Delay", "delay"],
-          [{select: "Fade Mode"}, "fade/mode"],
+          ["Fade Mode", "fade/mode"],
           ["Fade Time", "fade/time"],
-          [{select: "Level Offset"}, "level/offset"],
+          ["Level Offset", "level/offset"],
         ],[
           ["Pitch", "pitch"],
           ["Filter", "filter"],
@@ -604,12 +606,12 @@ const tone = {
     ['child', lfo, "lfo", {color: 1}],
     ['child', control, "ctrl", {color: 1}],
     ['panel', 'fxm', { color: 1 }, [[
-      [{checkbox: "FXM"}, "fxm/on"],
+      ["FXM", "fxm/on"],
       ["Color", "fxm/color"],
       ["Depth", "fxm/depth"],
     ]]],
     ['panel', 'delay', { color: 1 }, [[
-      [{select: "Delay"}, "delay/mode"],
+      ["Delay", "delay/mode"],
       ["Time", "delay/time"],
     ]]],
     ['button', "Tone", {color: 1}],
@@ -622,10 +624,10 @@ const tone = {
     ]]],
     ['panel', 'rcv', { color: 1 }, [[
       ["Redamp Ctl", "redamper/ctrl"],
-      [{checkbox: "Volume Ctl"}, "volume/ctrl"],
-      [{checkbox: "Hold-1 Ctl"}, "hold/ctrl"],
-      [{checkbox: "Bender Ctl"}, "bend/ctrl"],
-      [{checkbox: "Pan Ctl"}, "pan/ctrl"]]
+      ["Volume Ctl", "volume/ctrl"],
+      ["Hold-1 Ctl", "hold/ctrl"],
+      ["Bender Ctl", "bend/ctrl"],
+      ["Pan Ctl", "pan/ctrl"]]
     ]],
     ['panel', 'pan', { color: 3 }, [[
       ["Pan", "pan"],
@@ -637,7 +639,7 @@ const tone = {
       ["LFO 2", "lfo/1/pan"],
     ]]],
     ['panel', 'out', { color: 3 }, [[
-      [{select: "Output"}, "out/assign"],
+      ["Output", "out/assign"],
       ["Level", "out/level"],
     ],[
       ["Chorus", "chorus"],
@@ -669,10 +671,10 @@ const controller = cfg => ({
   builders: [
     ['switcher', ["Common","1","2","3","4", "Pitch", "Filter", "Amp", "LFO", "Pan/Out"], {color: 1}],
     ['panel', 'on', { color: 1, }, [[
-      [{checkbox: "Tone 1"}, "tone/0/on"],
-      [{checkbox: "2"}, "tone/1/on"],
-      [{checkbox: "3"}, "tone/2/on"],
-      [{checkbox: "4"}, "tone/3/on"],
+      ["Tone 1", "tone/0/on"],
+      ["2", "tone/1/on"],
+      ["3", "tone/2/on"],
+      ["4", "tone/3/on"],
     ]]],
   ], 
   layout: [
