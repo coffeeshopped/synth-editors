@@ -1,7 +1,7 @@
-const Editor = require('./FS1REditor.js')
-const GlobalCtrlr = require('./FS1RGlobalController.js')
-const VoiceCtrlr = require('./FS1RVoiceController.js')
-const PerfCtrlr = require('./FS1RPerfController.js')
+const Editor = require('./fs1r_editor.js')
+const GlobalCtrlr = require('./fs1r_global_ctrlr.js')
+const VoiceCtrlr = require('./fs1r_voice_ctrlr.js')
+const PerfCtrlr = require('./fs1r_perf_ctrlr.js')
 
 //    public static func onEditorLoad(_ module: TemplatedModule) {
 //      module.templatedEditor.patchChangesOutput(forPath: [.global])?.subscribe(onNext: { [unowned module] (change, patch) in

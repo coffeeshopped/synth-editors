@@ -1,4 +1,4 @@
-const Voice = require('./FS1RVoice.js')
+const Voice = require('./fs1r_voice.js')
 
 const opPaths = ['>', Voice.patchTruss.parms,
   ['removePrefix', 'op/0'],
@@ -76,7 +76,7 @@ const miniOpController = ['index', "op", "op", i => `${i + 1}`, {
   ],
 }]
 
-const Algorithms = require('./FS1RAlgorithms.js')
+const Algorithms = require('./fs1r_algorithms.js')
 
 const algo = ['fm', Algorithms.algorithms, miniOpController, {
   algo: "algo", 

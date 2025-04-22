@@ -1,9 +1,9 @@
 require('./utils.js')
-const FS1R = require('./FS1R.js')
-const Global = require('./FS1RGlobal.js')
-const Voice = require('./FS1RVoice.js')
-const Fseq = require('./FS1RFseq.js')
-const Perf = require('./FS1RPerf.js')
+const FS1R = require('./fs1r.js')
+const Global = require('./fs1r_global.js')
+const Voice = require('./fs1r_voice.js')
+const Fseq = require('./fs1r_fseq.js')
+const Perf = require('./fs1r_perf.js')
 
 
 // MARK: MIDI I/O
@@ -88,11 +88,11 @@ const editor = {
   ].concat((4).map(part => [["part", part], ['patchOut', "perf", (change, patch) => {
     var out = []
     var v = change[`part/${part}/filter/on`]
-    if (v !== null) {
+    if (v != null) {
       out.push(['filter/on', v])
     }
     v = change[`fseq/${part}`]
-    if (v !== null) {
+    if (v != null) {
       out.push(['fseq/on', v == part + 1 ? 1 : 0])
     }
     return out

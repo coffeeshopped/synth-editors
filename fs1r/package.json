@@ -8,7 +8,7 @@
       "name": "fs1r",
       "manufacturer": "Yamaha",
       "model": "FS1R",
-      "module": "FS1RModule.js"
+      "module": "fs1r_module.js"
     }
   ]
 }

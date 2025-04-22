@@ -1,8 +1,7 @@
 require('./utils.js')
 
-const FS1R = require('./FS1R.js')
-const Voice = require('./FS1RVoice.js')
-
+const FS1R = require('./fs1r.js')
+const Voice = require('./fs1r_voice.js')
 
 // TODO: treat byte (b) values as RolandAddresses for the purposes of packing/unpacking
 // i.e. take b, make a RolandAddress from it, then get intValue(), and that's the actual byte address

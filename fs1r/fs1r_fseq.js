@@ -1,4 +1,4 @@
-const FS1R = require('./FS1R.js')
+const FS1R = require('./fs1r.js')
 
 // TODO: get/set needs to take into account 2-byte params but also those bytes aren't contiguous in the frames!
 // Same with param sends on this stuff!

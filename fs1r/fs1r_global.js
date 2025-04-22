@@ -1,4 +1,4 @@
-const FS1R = require('./FS1R.js')
+const FS1R = require('./fs1r.js')
 
 const sysexData = FS1R.sysexData([0x00, 0x00, 0x00])
 

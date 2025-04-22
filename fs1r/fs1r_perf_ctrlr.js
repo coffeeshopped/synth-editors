@@ -1,5 +1,5 @@
 require('./utils.js')
-const Perf = require('./FS1RPerf.js')
+const Perf = require('./fs1r_perf.js')
 
 const ccBlock = (state, locals) => {
   const speedType = locals["speed/type"] || 0
