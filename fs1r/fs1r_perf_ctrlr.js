@@ -1,5 +1,6 @@
 require('./utils.js')
 const Perf = require('./fs1r_perf.js')
+const Voice = require('./fs1r_voice.js')
 
 const ccBlock = (state, locals) => {
   const speedType = locals["speed/type"] || 0
@@ -356,8 +357,9 @@ const part = {
           return ['fullPath', "patch/name"]
         }
         else {
-          const ramIndex = Math.min(Math.max(0, bank - 2), FS1R.Voice.ramBanks.length - 1)
-          return { opts: FS1R.Voice.ramBanks[ramIndex] }
+          const ramBanks = Voice.ramBanks
+          const ramIndex = Math.min(Math.max(0, bank - 2), ramBanks.length - 1)
+          return { opts: ramBanks[ramIndex] }
         }
       }
     }],

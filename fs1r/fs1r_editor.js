@@ -87,6 +87,9 @@ const editor = {
     ["perf", ['bankNames', "bank/fseq", "fseq/name"]],
   ].concat((4).map(part => [["part", part], ['patchOut', "perf", (change, patch) => {
     var out = []
+    console.log("Hello.")
+    console.log(change)
+    return []
     var v = change[`part/${part}/filter/on`]
     if (v != null) {
       out.push(['filter/on', v])

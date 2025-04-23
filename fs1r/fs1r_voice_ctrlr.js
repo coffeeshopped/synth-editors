@@ -89,14 +89,12 @@ const algoOptions = (88).map(i => `assets/fs1r-algo-${i + 1}.svg`)
 const formantController = (destLabel, prefixItem) => ({
   prefix: { index: [prefixItem, 'ctrl'] }, 
   color: 1,
-  builders: [
-    ['grid', [[
-      ["Op", "op"],
-      [{switch: "V/N"}, "unvoiced"],
-      [{switch: destLabel}, "dest"],
-      ["Depth", "depth"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    ["Op", "op"],
+    [{switch: "V/N"}, "unvoiced"],
+    [{switch: destLabel}, "dest"],
+    ["Depth", "depth"],
+  ]],
   effects: [
     ['patchChange', {
       paths: ["dest", "depth"], 
@@ -113,11 +111,10 @@ const knobController = (topLabel, destLabel, prefixItem) => ({
       {l: topLabel},
     ]]],
   ], 
-  layout: [
-    ['row', [["label", 1], ["mod0", 1]]],
-    ['row', [["mod1", 1], ["mod2", 1]]],
-    ['row', [["mod3", 1], ["mod4", 1]]],
-    ['col', [["label", 1], ["mod1", 1], ["mod3", 1]]],
+  simpleGridLayout: [
+    [["label", 1], ["mod0", 1]],
+    [["mod1", 1], ["mod2", 1]],
+    [["mod3", 1], ["mod4", 1]],
   ],
 })
 
@@ -155,47 +152,43 @@ const envEffect = ['editMenu', "env", {
 
 const pitchController = {
   prefix: {fixed: "pitch/env"},
-  builders: [
-    ['grid', [[
-      env("Pitch EG"),
-      ["T1", "time/0"],
-      ["T2", "time/1"],
-      ["T3", "time/2"],
-      ["T4", "time/3"],
-      [{switch: "EG Range"}, "range"],
-    ],[
-      ["Velocity", "velo"],
-      ["L0", "level/-1"],
-      ["L1", "level/0"],
-      ["L2", "level/1"],
-      ["L3", "level/2"],
-      ["L4", "level/3"],
-      ["T Scale", "time/scale"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    env("Pitch EG"),
+    ["T1", "time/0"],
+    ["T2", "time/1"],
+    ["T3", "time/2"],
+    ["T4", "time/3"],
+    [{switch: "EG Range"}, "range"],
+  ],[
+    ["Velocity", "velo"],
+    ["L0", "level/-1"],
+    ["L1", "level/0"],
+    ["L2", "level/1"],
+    ["L3", "level/2"],
+    ["L4", "level/3"],
+    ["T Scale", "time/scale"],
+  ]],
   effects: envEffect,
 }
 
 const filterController = {
   prefix: {fixed: "filter/env"}, 
-  builders: [
-    ['grid', [[
-      env("Filter EG"),
-      ["T1", "time/0"],
-      ["T2", "time/1"],
-      ["T3", "time/2"],
-      ["T4", "time/3"],
-      ["EG Depth", "depth"],
-    ],[
-      ["Velocity", "depth/velo"],
-      ["Attack Velo", "attack/velo"],
-      ["L1", "level/0"],
-      ["L2", "level/1"],
-      ["L3", "level/2"],
-      ["L4", "level/3"],
-      ["T Scale", "time/scale"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    env("Filter EG"),
+    ["T1", "time/0"],
+    ["T2", "time/1"],
+    ["T3", "time/2"],
+    ["T4", "time/3"],
+    ["EG Depth", "depth"],
+  ],[
+    ["Velocity", "depth/velo"],
+    ["Attack Velo", "attack/velo"],
+    ["L1", "level/0"],
+    ["L2", "level/1"],
+    ["L3", "level/2"],
+    ["L4", "level/3"],
+    ["T Scale", "time/scale"],
+  ]],
   effects: envEffect,
 }
 
@@ -367,26 +360,24 @@ const voicedOscController = {
   prefix: voicedPrefix, 
   color: 2, 
   border: 2, 
-  builders: [
-    ['grid', [[
-      [{switch: "Mode" }, "osc/mode"],
-      [{switch: "Ratio", id: "ratio" }, null],
-    ], [
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-    ], [
-      ["Detune", "detune"],
-      ["Transpose", "transpose"],
-    ], [
-      ["P Mod", "pitch/mod/sens"],
-      ["Skirt", "spectral/skirt"],
-    ], [
-      [{select: "Spectral Form"}, "spectral/form"],
-    ], [
-      ["BW", "freq/ratio/spectral"],
-      [{checkbox: "Key Sync"}, "key/sync"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    [{switch: "Mode" }, "osc/mode"],
+    [{switch: "Ratio", id: "ratio" }, null],
+  ], [
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+  ], [
+    ["Detune", "detune"],
+    ["Transpose", "transpose"],
+  ], [
+    ["P Mod", "pitch/mod/sens"],
+    ["Skirt", "spectral/skirt"],
+  ], [
+    [{select: "Spectral Form"}, "spectral/form"],
+  ], [
+    ["BW", "freq/ratio/spectral"],
+    [{checkbox: "Key Sync"}, "key/sync"],
+  ]],
   effects: [
     paletteEffect,
     spectralFormEffect,
@@ -486,23 +477,21 @@ const unvoicedOscController = {
   prefix: unvoicedPrefix, 
   color: 3, 
   border: 3, 
-  builders: [
-    ['grid', [[
-      [{switch: "Mode"}, "mode"],
-      [{switch: "Ratio"}, "ratio"],
-    ], [
-      ["Coarse", "coarse"],
-      ["Fine", "fine"],
-    ], [
-      ["Transpose", "transpose"],
-    ], [
-      ["BW", "bw"],
-      ["BW Bias", "bw/bias/sens"],
-    ], [
-      ["Skirt", "skirt"],
-      ["Reson", "reson"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    [{switch: "Mode"}, "mode"],
+    [{switch: "Ratio"}, "ratio"],
+  ], [
+    ["Coarse", "coarse"],
+    ["Fine", "fine"],
+  ], [
+    ["Transpose", "transpose"],
+  ], [
+    ["BW", "bw"],
+    ["BW Bias", "bw/bias/sens"],
+  ], [
+    ["Skirt", "skirt"],
+    ["Reson", "reson"],
+  ]],
   effects: [
     paletteEffect,
     unvoicedRatioEffect,
@@ -515,43 +504,41 @@ const unvoicedOscController = {
 
 const opAmpController = {
   prefix: {fixed: "amp/env"}, 
-  builders: [
-    ['grid', [[
-      {
-        display: 'timeLevelEnv',
-        pointCount: 5, 
-        sustain: 3,
-        l: "Amp EG",
-        maps: ([
-          ['u', "hold", "time/0", 99],
-          ['u', "level/3", "start/level", 99],
-          ['u', "level/3", "level/0", 99],
-        ]).concat(
-          (4).flatMap(i => [
-            ['u', ["time", i], ["time", i + 1], 99],
-            ['u', ["level", i], ["level", i + 1], 99],
-          ])
-        ), 
-        id: "env",
-      },
-      ["T1", "time/0"],
-      ["T2", "time/1"],
-      ["T3", "time/2"],
-      ["T4", "time/3"],
-      ["Velo", "velo"],
-      ["Amp Mod", "mod/sens"],
-      ],[
-      ["T Scale", "time/scale"],
-      ["Hold", "hold"],
-      ["L1", "level/0"],
-      ["L2", "level/1"],
-      ["L3", "level/2"],
-      ["L4", "level/3"],
-      ["EG Bias", "bias/sens"],
-      ["Level", "level"],
-      [{checkbox: "Mute", id: "mute"}, null],
-    ]]]
-  ], 
+  gridBuilder: [[
+    {
+      display: 'timeLevelEnv',
+      pointCount: 5, 
+      sustain: 3,
+      l: "Amp EG",
+      maps: ([
+        ['u', "hold", "time/0", 99],
+        ['u', "level/3", "start/level", 99],
+        ['u', "level/3", "level/0", 99],
+      ]).concat(
+        (4).flatMap(i => [
+          ['u', ["time", i], ["time", i + 1], 99],
+          ['u', ["level", i], ["level", i + 1], 99],
+        ])
+      ), 
+      id: "env",
+    },
+    ["T1", "time/0"],
+    ["T2", "time/1"],
+    ["T3", "time/2"],
+    ["T4", "time/3"],
+    ["Velo", "velo"],
+    ["Amp Mod", "mod/sens"],
+    ],[
+    ["T Scale", "time/scale"],
+    ["Hold", "hold"],
+    ["L1", "level/0"],
+    ["L2", "level/1"],
+    ["L3", "level/2"],
+    ["L4", "level/3"],
+    ["EG Bias", "bias/sens"],
+    ["Level", "level"],
+    [{checkbox: "Mute", id: "mute"}, null],
+  ]],
   effects: [
     ['patchChange', "level", v => ['setValue', "mute", v == 0 ? 1 : 0]],
     ['controlChange', "mute", (state, locals) => {
@@ -580,15 +567,13 @@ const opAmpController = {
 }
 
 const opFreqController = {
-  builders: [
-    ['grid', [[
-      freqEnv,
-      ["Initial", "freq/env/innit"],
-      ["A Level", "freq/env/attack/level"],
-      ["Attack", "freq/env/attack"],
-      ["Decay", "freq/env/decay"],
-    ]]],
-  ], 
+  gridBuilder: [[
+    freqEnv,
+    ["Initial", "freq/env/innit"],
+    ["A Level", "freq/env/attack/level"],
+    ["Attack", "freq/env/attack"],
+    ["Decay", "freq/env/decay"],
+  ]],
   effects: [
     freqEnvMenu,
   ],
@@ -606,27 +591,25 @@ const opControllerEffects = [
 
 const levelScale = {
   prefix: {fixed: "level/scale"}, 
-  builders: [
-    ['grid', [[
-      {
-        display: 'levelScaling',
-        maps: [
-          ['=', "left/curve"],
-          ['=', "right/curve"],
-          ['u', "left/depth", 99],
-          ['u', "right/depth", 99],
-          ['u', "brk/pt", 99],
-        ],
-        id: "level/scale", 
-        width: 4,
-      },
-      ["L Depth", "left/depth"],
-      [{switch: "L Curve"}, "left/curve"],
-      ["Break Pt", "brk/pt"],
-      ["R Depth", "right/depth"],
-      [{switch: "R Curve"}, "right/curve"],
-    ]]]
-  ], 
+  gridBuilder: [[
+    {
+      display: 'levelScaling',
+      maps: [
+        ['=', "left/curve"],
+        ['=', "right/curve"],
+        ['u', "left/depth", 99],
+        ['u', "right/depth", 99],
+        ['u', "brk/pt", 99],
+      ],
+      id: "level/scale", 
+      width: 4,
+    },
+    ["L Depth", "left/depth"],
+    [{switch: "L Curve"}, "left/curve"],
+    ["Break Pt", "brk/pt"],
+    ["R Depth", "right/depth"],
+    [{switch: "R Curve"}, "right/curve"],
+  ]],
   effects: [
     ['editMenu', "level/scale", {
       paths: [

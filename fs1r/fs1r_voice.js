@@ -95,12 +95,14 @@ const parms = [
   ["cutoff/key/scale/depth", { b: 0x5b, dispOff: -64}],
   ["cutoff/key/scale/pt", { b: 0x5c}],
   ["filter/gain", { b: 0x5d, max: 24, dispOff: -12}],
-  ["filter/env/depth", { b: 0x64, dispOff: -64}],
-  { prefix: 'filter/env', count: 4, bx: 1, block: [
-    ["level", { b: 0x66, max: 100, dispOff: -50}],
-    ["time", { b: 0x69, max: 99}],
-  ]},
   { prefix: 'filter/env', block: [
+    ["depth", { b: 0x64, dispOff: -64}],
+    { prefix: 'level', count: 4, bx: 1, block: [
+      ["", { b: 0x66, max: 100, dispOff: -50}],
+    ]},
+    { prefix: 'time', count: 4, bx: 1, block: [
+      ["", { b: 0x69, max: 99}],
+    ]},
     ["attack/velo", { b: 0x6e, bits: [0, 3], max: 7}],
     ["time/scale", { b: 0x6e, bits: [3, 6], max: 7}],
   ]},
