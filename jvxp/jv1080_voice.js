@@ -1,7 +1,5 @@
 const JVXP = require('./jvxp.js')
 
-const structures = (10).map(i => `xv-struct-${i+1}`)
-
 const chorusOuts = ["Mix", "Reverb", "Mix+Reverb"]
 const reverbTypes = ["Room 1","Room 2","Stage 1","Stage 2","Hall 1","Hall 2","Delay","Pan Delay"]
 const reverbHFDamps = ["200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "Bypass"]
@@ -64,9 +62,9 @@ const commonParms = [
     ["octave/shift", { max: 6, dispOff: -3 }],
     ["stretchTune", { max: 3 }],
     ["voice/priority", { opts: ["Last","Loudest"] }],
-    ["structure/0", { opts: structures }],
+    ["structure/0", { max: 9 }],
     ["booster/0", { opts: boosters }],
-    ["structure/1", { opts: structures }],
+    ["structure/1", { max: 9 }],
     ["booster/1", { opts: boosters }],
   ]},
 ]

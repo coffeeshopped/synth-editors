@@ -80,7 +80,7 @@ const fseq = {
         case 0:
           return ['fullPath', "fseq/name"]
         default:
-          return { opts: presetFseqOptions }
+          return { opts: Perf.presetFseqOptions }
         }
       }
     }],

@@ -4,7 +4,7 @@ const Voice = require('./jv1080_voice.js')
 const SRJVBoard = require('./srjv_board.js')
 const FX = require('./jvfx.js')
 
-const structures = (10).map(i => `assets/xv-struct-${i + 1}.pdf`)
+const structures = (10).map(i => `assets/xv-struct-${i + 1}.svg`)
 
 const common = (cfg) => {
   var effects = []

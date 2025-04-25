@@ -1164,4 +1164,5 @@ module.exports = {
   reverbParams,
   varyParams,
   insertParams,
+  presetFseqOptions,
 }

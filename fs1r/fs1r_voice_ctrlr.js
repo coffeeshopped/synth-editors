@@ -440,7 +440,7 @@ const freqEffects = [
   ['paramChange', "fseq/on", parm => [
     ['dimItem', parm.p == 0, "fseq"],
     ['dimItem', parm.p == 0, "fseq/trk"],
-  ] ],
+  ]],
   freqEnvMenu,
   paletteEffect,
 ]
