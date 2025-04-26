@@ -359,4 +359,5 @@ module.exports = {
     }
   },
   ramBanks: [bankA, bankB, bankC, bankD, bankE, bankF, bankG, bankH, bankI, bankJ, bankK],
+  categoryOptions,
 }
