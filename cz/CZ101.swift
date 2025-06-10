@@ -27,7 +27,8 @@ public enum CZ101 {
       [.bank, .voice] : .bankTruss(.basicChannel, {
         // adding an offset of 32, which at least the CZ-101 needs.
         patchRequest(channel: $0, location: (cz1 ? 0x00 : 0x20) + UInt8($1), cz1: cz1)
-      }, waitInterval: 100)
+        // note that expected byte count per patch is 1 lower than temp fetch.
+      }, bytesPerPatch: voicePatchTruss.fileDataCount - 1, waitInterval: 100)
     ]
     
     t.midiChannels = [
