@@ -14,8 +14,8 @@ const parms = [
   ['out/assign', { b: 0x06, opts: ["Mix","Mix","Multi 1","Multi 2","Multi 3","Multi 4","Multi 5","Multi 6"] }],
   ['out/level', { b: 0x08, max: 100 }],
   ['pan', { b: 0x09, max: 14, dispOff: -7 }],
-  ['key/lo', { b: 0x0a, .iso(Miso.noteName(zeroNote: "C-1")) }],
-  ['key/hi', { b: 0x0b, .iso(Miso.noteName(zeroNote: "C-1")) }],
+  ['key/lo', { b: 0x0a, iso: ['noteName', "C-1"] }],
+  ['key/hi', { b: 0x0b, iso: ['noteName', "C-1"] }],
 ]
 
 // size used to be 0x08. why? is that for D-10?
