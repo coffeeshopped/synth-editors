@@ -87,10 +87,10 @@ const toneParms = [
   ['hold/ctrl', { b: 0x09, max: 1 }],
   { prefixes: ["mod", "aftertouch", "expression"], bx: 8, block: [
     { prefix: "dest", count: 4, bx: 2, block: [
-      ['', 0x0a, { opts: controlDestinationOptions }],
+      ['', { b: 0x0a, opts: controlDestinationOptions }],
     ] },
     { prefix: "depth", count: 4, bx: 2, block: [
-      ['', 0x0b, { rng: [1, 127], dispOff: -64 }],
+      ['', { b: 0x0b, rng: [1, 127], dispOff: -64 }],
     ] },
   ] },
   { prefix: "lfo", count: 2, bx: 11, block: (index, offset) => [
