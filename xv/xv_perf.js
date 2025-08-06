@@ -22,7 +22,7 @@ function partType(hi) {
   return ([86, 88, 92, 120]).includes(hi) ? 'rhythm' : 'patch'
 }
 
-      /// For mapping SynthPaths to control values (internal to Patch Base)
+/// For mapping SynthPaths to control values (internal to Patch Base)
 const internalGroups: [SynthPath] = [[], "user", "preset/0", "preset/1", "preset/2", "preset/3", "preset/4", "preset/5", "preset/6", "preset/7", "cart", "gm2"]
 
 const srjvGroups: [SynthPath] = (1...19).map { "$0" } + (98...99).map { "$0" }
