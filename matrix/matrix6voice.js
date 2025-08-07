@@ -33,7 +33,7 @@ const createPatchTruss = createFileData => ({
   },
   namePack: {
     type: 'filtered',
-    range: [0, 8],
+    range: [0, 7],
     toBytes: ['upper', char => char & 0x3f],
     toString: [byte => byte > 31 ? byte : (byte | 0x40), 'clean'],
   },

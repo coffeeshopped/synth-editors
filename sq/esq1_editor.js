@@ -1,79 +1,29 @@
 
+
+const editor = {
+  name: 'ESQ-1',
+  trussMap: [
+    ["global", 'channel'],
+    ["patch", Voice.patchTruss],
+    ["bank", Voice.bankTruss],
+  ],
+  fetchTransforms: [
+    ['patch', ['truss', 0xf0, 0x0f, 0x02, 'channel', 0x09, 0xf7]],
+    ['bank', ['truss', 0xf0, 0x0f, 0x02, 'channel', 0x0a, 0xf7]],
+  ],
+  midiOuts: [
+    
+  ],
+  midiChannels: [
+    ["patch", "basic"],
+  ],
+  extraParamOuts: [
+    ["patch", ['bankNames', "bank", "patch/name", (i, name) => name]],
+  ],
+}
+
 class ESQ1Editor : SingleDocSynthEditor {
-  
-  var channel: Int { patch(forPath: [.global])?[[.channel]] ?? 0 }
-
-  private static let _patchMap: [SynthPath:Sysexible.Type] = [
-    [.global] : ChannelSettingsPatch.self,
-    [.patch] : ESQPatch.self,
-    [.bank] : ESQBank.self,
-  ]
-  class var patchMap: [SynthPath:Sysexible.Type] { return _patchMap }
-  
-  required init(baseURL: URL) {
-    let migrationMap: [SynthPath:String] = [
-      [.global] : "Global.json",
-      [.patch] : "Voice.syx",
-      [.bank] : "Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: Self.patchMap, migrationMap: migrationMap)
-  }
-  
-  // MARK: MIDI I/O
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .patch:
-      return [.request(Data([0xf0, 0x0f, 0x02, UInt8(channel), 0x09, 0xf7]))]
-    case .bank:
-      return [.request(Data([0xf0, 0x0f, 0x02, UInt8(channel), 0x0a, 0xf7]))]
-    default:
-      return nil
-    }
-  }
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    [
-      voice(input: patchStateManager([.patch])!.typedChangesOutput()),
-      bank(input: bankStateManager([.bank])!.typedChangesOutput()),
-    ]
-  }
-  
-  private var patchParamsOutput: Observable<SynthPathParam>?
-  private var paramsDisposeBag: DisposeBag?
     
-  private func initParamsOutput() {
-    guard let origParams = super.paramsOutput(forPath: [.patch]),
-      let bankOut = bankChangesOutput(forPath: [.bank]) else { return }
-    
-    paramsDisposeBag = DisposeBag()
-
-    // we do it this way so that subscribing to this output doesn't require mapping the names every time
-    let bankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: [.patch, .name])
-    let bankSubject = BehaviorSubject<SynthPathParam>(value: [:])
-    bankMap.subscribe(bankSubject).disposed(by: paramsDisposeBag!)
-
-    patchParamsOutput = Observable.merge(origParams, bankSubject)
-  }
-  
-  override func paramsOutput(forPath path: SynthPath) -> Observable<SynthPathParam>? {
-    switch path.first {
-    case .patch:
-      if patchParamsOutput == nil { initParamsOutput() }
-      return patchParamsOutput
-    default:
-      return super.paramsOutput(forPath: path)
-    }
-  }
-
-  
-  override func midiChannel(forPath path: SynthPath) -> Int { channel }
-    
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] { [[.bank]] }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] { ["Voice Bank"] }
-  
   func patchSendData(patch: ESQPatch) -> [Data] {
     // button press: Internal, Bank 1
     // patch data
