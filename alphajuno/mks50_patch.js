@@ -1,7 +1,37 @@
 
+const parms = [
+  ["tone", { p: 0, b: 0, opts: (128).map(i =>`${i+1}`) }],
+  ["key/lo", { p: 1, b: 1, range: [12, 108] }],
+  ["key/hi", { p: 2, b: 2, range: [13, 109] }],
+  ["porta/time", { p: 3, b: 3 }],
+  ["mod/amt", { p: 5, b: 4 }],
+  ["transpose", { p: 6, b: 5, range: [-12, 12] }],
+  ["volume", { p: 7, b: 6 }],
+  ["detune", { p: 8, b: 7, range: [-63, 63] }], // this range is crazy. see docs
+  ["bend", { p: 10, b: 8, bits: [4, 7], max: 12 }],
+  ["chord", { p: 11, b: 8, bits: [0, 3], max: 15, dispOff: 1 }],
+  ["aftertouch", { p: 9, b: 9, bit: 6 }],
+  ["bend/ctrl", { p: 9, b: 9, bit: 5 }],
+  ["sysex", { p: 9, b: 9, bit: 4 }],
+  ["hold", { p: 9, b: 9, bit: 3 }],
+  ["modWheel", { p: 9, b: 9, bit: 2 }],
+  ["volume/ctrl", { p: 9, b: 9, bit: 1 }],
+  ["porta/ctrl", { p: 9, b: 9, bit: 0 }],
+//    ["expression", { p: -1, b: 10, bit: 7 }], // not sure what this is yet.
+  ["key/assign", { p: 12, b: 10, bits: [5, 6], opts: [0: "Poly", 2: "Chord", 3: "Mono"] }],
+  ["porta", { p: 4, b: 10, bit: 4 }],
+]
+
+const patchTruss = {
+  namePack: [11, 20],
+  initFile: "mks50-patch-init",
+  validSizes: [31,64],
+  parms: parms,
+}
+
 class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
   
-  static let bankType: SysexPatchBank.Type = MKS50PatchBank.self
+  const bankType: SysexPatchBank.Type = MKS50PatchBank.self
   static func location(forData data: Data) -> Int {
     return Int(data[8]) // this is the general block location, not specific patch
   }
@@ -12,16 +42,7 @@ class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
   // internal PB bytes are in 3.2.2 format (BULK)
   // 32 bytes
   
-  static let fileDataCount = 31
-  static let nameByteRange = 11..<21
-  // TODO: need actual init file
-  static let initFileName = "mks50-patch-init"
-
-  var bytes: [UInt8]
-
-  static func isValid(fileSize: Int) -> Bool {
-    return [31,64].contains(fileSize)
-  }
+  const fileDataCount = 31
 
   // TODO: patch can be from fetch format, or bulk!
   
@@ -47,7 +68,7 @@ class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
       // set name
       data[20..<30].enumerated().forEach {
         let bOff = 11 + $0.offset
-        bytes[bOff] = bytes[bOff].set(bits: 0...5, value: Int($0.element))
+        bytes[bOff] = bytes[bOff].set(bits: [0, 5], value: Int($0.element))
       }
     case 64:
       // bulk data
@@ -87,7 +108,7 @@ class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
     }
     data.append(contentsOf: params)
     // then name
-    data.append(contentsOf: bytes[type(of: self).nameByteRange].map { UInt8($0.bits(0...5)) })
+    data.append(contentsOf: bytes[type(of: self).nameByteRange].map { UInt8($0.bits([0, 5])) })
     data.append(0xf7)
     return data
   }
@@ -123,38 +144,54 @@ class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
   
   func randomize() {
     randomizeAllParams()
-    self[[.sysex]] = 1
+    self["sysex"] = 1
   }
 
-  
-  static let params : SynthPathParam = {
-    var p = SynthPathParam()
-    
-    p[[.tone]] = OptionsParam(parm: 0, byte: 0, options: OptionsParam.makeOptions((0..<128).map {
-      return "\($0+1)"
-    }))
-    p[[.key, .lo]] = RangeParam(parm: 1, byte: 1, range: 12...108)
-    p[[.key, .hi]] = RangeParam(parm: 2, byte: 2, range: 13...109)
-    p[[.porta, .time]] = RangeParam(parm: 3, byte: 3)
-    p[[.mod, .amt]] = RangeParam(parm: 5, byte: 4)
-    p[[.transpose]] = RangeParam(parm: 6, byte: 5, range: -12...12)
-    p[[.volume]] = RangeParam(parm: 7, byte: 6)
-    p[[.detune]] = RangeParam(parm: 8, byte: 7, range: -63...63) // this range is crazy. see docs
-    p[[.bend]] = RangeParam(parm: 10, byte: 8, bits: 4...7, maxVal: 12)
-    p[[.chord]] = RangeParam(parm: 11, byte: 8, bits: 0...3, maxVal: 15, displayOffset: 1)
-    p[[.aftertouch]] = RangeParam(parm: 9, byte: 9, bit: 6)
-    p[[.bend, .ctrl]] = RangeParam(parm: 9, byte: 9, bit: 5)
-    p[[.sysex]] = RangeParam(parm: 9, byte: 9, bit: 4)
-    p[[.hold]] = RangeParam(parm: 9, byte: 9, bit: 3)
-    p[[.modWheel]] = RangeParam(parm: 9, byte: 9, bit: 2)
-    p[[.volume, .ctrl]] = RangeParam(parm: 9, byte: 9, bit: 1)
-    p[[.porta, .ctrl]] = RangeParam(parm: 9, byte: 9, bit: 0)
-//    p[[.expression]] = RangeParam(parm: -1, byte: 10, bit: 7) // not sure what this is yet.
-    p[[.key, .assign]] = OptionsParam(parm: 12, byte: 10, bits: 5...6, options: [0: "Poly", 2: "Chord", 3: "Mono"])
-    p[[.porta]] = RangeParam(parm: 4, byte: 10, bit: 4)
-
-    return p
-  }()
-  
-
 }
+
+
+class MKS50PatchBank : TypicalTypedSysexPatchBank<MKS50PatchPatch> {
+  
+  // 266 * 16
+  override class var fileDataCount: Int { return 4256 }
+  override class var patchCount: Int { return 64 }
+  // TODO: need actual init file
+  override class var initFileName: String { return "mks50-patch-bank-init" }
+    
+  required init(data: Data) {
+    let sysex = SysexData(data: data)
+    var p = [Patch]()
+    (0..<sysex.count).forEach {
+      let msg = sysex[$0]
+      let dOff = 9
+      let next4 = (0..<4).compactMap { subindex -> Patch? in
+        let thisOff = dOff + subindex * 64
+        guard thisOff + 64 <= msg.count else { return nil }
+        return Patch(data: Data(msg[thisOff..<(thisOff+64)]))
+      }
+      p.append(contentsOf: next4)
+    }
+    
+    (0..<(type(of: self).patchCount-p.count)).forEach { _ in
+      p.append(Patch.init())
+    }
+    super.init(patches: p)
+  }
+  
+  func sysexData(channel: Int) -> [Data] {
+    return (0..<16).map { msgIndex -> Data in
+      let pOff = msgIndex * 4
+      var d = Data([0xf0, 0x41, 0x37, UInt8(channel), 0x23, 0x30, 0x01, 0x00, UInt8(pOff)])
+      (0..<4).forEach { subindex in
+        let bytes = patches[pOff + subindex].bytes
+        d.append(contentsOf: bytes.map {
+          [$0 & 0x0f, ($0 >> 4) & 0x0f]
+          }.joined())
+      }
+      d.append(0xf7)
+      return d
+    }
+  }
+  
+}
+
