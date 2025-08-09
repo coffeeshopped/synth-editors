@@ -3,13 +3,10 @@ class BassStationIIOverlayPatch : MultiSysexPatch, BankablePatch {
   
   static var bankType: SysexPatchBank.Type { return BassStationIIOverlayBank.self }
   
-  static let initFileName = "bassstationii-overlay-init"
-  static let maxNameCount = 32
+  const initFileName = "bassstationii-overlay-init"
+  const maxNameCount = 32
 
-  static let keyCount = 25
-
-  var subpatches = [SynthPath : SysexPatch]()
-  var name = ""
+  const keyCount = 25
   
   static func isValid(fileSize: Int) -> Bool {
     return isValid(x: fileSize, otherKeys: keyCount)
@@ -40,7 +37,7 @@ class BassStationIIOverlayPatch : MultiSysexPatch, BankablePatch {
   static var subpatchTypes: [SynthPath : SysexPatch.Type] = (0..<keyCount).map {
     ($0, BassStationIIOverlayKeyPatch.self)
   }.dictionary {
-    [[.key, .i($0)] : $1]
+    ["key/$0" : $1]
   }
     
   required init(data: Data) {
@@ -52,7 +49,7 @@ class BassStationIIOverlayPatch : MultiSysexPatch, BankablePatch {
       keyData[location].append(d)
     }
     (0..<Self.keyCount).forEach {
-      subpatches[[.key, .i($0)]] = BassStationIIOverlayKeyPatch(data: keyData[$0])
+      subpatches["key/$0"] = BassStationIIOverlayKeyPatch(data: keyData[$0])
     }
   }
     
@@ -84,17 +81,45 @@ class BassStationIIOverlayPatch : MultiSysexPatch, BankablePatch {
     
 }
 
+
+const pitchIso = Miso.switcher([
+  .range([0, 128], Miso.str("Key")),
+  .range([129, 255], Miso.a(-128) >>> Miso.noteName(zeroNote: "C-2"))
+])
+
+const keyParms = [
+  ["mute", { b: 0, ext: { BassStationIIVoicePatch.AFX:0 } }],
+  BassStationIIVoicePatch.params.forEach { (key, param) in
+    guard let afx = param.extra[BassStationIIVoicePatch.AFX] else { return }
+    switch param.byte {
+    case 94:
+      ["pitch", { b: 0, ext: { BassStationIIVoicePatch.AFX:75 }, rng: [128, 255], dispOff: -128, iso: pitchIso }],
+    case 95:
+      ["level", { b: 0, ext: { BassStationIIVoicePatch.AFX:76 }, rng: [128, 255], dispOff: -128 }],
+    default:
+      p[key] = param
+    }
+  }
+]
+
+
+const keyPatchTruss = {
+  single: 'bsii.overlay.key',
+  initFile: "bassstationii-overlay-key-init",
+  bodyDataCount: 100, // 84 body + 16 name
+  parms: keyParms,
+  // 10 is cleared key w/out name
+  // 20 is for a "cleared" key (name + key data)
+  validSizes: [106, 20, 10],
+  includeFileDataCount: true,
+}
+
 class BassStationIIOverlayKeyPatch : BassStationIIPatch {
   
-  static let bankType: SysexPatchBank.Type = BassStationIIVoiceBank.self
   static func location(forData data: Data) -> Int { return Int(data[8]) }
   
-  static let initFileName = "bassstationii-overlay-key-init"
-  static let fileDataCount = 106 + 26
-  
-  var bytes: [UInt8]
-  var nameBytes: [UInt8]
-    
+  const fileDataCount = 106 + 26
+      
   required init() {
     bytes = [UInt8](repeating: 0, count: 84)
     nameBytes = "Untitled".bytes(forCount: 16)
@@ -134,16 +159,8 @@ class BassStationIIOverlayKeyPatch : BassStationIIPatch {
     
     // do it this way bc "muted" fetch will actually look like an overlay with a non-zero first byte
     if muted {
-      self[[.mute]] = 1
+      self["mute"] = 1
     }
-  }
-  
-  // 10 is cleared key w/out name
-  // 20 is for a "cleared" key (name + key data)
-  static let validFileSizes = [fileDataCount, 106, 20, 10]
-  
-  static func isValid(fileSize: Int) -> Bool {
-    return validFileSizes.contains(fileSize)
   }
   
   func unpack(param: Param) -> Int? {
@@ -161,10 +178,10 @@ class BassStationIIOverlayKeyPatch : BassStationIIPatch {
     patch.name = voice.name
     BassStationIIOverlayKeyPatch.params.forEach { (path, param) in
       switch path {
-      case [.pitch]:
-        patch[[.pitch]] = voice[[.osc, .slop]]
-      case [.level]:
-        patch[[.level]] = voice[[.glide, .split]]
+      case "pitch":
+        patch["pitch"] = voice["osc/slop"]
+      case "level":
+        patch["level"] = voice["glide/split"]
       default:
         patch[path] = voice[path]
       }
@@ -173,7 +190,7 @@ class BassStationIIOverlayKeyPatch : BassStationIIPatch {
   }
 
   
-  var muted: Bool { self[[.mute]] != 0 }
+  var muted: Bool { self["mute"] != 0 }
   
   static func sysexHeader(_ cmdByte: UInt8, location: Int) -> [UInt8] {
     return Self.sysexHeader() + [cmdByte, UInt8(location)]
@@ -211,29 +228,85 @@ class BassStationIIOverlayKeyPatch : BassStationIIPatch {
 
   func randomize() {
     randomizeAllParams()
-    self[[.mute]] = 0
-    self[[.level]] = 128 + (90...127).random()!
+    self["mute"] = 0
+    self["level"] = 128 + ([90, 127]).random()!
   }
   
-  static let params: SynthPathParam = {
-    var p = SynthPathParam()
-    p[[.mute]] = RangeParam(byte: 0, extra: [BassStationIIVoicePatch.AFX:0])
-    BassStationIIVoicePatch.params.forEach { (key, param) in
-      guard let afx = param.extra[BassStationIIVoicePatch.AFX] else { return }
-      switch param.byte {
-      case 94:
-        p[[.pitch]] = MisoParam.make(byte: 0, extra: [BassStationIIVoicePatch.AFX:75], range: 128...255, displayOffset: -128, iso: pitchIso)
-      case 95:
-        p[[.level]] = RangeParam(byte: 0, extra: [BassStationIIVoicePatch.AFX:76], range: 128...255, displayOffset: -128)
-      default:
-        p[key] = param
+}
+
+
+class BassStationIIOverlayBank : TypicalTypedSysexPatchBank<BassStationIIOverlayPatch> {
+  
+  override class var patchCount: Int { return 8 }
+  // TODO: need actual init file
+  override class var initFileName: String { return "bassstationii-overlay-bank-init" }
+  // key messages + header & footer
+  override class var fileDataCount: Int { return 26400 + 19 }
+
+  required public init(data: Data) {
+    // can be from fetch, or file. they are different.
+    var overlayData = Data()
+    var bankLocation: UInt8 = 0
+    var overlays = [UInt8:BassStationIIOverlayPatch]()
+    let overlayAddBlock: (Data) -> Void = {
+      let overlay = BassStationIIOverlayPatch(data: $0)
+      overlay.name = "Overlays \(bankLocation + 1)"
+      overlays[bankLocation] = overlay
+    }
+    if data.count == 26400 {
+      // from fetch
+      // each 50 msgs should be 1 overlay set
+      var msgCount = 0
+      SysexData(data: data).forEach { d in
+        overlayData.append(d)
+        msgCount += 1
+        if msgCount == 50 {
+          overlayAddBlock(overlayData)
+          bankLocation += 1
+          msgCount = 0
+          overlayData.removeAll(keepingCapacity: true)
+        }
       }
     }
-    return p
-  }()
+    else {
+      // from file
+      var inBank = false
+      SysexData(data: data).forEach { d in
+        if d.count == 10 && d[7] == 0x50 {
+          inBank = true
+          bankLocation = d[8] == 0 ? 0 : d[8] - 1 // index starts at 1
+          overlayData.removeAll(keepingCapacity: true)
+        }
+        else if d.count == 9 && d[7] == 0x4a {
+          inBank = false
+          overlayAddBlock(overlayData)
+        }
+        else if inBank {
+          overlayData.append(d)
+        }
+      }
+    }
+    let patches = (0..<Self.patchCount).map {
+      overlays[UInt8($0)] ?? BassStationIIOverlayPatch()
+    }
+    super.init(patches: patches)
+  }
   
-  static let pitchIso = Miso.switcher([
-    .range(0...128, Miso.str("Key")),
-    .range(129...255, Miso.a(-128) >>> Miso.noteName(zeroNote: "C-2"))
-  ])
+  required init(patches p: [Patch]) {
+    super.init(patches: p)
+  }
+  
+  func sysexData() -> [Data] {
+    return [Data](patches.enumerated().map { $0.element.sysexData(bank: $0.offset + 1) }.joined())
+  }
+  
+  override class func isValid(fileSize: Int) -> Bool {
+    return true
+//    return [fileDataCount, 26400].contains(fileSize)
+  }
+
+  override func fileData() -> Data {
+    return Data(sysexData().joined())
+  }
+
 }
