@@ -186,10 +186,30 @@ const parms = [
   ["extra", { p: 0, b: 101, ext: { NRPN:112 }, max: 8 }],
 ]
 
+function sysexData(save, location) {
+  return [BSII.sysexHeader, save ? 1 : 0, location || 0, 
+    // param bytes are the first 112, transformed to sysex bytes (128)
+    ['>', ['bytes', { start: 0, count: 112 }], '7to8straight'], 
+    // name bytes are the last 16, as-is
+    ['bytes', { start: 112, count: 16} ], 0xf7]
+}
+
 const patchTruss = {
   single: 'bsii.voice',
   parms: parms,
   initFile: "bassstationii-voice-init",
+  bodyDataCount: 128,
+  parseBody: ['+',
+    // each 8 consecutive sysex bytes form 7 "full" bytes
+    // each sysex byte only have 7 bits of actual info
+    // each 7-bit chunk is lined up end to end and parsed as 7 bytes
+    // so, 137-9 (128) sysex bytes yields 112 bytes
+    // then 16 more bytes for name
+    // bytes = [UInt8](data[9..<137]).sevenToEightStraight()
+    ['>', ['bytes', { start: 9, count: 128}], '8to7straight'],  
+    // nameBytes = [UInt8](data[137..<153])
+    ['bytes', { start: 137, count: 16 }]
+  ]
 }
 
 class BassStationIIVoicePatch : BassStationIIPatch, BankablePatch {
@@ -197,11 +217,6 @@ class BassStationIIVoicePatch : BassStationIIPatch, BankablePatch {
   static func location(forData data: Data) -> Int { return Int(data[8]) }
   
   const fileDataCount = 154
-  
-  required init(data: Data) {
-    bytes = [UInt8](data[9..<137]).sevenToEightStraight()
-    nameBytes = [UInt8](data[137..<153])
-  }
   
   static func fromOverlay(_ overlay: BassStationIIOverlayKeyPatch) -> BassStationIIVoicePatch {
     let patch = BassStationIIVoicePatch()
@@ -218,15 +233,7 @@ class BassStationIIVoicePatch : BassStationIIPatch, BankablePatch {
     }
     return patch
   }
-  
-  func sysexData(save: Bool, location: Int? = nil) -> Data {
-    var data = Data(Self.sysexHeader() + [save ? 1 : 0, UInt8(location ?? 0)])
-    data.append(contentsOf: bytes.eightToSevenStraight())
-    data.append(contentsOf: nameBytes)
-    data.append(0xf7)
-    return data
-  }
-  
+    
   func fileData() -> Data {
     return sysexData(save: false)
   }

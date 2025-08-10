@@ -1,7 +1,4 @@
 
-protocol BassStationIIPatch : ByteBackedSysexPatch {
-  var nameBytes: [UInt8] { get set }
-}
 
 extension BassStationIIPatch {
   
