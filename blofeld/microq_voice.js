@@ -358,3 +358,9 @@ const delay51Params = [
   [146, {l: "Delay", iso: delayLenIso}],
 ].concat(clockedDelayParams.slice(1))
 
+
+struct MicroQVoiceBank : SingleBankTemplate, VoiceBank {
+  typealias Template = MicroQVoicePatch
+  static let patchCount: Int = 100
+  static let initFileName: String = "microq-voice-bank-init"
+}

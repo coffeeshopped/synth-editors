@@ -1,29 +1,20 @@
 
+const map = [
+  "global" : MicroQGlobalPatch.self,
+  "patch" : MicroQVoicePatch.self,
+  "multi" : MicroQMultiPatch.self,
+  "rhythm" : MicroQDrumPatch.self,
+  "bank/0" : MicroQVoiceBank.self,
+  "bank/1" : MicroQVoiceBank.self,
+  "bank/2" : MicroQVoiceBank.self,
+  "bank/multi" : MicroQMultiBank.self,
+  "bank/rhythm" : MicroQDrumBank.self,
+]
+(0..<16).forEach { map["multi/$0"] = MicroQVoicePatch.self }
+(0..<32).forEach { map["rhythm/$0"] = MicroQVoicePatch.self }
+
 public struct MicroQEditor : StaticEditorTemplate {
-  
-  public static var sysexMap: [SynthPath : SysexTemplate.Type] = {
-    var map:[SynthPath:SysexTemplate.Type] = [
-      [.global] : MicroQGlobalPatch.self,
-      [.patch] : MicroQVoicePatch.self,
-      [.multi] : MicroQMultiPatch.self,
-      [.rhythm] : MicroQDrumPatch.self,
-      [.bank, .i(0)] : MicroQVoiceBank.self,
-      [.bank, .i(1)] : MicroQVoiceBank.self,
-      [.bank, .i(2)] : MicroQVoiceBank.self,
-      [.bank, .multi] : MicroQMultiBank.self,
-      [.bank, .rhythm] : MicroQDrumBank.self,
-    ]
-    (0..<16).forEach { map[[.multi, .i($0)]] = MicroQVoicePatch.self }
-    (0..<32).forEach { map[[.rhythm, .i($0)]] = MicroQVoicePatch.self }
-    return map
-  }()
-    
-  public static var migrationMap: [SynthPath : String]? = nil
-  
-  static func deviceId(_ editor: TemplatedEditor) -> UInt8 {
-    UInt8(editor.patch(forPath: [.global])?[[.deviceId]] ?? 0)
-  }
-  
+      
   private static func request(_ deviceId: UInt8, _ bytes: [UInt8]) -> RxMidi.FetchCommand {
     .requestMsg(.sysex(MicroQVoicePatch.sysexHeader(deviceId: deviceId) + bytes + [0xf7]), nil)
   }
@@ -67,11 +58,11 @@ public struct MicroQEditor : StaticEditorTemplate {
   }
   
   public static func extraParamsOutput(_ editor: TemplatedEditor, forPath path: SynthPath) -> Observable<SynthPathParam>? {
-    guard path == [.multi] || path == [.rhythm] else { return nil }
+    guard path == "multi" || path == "rhythm" else { return nil }
     let voices = (0..<3).map {
-      mapBankNameParams(editor, bankPath: [.bank, .i($0)], toParamPath: [.patch, .i($0), .name])
+      mapBankNameParams(editor, bankPath: "bank/$0", toParamPath: "patch/$0/name")
     }
-    let rhythm = mapBankNameParams(editor, bankPath: [.bank, .rhythm], toParamPath: [.rhythm, .name])
+    let rhythm = mapBankNameParams(editor, bankPath: "bank/rhythm", toParamPath: "rhythm/name")
     return Observable.merge(voices + [rhythm])
   }
 
@@ -80,31 +71,31 @@ public struct MicroQEditor : StaticEditorTemplate {
   }
   
   public static func transformMidiCommand(_ editor: TemplatedEditor, forPath path: SynthPath, _ command: RxMidi.Command) -> RxMidi.Command {
-    guard path == [.rhythm], case let .sendMsg(msg) = command else { return command }
+    guard path == "rhythm", case let .sendMsg(msg) = command else { return command }
     let ch = UInt8(editor.midiChannel(forPath: path))
     return .sendMsg(msg.channel(ch))
   }
 
   public static func midiOuts(_ editor: TemplatedEditor) -> [Observable<RxMidi.Command?>] {
     let multis = 16.map {
-      midiOut(editor, 0x20, UInt8($0), patchOut(editor, [.multi, .i($0)], MicroQVoicePatch.self))
+      midiOut(editor, 0x20, UInt8($0), patchOut(editor, "multi/$0", MicroQVoicePatch.self))
     }
     let drums = 32.map {
-      midiOut(editor, 0x20, UInt8($0 + 16), patchOut(editor, [.rhythm, .i($0)], MicroQVoicePatch.self))
+      midiOut(editor, 0x20, UInt8($0 + 16), patchOut(editor, "rhythm/$0", MicroQVoicePatch.self))
     }
     
     return [
-      midiOut(editor, 0x20, 0x00, patchOut(editor, [.patch], MicroQVoicePatch.self)),
-      midiOut(editor, 0x21, 0x00, patchOut(editor, [.multi], MicroQMultiPatch.self)),
-      drumOut(editor, patchOut(editor, [.rhythm], MicroQDrumPatch.self)),
-      midiOut(editor, 0x24, 0x00, patchOut(editor, [.global], MicroQGlobalPatch.self)),
+      midiOut(editor, 0x20, 0x00, patchOut(editor, "patch", MicroQVoicePatch.self)),
+      midiOut(editor, 0x21, 0x00, patchOut(editor, "multi", MicroQMultiPatch.self)),
+      drumOut(editor, patchOut(editor, "rhythm", MicroQDrumPatch.self)),
+      midiOut(editor, 0x24, 0x00, patchOut(editor, "global", MicroQGlobalPatch.self)),
     ] + multis + drums +
     3.map {
-      bankOut(editor, path: [.bank, .i($0)], bank: UInt8($0), template: MicroQVoicePatch.self)
+      bankOut(editor, path: "bank/$0", bank: UInt8($0), template: MicroQVoicePatch.self)
     } +
     [
-      bankOut(editor, path: [.bank, .multi], bank: 0, template: MicroQMultiPatch.self),
-      bankOut(editor, path: [.bank, .rhythm], bank: 0, template: MicroQDrumPatch.self)
+      bankOut(editor, path: "bank/multi", bank: 0, template: MicroQMultiPatch.self),
+      bankOut(editor, path: "bank/rhythm", bank: 0, template: MicroQDrumPatch.self)
     ]
   }
   
@@ -123,14 +114,14 @@ public struct MicroQEditor : StaticEditorTemplate {
     switch templateType {
     case is MicroQVoicePatch.Type:
       return [
-        ([.bank, .i(0)], "Bank A"),
-        ([.bank, .i(1)], "Bank B"),
-        ([.bank, .i(2)], "Bank C"),
+        ("bank/0", "Bank A"),
+        ("bank/1", "Bank B"),
+        ("bank/2", "Bank C"),
       ]
     case is MicroQMultiPatch.Type:
-      return [([.bank, .multi], "Multi Bank")]
+      return [("bank/multi", "Multi Bank")]
     case is MicroQDrumPatch.Type:
-      return [([.bank, .rhythm], "Drum Bank")]
+      return [("bank/rhythm", "Drum Bank")]
     default:
       return []
     }
@@ -149,7 +140,7 @@ public struct MicroQEditor : StaticEditorTemplate {
       if param.parm < 0 {
         return [(T.sysexData(patch.bytes, deviceId: devId, bank: bankByte, location: locByte), 0)]
       }
-      else if path == [.category] {
+      else if path == "category" {
         return (379..<383).map {
           (paramMsg(deviceId: devId, bufferBytes: bufferBytes, parmByte: $0, value: patch.bytes[$0]), 0.01)
         }
