@@ -199,7 +199,7 @@ const patchTruss = {
   parms: parms,
   initFile: "bassstationii-voice-init",
   bodyDataCount: 128,
-  parseBody: ['+',
+  parseBody: [
     // each 8 consecutive sysex bytes form 7 "full" bytes
     // each sysex byte only have 7 bits of actual info
     // each 7-bit chunk is lined up end to end and parsed as 7 bytes
