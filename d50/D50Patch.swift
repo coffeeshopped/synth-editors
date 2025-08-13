@@ -49,4 +49,3 @@ extension D50SinglePatch {
   }
 }
 
-protocol D50MultiPatch : D50Patch, RolandMultiAddressable { }
