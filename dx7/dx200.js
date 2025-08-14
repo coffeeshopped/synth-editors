@@ -1,11 +1,8 @@
 
-protocol DX200SinglePatch : YamahaSinglePatch {
-  static var dataByteCount: Int { get }
-  static var modelId: UInt8 { get }
-  static func tempAddress(forSynthPath synthPath: SynthPath) -> RolandAddress
-  static func bankAddress(forSynthPath synthPath: SynthPath, index: Int) -> RolandAddress
-  func sysexData(deviceId: Int, address: RolandAddress) -> Data
-  func bankSysexData(deviceId: Int, path: SynthPath, index: Int) -> Data
+function sysexData(address, modelId, dataByteCount) {
+  const sizeBytes = ['bytes7bit', {count: 2}, dataByteCount]
+  const addressBytes = ['addressSysexBytes', {count: 3}, address]
+  return ['yamCmd', ['channel', modelId], [sizeBytes, addressBytes, 'b']]
 }
 
 extension DX200SinglePatch {
@@ -17,22 +14,7 @@ extension DX200SinglePatch {
     }
     return [UInt8](data[9..<(9+dataByteCount)])
   }
-  
-  // YamahaSinglePatch requirement. Fix.
-  func sysexData(channel: Int) -> Data {
-    return Data()
-  }
-  
-  func sysexData(deviceId: Int, address: RolandAddress) -> Data {
-    let sizeBytes = type(of: self).dataByteCount.bytes7bit(count: 2)
-    let addressBytes = address.sysexBytes(count: 3)
-    let allBytes = sizeBytes + addressBytes + bytes
-    var data = Data([0xf0, 0x43, UInt8(deviceId), type(of: self).modelId])
-    data.append(contentsOf: allBytes)
-    data.append(type(of: self).checksum(bytes: allBytes))
-    data.append(0xf7)
-    return data
-  }
+    
   
   func bankSysexData(deviceId: Int, path: SynthPath, index: Int) -> Data {
     let address = type(of: self).bankAddress(forSynthPath: path, index: index)
