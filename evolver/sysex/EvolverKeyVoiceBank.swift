@@ -1,3 +1,0 @@
-
-class EvolverKeyVoiceBank : EvolverTypeVoiceBank<EvolverKeyVoicePatch> { }
-
