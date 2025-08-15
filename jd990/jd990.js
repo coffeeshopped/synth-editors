@@ -39,3 +39,21 @@ extension JD990MultiPatch {
     return Data([0xf0, 0x41, UInt8(deviceId), 0x57, 0x12])
   }
 }
+
+
+class JD990VoiceBank: JD990Bank<JD990VoicePatch>, VoiceBank {
+
+  override class func startAddress(_ path: SynthPath?) -> RolandAddress {
+    // internal, or card
+    return path?.endex == 0 ? 0x06000000 : 0x0a000000
+  }
+  
+  override class var patchCount: Int { return 64 }
+  override class var initFileName: String { return "jd990-voice-bank-init" }
+
+  
+  override class func isValid(fileSize: Int) -> Bool {
+    return fileSize == 33216 || fileSize == fileDataCount
+  }
+
+}
