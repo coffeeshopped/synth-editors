@@ -4,67 +4,179 @@ protocol JDXiPartPatchBuilder {
   static var patchOptions: [String] { get }
 }
 
-extension JDXiPartPatchBuilder {
-  
-  static func createParams(isDrums: Bool = false) -> SynthPathParam {
-    var p: [Parm] = [
-      ['channel', { b: 0x00, max: 15, dispOff: 1 }],
-      ['on', { b: 0x0001, max: 1 }],
-      //    ['bank', { b: 0x0006 }], // shouldn't ever be changed, AFAIK
-      ['bank/lo', { b: 0x0007 }],
-      ['pgm', { b: 0x0008 }],
-      ['level', { b: 0x0009 }],
-      ['pan', { b: 0x000a, dispOff: -64 }],
-      ['coarse', { b: 0x000b, rng: [16, 112], dispOff: -64 }],
-      ['fine', { b: 0x000c, rng: [14, 114], dispOff: -64 }],
-      ['poly', { b: 0x000d, opts: ["Mono", "Poly", "Tone"] }],
-      ['legato', { b: 0x000e, opts: ["Off", "On", "Tone"] }],
-      ['bend', { b: 0x000f, opts: 25.map { "\($0)" } + ["Tone"] }],
-      ['porta', { b: 0x0010, opts: ["Off", "On", "Tone"] }],
-      ['porta/time', { b: 0x0011, packIso: Roland.msbMultiPackIso(2)(0x0011), opts: 128.map { "\($0)" } + ["Tone"] }],
-      ['cutoff', { b: 0x0013, dispOff: -64 }],
-      ['reson', { b: 0x0014, dispOff: -64 }],
-      ['attack', { b: 0x0015, dispOff: -64 }],
-      ['decay', { b: 0x0016, dispOff: -64 }],
-      ['release', { b: 0x0017, dispOff: -64 }],
-      ['vib/rate', { b: 0x0018, dispOff: -64 }],
-      ['vib/depth', { b: 0x0019, dispOff: -64 }],
-      ['vib/delay', { b: 0x001a, dispOff: -64 }],
-      ['octave/shift', { b: 0x001b, rng: [61, 67], dispOff: -64 }],
-      ['velo', { b: 0x001c, rng: [1, 127], dispOff: -64 }],
-      ['velo/range/lo', { b: 0x0021, rng: [1, 127] }],
-      ['velo/range/hi', { b: 0x0022 }],
-      ['velo/fade/lo', { b: 0x0023 }],
-      ['velo/fade/hi', { b: 0x0024 }],
-      ['mute', { b: 0x0025, max: 1 }],
-      ['delay', { b: 0x002b }],
-      ['reverb', { b: 0x002c }],
-      ['out/assign', { b: 0x002d, opts: isDrums ? JDXi.Program.drumOutAssignOptions : JDXi.Program.outputAssignOptions }],
-      ['scale/type', { b: 0x002f }],
-      ['scale/key', { b: 0x0030 }],
-    ]
-    
-    p += .prefix("scale/tune", count: 12, bx: 1, block: { i, off in
-      "p([", 0x31, .rng(dispOff: -64))]
-    })
-
-    p += [
-      ['rcv/pgmChange', { b: 0x003d, max: 1 }],
-      ['rcv/bank/select', { b: 0x003e, max: 1 }],
-      ['rcv/bend', { b: 0x003f, max: 1 }],
-      ['rcv/poly/key/pressure', { b: 0x0040, max: 1 }],
-      ['rcv/channel/pressure', { b: 0x0041, max: 1 }],
-      ['rcv/modWheel', { b: 0x0042, max: 1 }],
-      ['rcv/volume', { b: 0x0043, max: 1 }],
-      ['rcv/pan', { b: 0x0044, max: 1 }],
-      ['rcv/expression', { b: 0x0045, max: 1 }],
-      ['rcv/hold', { b: 0x0046, max: 1 }],
-    ]
-
-    return p.params()
-  }
-
+function partParms(isDrums) {
+  return [
+    ['channel', { b: 0x00, max: 15, dispOff: 1 }],
+    ['on', { b: 0x0001, max: 1 }],
+    //    ['bank', { b: 0x0006 }], // shouldn't ever be changed, AFAIK
+    ['bank/lo', { b: 0x0007 }],
+    ['pgm', { b: 0x0008 }],
+    ['level', { b: 0x0009 }],
+    ['pan', { b: 0x000a, dispOff: -64 }],
+    ['coarse', { b: 0x000b, rng: [16, 112], dispOff: -64 }],
+    ['fine', { b: 0x000c, rng: [14, 114], dispOff: -64 }],
+    ['poly', { b: 0x000d, opts: ["Mono", "Poly", "Tone"] }],
+    ['legato', { b: 0x000e, opts: ["Off", "On", "Tone"] }],
+    ['bend', { b: 0x000f, opts: 25.map { "\($0)" } + ["Tone"] }],
+    ['porta', { b: 0x0010, opts: ["Off", "On", "Tone"] }],
+    ['porta/time', { b: 0x0011, packIso: Roland.msbMultiPackIso(2)(0x0011), opts: 128.map { "\($0)" } + ["Tone"] }],
+    ['cutoff', { b: 0x0013, dispOff: -64 }],
+    ['reson', { b: 0x0014, dispOff: -64 }],
+    ['attack', { b: 0x0015, dispOff: -64 }],
+    ['decay', { b: 0x0016, dispOff: -64 }],
+    ['release', { b: 0x0017, dispOff: -64 }],
+    ['vib/rate', { b: 0x0018, dispOff: -64 }],
+    ['vib/depth', { b: 0x0019, dispOff: -64 }],
+    ['vib/delay', { b: 0x001a, dispOff: -64 }],
+    ['octave/shift', { b: 0x001b, rng: [61, 67], dispOff: -64 }],
+    ['velo', { b: 0x001c, rng: [1, 127], dispOff: -64 }],
+    ['velo/range/lo', { b: 0x0021, rng: [1, 127] }],
+    ['velo/range/hi', { b: 0x0022 }],
+    ['velo/fade/lo', { b: 0x0023 }],
+    ['velo/fade/hi', { b: 0x0024 }],
+    ['mute', { b: 0x0025, max: 1 }],
+    ['delay', { b: 0x002b }],
+    ['reverb', { b: 0x002c }],
+    ['out/assign', { b: 0x002d, opts: isDrums ? JDXi.Program.drumOutAssignOptions : JDXi.Program.outputAssignOptions }],
+    ['scale/type', { b: 0x002f }],
+    ['scale/key', { b: 0x0030 }],
+    { prefix: 'scale/tune', count: 12, bx: 1, block: [
+      ["", { b: 0x31, dispOff: -64 }],
+    ] },
+    ['rcv/pgmChange', { b: 0x003d, max: 1 }],
+    ['rcv/bank/select', { b: 0x003e, max: 1 }],
+    ['rcv/bend', { b: 0x003f, max: 1 }],
+    ['rcv/poly/key/pressure', { b: 0x0040, max: 1 }],
+    ['rcv/channel/pressure', { b: 0x0041, max: 1 }],
+    ['rcv/modWheel', { b: 0x0042, max: 1 }],
+    ['rcv/volume', { b: 0x0043, max: 1 }],
+    ['rcv/pan', { b: 0x0044, max: 1 }],
+    ['rcv/expression', { b: 0x0045, max: 1 }],
+    ['rcv/hold', { b: 0x0046, max: 1 }],
+  ]
 }
+
+
+const vocalFxParms = [
+  ["level", { b: 0x00 }],
+  ["pan", { b: 0x0001, dispOff: -64 }],
+  ["delay", { b: 0x0002 }],
+  ["reverb", { b: 0x0003 }],
+  ["out/assign", { b: 0x0004, opts: Program.outputAssignOptions }],
+  ["auto/pitch/on", { b: 0x0005, max: 1 }],
+  ["auto/pitch/type", { b: 0x0006, opts: ["Soft", "Hard", "Elec 1", "Elec 2"] }],
+  ["auto/pitch/scale", { b: 0x0007, opts: ["Chromatic","Maj(Min)"] }],
+  ["auto/pitch/key", { b: 0x0008, opts: ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "Bbm", "Bm"] }],
+  ["auto/pitch/note", { b: 0x0009, opts: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] }],
+  ["auto/pitch/gender", { b: 0x000a, max: 20, dispOff: -10 }],
+  ["auto/pitch/octave", { b: 0x000b, max: 2, dispOff: -1 }],
+  ["auto/pitch/balance", { b: 0x000c, max: 100, dispOff: -50 }],
+  // "on" doesn't seem to do anything.
+//      ["vocoder/on", { b: 0x000d, max: 1 }],
+  ["vocoder/env", { b: 0x000e, opts: ["Sharp","Soft","Long"] }],
+//    ["???", { b: 0x000f }], // printed in ref but unlabeled!
+  ["vocoder/mic/sens", { b: 0x0010 }],
+  ["vocoder/synth/level", { b: 0x0011 }],
+  ["vocoder/mic/mix", { b: 0x0012 }],
+  ["vocoder/mic/hi/pass", { b: 0x0013, opts: ["Bypass", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "10000", "12500", "16000"] }],
+]
+
+const vocalFxWerk = {
+  single: "Program Vocal", 
+  parms: vocalFxParms,
+  size: 0x18,
+}
+
+
+// FX 1
+
+  
+const paramMap = [
+  1 : distParams,
+  2 : fuzzParams,
+  3 : compParams,
+  4 : crushParams
+]
+
+const distParams : [(String,Parm.Span)] = [
+  ("Level", lrng()),
+  ("Drive", lrng()),
+  ("Type", lrng(0...5)),
+  ("Presence", lrng())
+]
+
+const fuzzParams : [(String,Parm.Span)] = [
+  ("Level", lrng()),
+  ("Drive", lrng()),
+  ("Type", lrng(0...5)),
+  ("Presence", lrng())
+]
+
+const compParams : [(String,Parm.Span)] = [
+  ("Threshold", lrng()),
+  ("Ratio", liso(0...19, Miso.switcher([
+    .range(0...18, Miso.options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) >>> Miso.unitFormat(":1")),
+    .int(19, "inf:1"),
+  ]))),
+  ("Attack", liso(0...31, Miso.piecewise(breaks: [
+    (0, 0.05),
+    (5, 0.1),
+    (14, 1),
+    (23, 10),
+    (31, 50),
+  ]) >>> Miso.round(2) >>> Miso.unitFormat("ms"))),
+  ("Release", liso(0...23, Miso.piecewise(breaks: [
+    (0, 0.05),
+    (1, 0.07),
+    (2, 0.1),
+    (3, 0.5),
+    (4, 1),
+    (5, 5),
+    (6, 10),
+    (7, 17),
+    (8, 25),
+    (11, 100),
+    (20, 1000),
+    (21, 1200),
+    (22, 1500),
+    (23, 2000),
+  ]) >>> Miso.round(2) >>> Miso.unitFormat("ms"))),
+  ("Level", lrng()),
+  ("Side Sw", lopts(["Off", "On"])),
+  ("Side Lvl", lrng()),
+  ("Side Note", liso(0...127, Miso.noteName(zeroNote: "C-1"))),
+  ("Side Time", lrng(60...1000)),
+  ("Side Rel", lrng()),
+  ("Side Sync", lopts(["Off", "On"])),
+]
+
+const crushParams : [(String,Parm.Span)] = [
+  ("Level", lrng()),
+  ("Rate", lrng()),
+  ("Bit", lrng()),
+  ("Filter", lrng())
+]
+
+const fx1Parms = [
+  ['type', { b: 0x00, opts: ["Thru", "Distortion", "Fuzz", "Compressor", "Bit Crusher"] }],
+  // not actually accessible from the panel, so don't use it. each fx has its own level param
+  //      ['level', { b: 0x0001 }],
+  ['delay', { b: 0x0002 }],
+  ['reverb', { b: 0x0003 }],
+  ['out/assign', { b: 0x0004, opts: ["Direct","EFX2"] }],
+  { prefix: 'param', count: 32, bx: 4, block: (i, off) => [
+    ['', { b: 0x11, packIso: JDXi.multiPack(0x11 + off), lrng() }],
+  ] },
+]
+
+const fx1Werk = {
+  single: "Program Effect 1", 
+  parms: fx1Parms,
+  size: 0x111,
+}
+ 
+
+
 
 extension JDXi {
 
@@ -308,123 +420,9 @@ extension JDXi {
     const syncRateParam = liso(0...21, syncRateIso)
 
 
-    struct VocalEffect {
-      const patchWerk = singlePatchWerk("Program Vocal", params, size: 0x18, start: 0x0100)
-      
-      const params: SynthPathParam = {
-        var p = SynthPathParam()
 
-        p["level"] = RangeParam(byte: 0x00)
-        p["pan"] = RangeParam(byte: 0x0001, displayOffset: -64)
-        p["delay"] = RangeParam(byte: 0x0002)
-        p["reverb"] = RangeParam(byte: 0x0003)
-        p["out/assign"] = OptionsParam(byte: 0x0004, options: Program.outputAssignOptions)
-        p["auto/pitch/on"] = RangeParam(byte: 0x0005, maxVal: 1)
-        p["auto/pitch/type"] = OptionsParam(byte: 0x0006, options: ["Soft", "Hard", "Elec 1", "Elec 2"])
-        p["auto/pitch/scale"] = OptionsParam(byte: 0x0007, options: ["Chromatic","Maj(Min)"])
-        p["auto/pitch/key"] = OptionsParam(byte: 0x0008, options: ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "Bbm", "Bm"])
-        p["auto/pitch/note"] = OptionsParam(byte: 0x0009, options: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
-        p["auto/pitch/gender"] = RangeParam(byte: 0x000a, maxVal: 20, displayOffset: -10)
-        p["auto/pitch/octave"] = RangeParam(byte: 0x000b, maxVal: 2, displayOffset: -1)
-        p["auto/pitch/balance"] = RangeParam(byte: 0x000c, maxVal: 100, displayOffset: -50)
-        // "on" doesn't seem to do anything.
-  //      p["vocoder/on"] = RangeParam(byte: 0x000d, maxVal: 1)
-        p["vocoder/env"] = OptionsParam(byte: 0x000e, options: ["Sharp","Soft","Long"])
-    //    p["???"] = RangeParam(byte: 0x000f) // printed in ref but unlabeled!
-        p["vocoder/mic/sens"] = RangeParam(byte: 0x0010)
-        p["vocoder/synth/level"] = RangeParam(byte: 0x0011)
-        p["vocoder/mic/mix"] = RangeParam(byte: 0x0012)
-        p["vocoder/mic/hi/pass"] = OptionsParam(byte: 0x0013, options: ["Bypass", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "10000", "12500", "16000"])
-        
-        return p
-      }()
-      
-    }
 
-    struct Effect1 {
 
-      const patchWerk = singlePatchWerk("Program Effect 1", params, size: 0x111, start: 0x0200)
-      
-      const parms: [Parm] = [
-        ['type', { b: 0x00, opts: ["Thru", "Distortion", "Fuzz", "Compressor", "Bit Crusher"] }],
-        // not actually accessible from the panel, so don't use it. each fx has its own level param
-        //      ['level', { b: 0x0001 }],
-        ['delay', { b: 0x0002 }],
-        ['reverb', { b: 0x0003 }],
-        ['out/assign', { b: 0x0004, opts: ["Direct","EFX2"] }],
-      ] + .prefix("param", count: 32, bx: 4, block: { i, off in [
-        .p([], 0x11, packIso: JDXi.multiPack(0x11 + off), lrng()),
-      ] })
-      
-      const params = parms.params()
-      
-      const paramMap = [
-        1 : distParams,
-        2 : fuzzParams,
-        3 : compParams,
-        4 : crushParams
-      ]
-
-      const distParams : [(String,Parm.Span)] = [
-        ("Level", lrng()),
-        ("Drive", lrng()),
-        ("Type", lrng(0...5)),
-        ("Presence", lrng())
-      ]
-
-      const fuzzParams : [(String,Parm.Span)] = [
-        ("Level", lrng()),
-        ("Drive", lrng()),
-        ("Type", lrng(0...5)),
-        ("Presence", lrng())
-      ]
-
-      const compParams : [(String,Parm.Span)] = [
-        ("Threshold", lrng()),
-        ("Ratio", liso(0...19, Miso.switcher([
-          .range(0...18, Miso.options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) >>> Miso.unitFormat(":1")),
-          .int(19, "inf:1"),
-        ]))),
-        ("Attack", liso(0...31, Miso.piecewise(breaks: [
-          (0, 0.05),
-          (5, 0.1),
-          (14, 1),
-          (23, 10),
-          (31, 50),
-        ]) >>> Miso.round(2) >>> Miso.unitFormat("ms"))),
-        ("Release", liso(0...23, Miso.piecewise(breaks: [
-          (0, 0.05),
-          (1, 0.07),
-          (2, 0.1),
-          (3, 0.5),
-          (4, 1),
-          (5, 5),
-          (6, 10),
-          (7, 17),
-          (8, 25),
-          (11, 100),
-          (20, 1000),
-          (21, 1200),
-          (22, 1500),
-          (23, 2000),
-        ]) >>> Miso.round(2) >>> Miso.unitFormat("ms"))),
-        ("Level", lrng()),
-        ("Side Sw", lopts(["Off", "On"])),
-        ("Side Lvl", lrng()),
-        ("Side Note", liso(0...127, Miso.noteName(zeroNote: "C-1"))),
-        ("Side Time", lrng(60...1000)),
-        ("Side Rel", lrng()),
-        ("Side Sync", lopts(["Off", "On"])),
-      ]
-
-      const crushParams : [(String,Parm.Span)] = [
-        ("Level", lrng()),
-        ("Rate", lrng()),
-        ("Bit", lrng()),
-        ("Filter", lrng())
-      ]
-
-    }
 
     enum Effect2 {
       const patchWerk = singlePatchWerk("Program Effect 2", params, size: 0x111, start: 0x0400)
@@ -558,9 +556,7 @@ extension JDXi {
         
         return "p([", 0x3, packIso: JDXi.multiPack(0x3 + off), span)]
       })
-      
-      const params = parms.params()
-      
+
     }
     
     enum Digital1Part : JDXiPartPatchBuilder {
@@ -623,45 +619,42 @@ extension JDXi {
       static var patchOptions: [String] = []
     }
 
-      
-    enum Zone {
-      const patchWerk = singlePatchWerk("Program Zone", params, size: 0x23, start: 0x3000)
-            
-      const params: SynthPathParam = {
-        var p = SynthPathParam()
-        p["arp"] = RangeParam(byte: 0x0003, maxVal: 1)
-        p["octave/shift"] = RangeParam(byte: 0x0019, range: 61...67, displayOffset: -64)
-        return p
-      }()
-      
-    }
-
-    /// Mystery extra subpatch!
-    enum Extra1 {
-      const patchWerk = singlePatchWerk("Program Extra1", [:], size: 0x1, start: 0x1000)
-    }
-
-    enum Ctrlr {
-      const patchWerk = singlePatchWerk("Program Controller", params, size: 0x0c, start: 0x4000)
-      
-      const params: SynthPathParam = {
-        var p = SynthPathParam()
-        
-        p["resolution"] = OptionsParam(byte: 0x01, options: ["4", "8", "8L", "8H", "8t", "16", "16L", "16H", "16t"])
-        p["length"] = OptionsParam(byte: 0x02, options: ["30", "40", "50", "60", "70", "80", "90", "100", "120", "Full"])
-        p["on"] = RangeParam(byte: 0x03, maxVal: 1)
-        p["style"] = OptionsParam(byte: 0x05, options: ["Basic 1 (a)", "Basic 2 (a)", "Basic 3 (a)", "Basic 4 (a)", "Basic 5 (a)", "Basic 6 (a)", "Seq Ptn 1 (2)", "Seq Ptn 2 (2)", "Seq Ptn 3 (2)", "Seq Ptn 4 (2)", "Seq Ptn 5 (2)", "Seq Ptn 6 (3)", "Seq Ptn 7 (3)", "Seq Ptn 8 (3)", "Seq Ptn 9 (3)", "Seq Ptn 10 (3)", "Seq Ptn 11 (3)", "Seq Ptn 12 (3)", "Seq Ptn 13 (3)", "Seq Ptn 14 (3)", "Seq Ptn 15 (3)", "Seq Ptn 16 (3)", "Seq Ptn 17 (3)", "Seq Ptn 18 (4)", "Seq Ptn 19 (4)", "Seq Ptn 20 (4)", "Seq Ptn 21 (4)", "Seq Ptn 22 (4)", "Seq Ptn 23 (4)", "Seq Ptn 24 (4)", "Seq Ptn 25 (4)", "Seq Ptn 26 (4)", "Seq Ptn 27 (4)", "Seq Ptn 28 (4)", "Seq Ptn 29 (4)", "Seq Ptn 30 (5)", "Seq Ptn 31 (5)", "Seq Ptn 32 (6)", "Seq Ptn 33 (p)", "Seq Ptn 34 (p)", "Seq Ptn 35 (p)", "Seq Ptn 36 (p)", "Seq Ptn 37 (p)", "Seq Ptn 38 (p)", "Seq Ptn 39 (p)", "Seq Ptn 40 (p)", "Seq Ptn 41 (p)", "Seq Ptn 42 (p)", "Seq Ptn 43 (p)", "Seq Ptn 44 (p)", "Seq Ptn 45 (p)", "Seq Ptn 46 (p)", "Seq Ptn 47 (p)", "Seq Ptn 48 (p)", "Seq Ptn 49 (p)", "Seq Ptn 50 (p)", "Seq Ptn 51 (p)", "Seq Ptn 52 (p)", "Seq Ptn 53 (p)", "Seq Ptn 54 (p)", "Seq Ptn 55 (p)", "Seq Ptn 56 (p)", "Seq Ptn 57 (p)", "Seq Ptn 58 (p)", "Seq Ptn 59 (p)", "Seq Ptn 60 (p)", "Bassline 1 (1)", "Bassline 2 (1)", "Bassline 3 (1)", "Bassline 4 (1)", "Bassline 5 (1)", "Bassline 6 (1)", "Bassline 7 (1)", "Bassline 8 (1)", "Bassline 9 (1)", "Bassline 10 (2)", "Bassline 11 (2)", "Bassline 12 (2)", "Bassline 13 (2)", "Bassline 14 (2)", "Bassline 15 (2)", "Bassline 16 (3)", "Bassline 17 (3)", "Bassline 18 (3)", "Bassline 19 (3)", "Bassline 20 (3)", "Bassline 21 (3)", "Bassline 22 (p)", "Bassline 23 (p)", "Bassline 24 (p)", "Bassline 25 (p)", "Bassline 26 (p)", "Bassline 27 (p)", "Bassline 28 (p)", "Bassline 29 (p)", "Bassline 30 (p)", "Bassline 31 (p)", "Bassline 32 (p)", "Bassline 33 (p)", "Bassline 34 (p)", "Bassline 35 (p)", "Bassline 36 (p)", "Bassline 37 (p)", "Bassline 38 (p)", "Bassline 39 (p)", "Bassline 40 (p)", "Bassline 41 (p)", "Sliced 1 (a)", "Sliced 2 (a)", "Sliced 3 (a)", "Sliced 4 (a)", "Sliced 5 (a)", "Sliced 6 (a)", "Sliced 7 (a)", "Sliced 8 (a)", "Sliced 9 (a)", "Sliced 10 (a)", "Gtr Arp 1 (4)", "Gtr Arp 2 (5)", "Gtr Arp 3 (6)", "Gtr Backing 1(a)", "Gtr Backing 2(a)", "Key Bckng1 (a)", "Key Bckng2 (a)", "Key Bckng3 (1-3)", "1/1 Note Trg (1)", "1/2 Note Trg (1)", "1/4 Note Trg (1)"])
-        p["motif"] = OptionsParam(byte: 0x06, options: ["Up/L", "Up/H", "Up", "Down/L", "Down/H", "Down", "UpDown/L", "UpDown/H", "UpDown", "Random/L", "Random", "Phrase"])
-        p["octave/range"] = RangeParam(byte: 0x07, range: 61...67, displayOffset: -64)
-        p["accent/rate"] = RangeParam(byte: 0x09, maxVal: 100)
-        p["velo"] = RangeParam(byte: 0x0a)
-        
-        return p
-      }()
-      
-    }
-
-    
   }
+}
 
+const zoneParms = [
+  ["arp", { b: 0x0003, max: 1 }],
+  ["octave/shift", { b: 0x0019, rng: [61, 67], dispOff: -64 }],
+]
+
+const zoneWerk = {
+  single: "Program Zone", 
+  parms: zoneParms,
+  size: 0x23,
+}
+
+
+/// Mystery extra subpatch!
+const extra1Werk = {
+  single: "Program Extra1", 
+  parms: [], 
+  size: 0x1,
+}
+
+
+const ctrlrParms = [
+  ["resolution", { b: 0x01, opts: ["4", "8", "8L", "8H", "8t", "16", "16L", "16H", "16t"] }],
+  ["length", { b: 0x02, opts: ["30", "40", "50", "60", "70", "80", "90", "100", "120", "Full"] }],
+  ["on", { b: 0x03, max: 1 }],
+  ["style", { b: 0x05, opts: ["Basic 1 (a)", "Basic 2 (a)", "Basic 3 (a)", "Basic 4 (a)", "Basic 5 (a)", "Basic 6 (a)", "Seq Ptn 1 (2)", "Seq Ptn 2 (2)", "Seq Ptn 3 (2)", "Seq Ptn 4 (2)", "Seq Ptn 5 (2)", "Seq Ptn 6 (3)", "Seq Ptn 7 (3)", "Seq Ptn 8 (3)", "Seq Ptn 9 (3)", "Seq Ptn 10 (3)", "Seq Ptn 11 (3)", "Seq Ptn 12 (3)", "Seq Ptn 13 (3)", "Seq Ptn 14 (3)", "Seq Ptn 15 (3)", "Seq Ptn 16 (3)", "Seq Ptn 17 (3)", "Seq Ptn 18 (4)", "Seq Ptn 19 (4)", "Seq Ptn 20 (4)", "Seq Ptn 21 (4)", "Seq Ptn 22 (4)", "Seq Ptn 23 (4)", "Seq Ptn 24 (4)", "Seq Ptn 25 (4)", "Seq Ptn 26 (4)", "Seq Ptn 27 (4)", "Seq Ptn 28 (4)", "Seq Ptn 29 (4)", "Seq Ptn 30 (5)", "Seq Ptn 31 (5)", "Seq Ptn 32 (6)", "Seq Ptn 33 (p)", "Seq Ptn 34 (p)", "Seq Ptn 35 (p)", "Seq Ptn 36 (p)", "Seq Ptn 37 (p)", "Seq Ptn 38 (p)", "Seq Ptn 39 (p)", "Seq Ptn 40 (p)", "Seq Ptn 41 (p)", "Seq Ptn 42 (p)", "Seq Ptn 43 (p)", "Seq Ptn 44 (p)", "Seq Ptn 45 (p)", "Seq Ptn 46 (p)", "Seq Ptn 47 (p)", "Seq Ptn 48 (p)", "Seq Ptn 49 (p)", "Seq Ptn 50 (p)", "Seq Ptn 51 (p)", "Seq Ptn 52 (p)", "Seq Ptn 53 (p)", "Seq Ptn 54 (p)", "Seq Ptn 55 (p)", "Seq Ptn 56 (p)", "Seq Ptn 57 (p)", "Seq Ptn 58 (p)", "Seq Ptn 59 (p)", "Seq Ptn 60 (p)", "Bassline 1 (1)", "Bassline 2 (1)", "Bassline 3 (1)", "Bassline 4 (1)", "Bassline 5 (1)", "Bassline 6 (1)", "Bassline 7 (1)", "Bassline 8 (1)", "Bassline 9 (1)", "Bassline 10 (2)", "Bassline 11 (2)", "Bassline 12 (2)", "Bassline 13 (2)", "Bassline 14 (2)", "Bassline 15 (2)", "Bassline 16 (3)", "Bassline 17 (3)", "Bassline 18 (3)", "Bassline 19 (3)", "Bassline 20 (3)", "Bassline 21 (3)", "Bassline 22 (p)", "Bassline 23 (p)", "Bassline 24 (p)", "Bassline 25 (p)", "Bassline 26 (p)", "Bassline 27 (p)", "Bassline 28 (p)", "Bassline 29 (p)", "Bassline 30 (p)", "Bassline 31 (p)", "Bassline 32 (p)", "Bassline 33 (p)", "Bassline 34 (p)", "Bassline 35 (p)", "Bassline 36 (p)", "Bassline 37 (p)", "Bassline 38 (p)", "Bassline 39 (p)", "Bassline 40 (p)", "Bassline 41 (p)", "Sliced 1 (a)", "Sliced 2 (a)", "Sliced 3 (a)", "Sliced 4 (a)", "Sliced 5 (a)", "Sliced 6 (a)", "Sliced 7 (a)", "Sliced 8 (a)", "Sliced 9 (a)", "Sliced 10 (a)", "Gtr Arp 1 (4)", "Gtr Arp 2 (5)", "Gtr Arp 3 (6)", "Gtr Backing 1(a)", "Gtr Backing 2(a)", "Key Bckng1 (a)", "Key Bckng2 (a)", "Key Bckng3 (1-3)", "1/1 Note Trg (1)", "1/2 Note Trg (1)", "1/4 Note Trg (1)"] }],
+  ["motif", { b: 0x06, opts: ["Up/L", "Up/H", "Up", "Down/L", "Down/H", "Down", "UpDown/L", "UpDown/H", "UpDown", "Random/L", "Random", "Phrase"] }],
+  ["octave/range", { b: 0x07, rng: [61, 67], dispOff: -64 }],
+  ["accent/rate", { b: 0x09, max: 100 }],
+  ["velo", { b: 0x0a }],
+]
+
+const ctrlrWerk = {
+  single: "Program Controller", 
+  parms: ctrlrParms,
+  size: 0x0c,
 }
