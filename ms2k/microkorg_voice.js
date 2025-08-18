@@ -24,30 +24,11 @@
 //    return p
 //  }
 
-// LFO options
-const lfo1WaveOptions = ["Saw", "Square", "Tri", "S/H"]
-const lfo2WaveOptions = ["Saw", "Square (+)", "Sine", "S/H"]
-const keySyncOptions = ["Off", "Timbre", "Voice"]
-const syncNoteOptions = ["1/1", "3/4", "2/3", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "1/24", "1/32"]
 
-// common options
-const voiceAssignOptions = ["Mono", "Poly", "Unison"]
-const triggerOptions = ["Single", "Multi"]
-
-const hiFreqOptions = ["1000", "1250", "1500", "1750", "2000", "2250", "2500", "2750", "3000", "3250", "3500", "3750", "4000", "4250", "4500", "4750", "5000", "5250", "5500", "5750", "6000", "7000", "8000", "9000", "10k", "11k", "12k", "14k", "16k", "18k"]
-
-const loFreqOptions = ["40", "50", "60", "80", "100", "120", "140", "160", "180", "200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", "420", "440", "460", "480", "500", "600", "700", "800", "900", "1000"]
-
-// oscillator options
-const osc1WaveOptions = ["Saw", "Pulse", "Tri", "Sin (Cross)", "Vox Wave", "DWGS", "Noise", "Audio In"]
-const dwgsWaveOptions = ["SynSine1", "SynSine2", "SynSine3", "SynSine4", "SynSine5", "SynSine6", "SynSine7", "SynBass1", "SynBass2", "SynBass3", "SynBass4", "SynBass5", "SynBass6", "SynBass7", "SynWave1", "SynWave2", "SynWave3", "SynWave4", "SynWave5", "SynWave6", "SynWave7", "SynWave8", "SynWave9", "5thWave1", "5thWave2", "5thWave3", "Digi1", "Digi2", "Digi3", "Digi4", "Digi5", "Digi6", "Digi7", "Digi8", "Endless", "E.Piano1", "E.Piano2", "E.Piano3", "E.Piano4", "Organ1", "Organ2", "Organ3", "Organ4", "Organ5", "Organ6", "Organ7", "Clav1", "Clav2", "Guitar1", "Guitar2", "Guitar3", "Bass1", "Bass2", "Bass3", "Bass4", "Bass5", "Bell1", "Bell2", "Bell3", "Bell4", "Voice1", "Voice2", "Voice3", "Voice4"]
 
 
 // patch source/dest
-const mkSources = OptionsParam.makeOptions(["Filter Env", "Amp Env", "LFO1", "LFO2", "Velocity", "Key Track",
-                                                 "Pitch", "Mod"])
-
-const destinations = ["Pitch", "Osc2 Pitch", "Osc1 Ctrl 1", "Noise Level", "Cutoff", "Amp", "Pan", "LFO2 Freq"]
+const mkSources = ["Filter Env", "Amp Env", "LFO1", "LFO2", "Velocity", "Key Track", "Pitch", "Mod"]
 
 // shift the bipolar range
 function rangeShift(parm) {
@@ -73,9 +54,9 @@ const parms = [
   ["mod/speed", { p: -38, b: 23 }],
   ["mod/depth", { p: -39, b: 24 }],
   ["mod/type", { b: 25, opts: ["Cho/Flg", "Ensemble", "Phaser"] }],
-  ["hi/freq", { b: 26, opts: hiFreqOptions }],
+  ["hi/freq", { b: 26, opts: MS2KVoice.hiFreqs }],
   ["hi/gain", rangeShift({ b: 27, rng: [-12, 12] })],
-  ["lo/freq", { b: 28, opts: loFreqOptions }],
+  ["lo/freq", { b: 28, opts: MS2KVoice.loFreqs }],
   ["lo/gain", rangeShift({ b: 29, rng: [-12, 12] })],
   ["arp/tempo", { b: 30, rng: [20, 300] }],
   ["arp/key/sync", { b: 32, bit: 0 }],
@@ -93,8 +74,8 @@ const parms = [
   // timbre mode
   { prefix: 'tone', count: 2, bx: 108, block: [
     { b: 38, offset: [
-      ["voice/assign", { b: 1, bits: [6, 7], opts: voiceAssignOptions }],
-      ["trigger/mode", { b: 1, bit: 3, opts: triggerOptions }],
+      ["voice/assign", { b: 1, bits: [6, 7], opts: MS2KVoice.voiceAssigns }],
+      ["trigger/mode", { b: 1, bit: 3, opts: MS2KVoice.triggers }],
       ["unison/tune", { b: 2, max: 99 }],
       ["tune", rangeShift({ b: 3, rng: [-50, 50] })],
       ["porta", { p: -1, b: 15 }],
@@ -102,10 +83,10 @@ const parms = [
       ["transpose", rangeShift({ b: 5, rng: [-24, 24] })],
       ["vib/amt", rangeShift({ b: 6, rng: [-63, 63] })],
       
-      ["osc/0/wave/mode", { p: -2, b: 7, opts: osc1WaveOptions }],
+      ["osc/0/wave/mode", { p: -2, b: 7, opts: MS2KVoice.osc1Waves }],
       ["osc/0/ctrl/0", { p: -3, b: 8 }],
       ["osc/0/ctrl/1", { p: -4, b: 9 }],
-      ["osc/0/wave", { p: -4, b: 10, opts: dwgsWaveOptions }], // PARM SAME AS CTRL 2
+      ["osc/0/wave", { p: -4, b: 10, opts: MS2KVoice.dwgsWaves }], // PARM SAME AS CTRL 2
       
       ["mod/select", { p: -6, b: 12, bits: [4, 5], opts: ["Off", "Ring", "Sync", "Ring/Sync"] }],
       ["osc/1/wave", { p: -5, b: 12, bits: [0, 1], opts: ["Saw", "Square", "Tri"] }],
@@ -142,22 +123,22 @@ const parms = [
       ["env/1/release", { p: -28, b: 37 }],
       ["env/1/reset", { b: 1, bit: 5 }],
       
-      ["lfo/0/key/sync", { b: 38, bits: [4, 5], opts: keySyncOptions }],
-      ["lfo/0/wave", { p: -29, b: 38, bits: [0, 1], opts: lfo1WaveOptions }],
+      ["lfo/0/key/sync", { b: 38, bits: [4, 5], opts: MS2KVoice.keySyncs }],
+      ["lfo/0/wave", { p: -29, b: 38, bits: [0, 1], opts: MS2KVoice.lfo1Waves }],
       ["lfo/0/freq", { p: -30, b: 39 }],
       ["lfo/0/tempo/sync", { b: 40, bit: 7 }],
-      ["lfo/0/sync/note", { p: -30, b: 40, bits: [0, 4], opts: syncNoteOptions }],
+      ["lfo/0/sync/note", { p: -30, b: 40, bits: [0, 4], opts: MS2KVoice.syncNotes }],
       
-      ["lfo/1/key/sync", { b: 41, bits: [4, 5], opts: keySyncOptions }],
-      ["lfo/1/wave", { p: -31, b: 41, bits: [0, 1], opts: lfo2WaveOptions }],
+      ["lfo/1/key/sync", { b: 41, bits: [4, 5], opts: MS2KVoice.keySyncs }],
+      ["lfo/1/wave", { p: -31, b: 41, bits: [0, 1], opts: MS2KVoice.lfo2Waves }],
       ["lfo/1/freq", { p: -32, b: 42 }],
       ["lfo/1/tempo/sync", { b: 43, bit: 7 }],
-      ["lfo/1/sync/note", { p: -32, b: 43, bits: [0, 4], opts: syncNoteOptions }],
+      ["lfo/1/sync/note", { p: -32, b: 43, bits: [0, 4], opts: MS2KVoice.syncNotes }],
       
       { prefix: 'patch', count: 4, bx: 2, block: (i) => [
         ["src", { p: 0x0400 + i, b: 44, bits: [0, 3], opts: mkSources }],
         ["amt", rangeShift({ p: -33 - i, b: 45, rng: [-63, 63] })],
-        ["dest", { p: 0x0408 + i, b: 44, bits: [4, 7], opts: destinations }],
+        ["dest", { p: 0x0408 + i, b: 44, bits: [4, 7], opts: MS2KVoice.destinations }],
       ] },
     ] },
   },
@@ -167,18 +148,18 @@ const parms = [
    */
   { prefix: 'vocoder', block: [
     { b: 38, offset: block: [
-      ["voice/assign", { b: 1, bits: [6, 7], opts: voiceAssignOptions }],
-      ["trigger/mode", { b: 1, bit: 3, opts: triggerOptions }],
+      ["voice/assign", { b: 1, bits: [6, 7], opts: MS2KVoice.voiceAssigns }],
+      ["trigger/mode", { b: 1, bit: 3, opts: MS2KVoice.triggers }],
       ["unison/tune", { b: 2, max: 99 }],
       ["tune", rangeShift({ b: 3, rng: [-50, 50] })],
       ["bend", rangeShift({ b: 4, rng: [-12, 12] })],
       ["transpose", rangeShift({ b: 5, rng: [-24, 24] })],
       ["vib/amt", rangeShift({ b: 6, rng: [-63, 63] })],
       
-      ["osc/0/wave/mode", { p: -2, b: 7, opts: osc1WaveOptions }],
+      ["osc/0/wave/mode", { p: -2, b: 7, opts: MS2KVoice.osc1Waves }],
       ["osc/0/ctrl/0", { p: -3, b: 8 }],
       ["osc/0/ctrl/1", { p: -4, b: 9 }],
-      ["osc/0/wave", { b: 10, opts: dwgsWaveOptions }],
+      ["osc/0/wave", { b: 10, opts: MS2KVoice.dwgsWaves }],
       ["porta", { p: -1, b: 14 }],
       
       ["osc/0/level", { p: -9, b: 15 }],
@@ -221,24 +202,24 @@ const parms = [
       ["env/1/release", { p: -28, b: 39 }],
       ["env/1/reset", { b: 1, bit: 5 }], // parm # is made up
       
-      ["lfo/0/wave", { p: -29, b: 40, bits: [0, 1], opts: lfo1WaveOptions }],
+      ["lfo/0/wave", { p: -29, b: 40, bits: [0, 1], opts: MS2KVoice.lfo1Waves }],
       ["lfo/0/freq", { p: -30, b: 41 }],
       ["lfo/0/tempo/sync", { b: 42, bit: 7 }],
-      ["lfo/0/sync/note", { b: 42, bits: [0, 4], opts: syncNoteOptions }],
-      ["lfo/0/key/sync", { b: 40, bits: [4, 5], opts: keySyncOptions }],
+      ["lfo/0/sync/note", { b: 42, bits: [0, 4], opts: MS2KVoice.syncNotes }],
+      ["lfo/0/key/sync", { b: 40, bits: [4, 5], opts: MS2KVoice.keySyncs }],
       
-      ["lfo/1/wave", { p: -31, b: 43, bits: [0, 1], opts: lfo2WaveOptions }],
+      ["lfo/1/wave", { p: -31, b: 43, bits: [0, 1], opts: MS2KVoice.lfo2Waves }],
       ["lfo/1/freq", { p: -32, b: 44 }],
       ["lfo/1/tempo/sync", { b: 45, bit: 7 }],
-      ["lfo/1/sync/note", { b: 45, bits: [0, 4], opts: syncNoteOptions }],
-      ["lfo/1/key/sync", { b: 43, bits: [4, 5], opts: keySyncOptions }],
+      ["lfo/1/sync/note", { b: 45, bits: [0, 4], opts: MS2KVoice.syncNotes }],
+      ["lfo/1/key/sync", { b: 43, bits: [4, 5], opts: MS2KVoice.keySyncs }],
       
       // each pair of channels is same value
       { prefix: 'level', count: 8, bx: 2, px: 2, block: [
         ["", { p: 0x0410, b: 46 }],
       ] },
       { prefix: 'pan', count: 8, bx: 2, px: 2, block: [
-        ["pan/step", rangeShift({ p: 0x0420, b: 62, rng: [-63, 63] })],
+        ["", rangeShift({ p: 0x0420, b: 62, rng: [-63, 63] })],
       ] },
       { prefix: 'env/follow/hold', count: 16, bx: 4, block: [
         ["", { b: 78 }],
