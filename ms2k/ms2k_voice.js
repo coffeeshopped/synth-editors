@@ -230,7 +230,7 @@ const parms = [
 ]
 
   
-const sysexData = [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, 0x40, ['pack78', {count: 291}], 0xf7]
+const sysexData = [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, 0x40, ['pack78'], 0xf7]
 
 const patchTruss = {
   single: 'voice',
