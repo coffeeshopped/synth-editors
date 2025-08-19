@@ -1,4 +1,0 @@
-
-class VirusTISnowVoiceBank : VirusTISeriesVoiceBank<VirusTISnowVoicePatch> { }
-
-

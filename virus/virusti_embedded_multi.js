@@ -16,19 +16,17 @@ class VirusTISeriesEmbeddedMultiPatch<PartPatch:VirusTIVoicePatch, MultiPatch:Vi
   }
 
   var name: String {
-    get { return subpatches[[.common]]?.name ?? "?" }
-    set { subpatches[[.common]]?.name = newValue }
+    get { return subpatches["common"]?.name ?? "?" }
+    set { subpatches["common"]?.name = newValue }
   }
   
   static var maxNameCount: Int {
     return MultiPatch.maxNameCount
   }
-  
-  var subpatches: [SynthPath : SysexPatch]
-    
+      
   class var subpatchTypes: [SynthPath : SysexPatch.Type] {
-    var types: [SynthPath : SysexPatch.Type] = [[.common] : MultiPatch.self]
-    (0..<partCount).forEach { types[[.part, .i($0)]] = PartPatch.self }
+    var types: [SynthPath : SysexPatch.Type] = ["common" : MultiPatch.self]
+    (0..<partCount).forEach { types["part/$0"] = PartPatch.self }
     return types
   }
   
@@ -36,11 +34,11 @@ class VirusTISeriesEmbeddedMultiPatch<PartPatch:VirusTIVoicePatch, MultiPatch:Vi
     subpatches = [SynthPath:SysexPatch]()
     SysexData(data: data).forEach { d in
       if MultiPatch.isValid(sysex: d) {
-        subpatches[[.common]] = MultiPatch.init(data: d)
+        subpatches["common"] = MultiPatch.init(data: d)
       }
       else if PartPatch.isValid(sysex: d) {
         let part = Int(d[8])
-        subpatches[[.part, .i(part)]] = PartPatch.init(data: d)
+        subpatches["part/part"] = PartPatch.init(data: d)
       }
     }
     for (key, type) in Self.subpatchTypes {
@@ -56,18 +54,14 @@ class VirusTISeriesEmbeddedMultiPatch<PartPatch:VirusTIVoicePatch, MultiPatch:Vi
   }
 
   
-  func copy() -> Self {
-    return Self.init(subpatches: subpatches)
-  }
-  
-  // location: -1 = temp, 0...63 = memory
+  // location: -1 = temp, [0, 63] = memory
   func sysexData(deviceId: UInt8, location: Int) -> [Data] {
     let multiBank: UInt8 = location < 0 ? 0 : 50 // undocumented. bank 50 to store.
     let multiPart: UInt8 = location < 0 ? 0 : UInt8(location)
     let patchBank: UInt8 = location < 0 ? 0 : UInt8(location) + 0x20
-    var data = [(subpatches[[.common]] as? MultiPatch)?.sysexData(deviceId: deviceId, bank: multiBank, part: multiPart) ?? Data()]
+    var data = [(subpatches["common"] as? MultiPatch)?.sysexData(deviceId: deviceId, bank: multiBank, part: multiPart) ?? Data()]
     (0..<16).forEach {
-      guard let p = subpatches[[.part, .i($0)]] as? PartPatch else { return }
+      guard let p = subpatches["part/$0"] as? PartPatch else { return }
       data.append(p.sysexData(deviceId: deviceId, bank: patchBank, part: UInt8($0)))
     }
     return data
@@ -81,8 +75,24 @@ class VirusTISeriesEmbeddedMultiPatch<PartPatch:VirusTIVoicePatch, MultiPatch:Vi
 
 class VirusTIEmbeddedMultiPatch : VirusTISeriesEmbeddedMultiPatch<VirusTIVoicePatch, VirusTIMultiPatch>, BankablePatch {
   
-  static let bankType: SysexPatchBank.Type = VirusTIEmbeddedMultiBank.self
+  const bankType: SysexPatchBank.Type = VirusTIEmbeddedMultiBank.self
   
   override class var initFileName: String { return "virusti-embedded-multi-init"}
   override class var partCount: Int { return 16 }
 }
+
+
+class VirusTIEmbeddedMultiBank : TypicalTypedSysexPatchBank<VirusTIEmbeddedMultiPatch>, PerfBank {
+  
+  override class var patchCount: Int { return 16 }
+  override class var initFileName: String { return "virusti-embedded-multi-bank-init" }
+
+  func sysexData(deviceId: UInt8) -> Data {
+    return sysexData { Data($0.sysexData(deviceId: deviceId, location: $1).joined()) }
+  }
+  
+  override func fileData() -> Data {
+    return sysexData(deviceId: 16)
+  }
+}
+
