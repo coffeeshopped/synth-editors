@@ -8,14 +8,12 @@ const patchFetch = bytes => ['truss', Blofeld.sysex(bytes)]
 const bankFetch = bytes => ['bankTruss', Blofeld.sysex(bytes), {waitInterval: 100}]
 
 const wholePatchTransform = (throttle, dumpByte, bank, location) => ({
-  type: 'singleWholePatch',
+  singlePatch: [[Blofeld.sysexData(dumpByte, bank, location), 0]],
   throttle: throttle,
-  patch: [[Blofeld.sysexData(dumpByte, bank, location), 0]],
 })
 
 const bankPatch = (dumpByte, bank, interval) => ({
-  type: 'singleBank',
-  bank: location => [[Blofeld.sysexData(dumpByte, bank, location), interval]],
+  singleBank: location => [[Blofeld.sysexData(dumpByte, bank, location), interval]],
 })
 
 const channelMap = raw => raw == 0 ? 0 : raw - 1
@@ -67,10 +65,9 @@ const channelMap = raw => raw == 0 ? 0 : raw - 1
 const voiceParamData = (location, parm) => Blofeld.paramData([0x20, location], parm)
   
 const voicePatchChange = (throttle, location) => ({
-  type: 'singlePatch',
   throttle: throttle,
   param: (path, parm, value) => [[voiceParamData(location, parm.b), 10]],
-  patch: [[Blofeld.sysexData(Voice.dumpByte, 0x7f, location, true), 10]], 
+  singlePatch: [[Blofeld.sysexData(Voice.dumpByte, 0x7f, location, true), 10]], 
   name: Voice.patchTruss.namePack.rangeMap(i => [
     voiceParamData(location, i), 10
   ]),

@@ -29,12 +29,13 @@ const createPatchTruss = (displayId, bodyDataCount, initFile, namePack, parms, p
   parms: parms,
   initFile: initFile, 
   createFile: sysexData(dumpByte, 0x7f, 0x00, hasBankAndLocation), 
-  parseBody: parseOffset,
+  parseBody: ['>',
+    ['bytes', { start: parseOffset, count: bodyDataCount }]
+  ],
 })
 
 const createBankTruss = (dumpByte, patchTruss, initFile) => ({
-  type: 'singleBank',
-  patchTruss: patchTruss,
+  singleBank: patchTruss,
   patchCount: 128,
   createFile: {
     locationMap: location => sysexData(dumpByte, 0, location, true),
