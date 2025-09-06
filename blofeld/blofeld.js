@@ -23,8 +23,7 @@ const paramData = (bufferBytes, parm) => sysex([
 ])
 
 const createPatchTruss = (displayId, bodyDataCount, initFile, namePack, parms, parseOffset, dumpByte, hasBankAndLocation) => ({
-  type: 'singlePatch',
-  id: displayId,
+  single: displayId,
   bodyDataCount: bodyDataCount,
   namePack: namePack,
   parms: parms,
