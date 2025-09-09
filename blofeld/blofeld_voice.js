@@ -231,7 +231,7 @@ const reverbParams = [
 
 
 const parms = [
-  { prefix: "osc", count: 3, bx: 16, block: i => (
+  { prefix: "osc", count: 3, bx: 16, blockFn: i => (
     { inc: 1, b: 1, block: [
       ["octave", {opts: oscOctaves}],
       ["coarse", { rng: [52, 77], dispOff: -64 }],
@@ -298,7 +298,7 @@ const parms = [
   ["amp/velo", {b: 122, dispOff: -64}],
   ["amp/mod/src", {b: 123, opts: modSources}],
   ["amp/mod/amt", {b: 124, dispOff: -64}],
-  { prefix: "fx", count: 2, bx: 16, block: i => (
+  { prefix: "fx", count: 2, bx: 16, blockFn: i => (
     { inc: 1, b: 128, block: [
       ["type", {opts: i == 0 ? effectTypes : effect2Types}],
       ["mix", {}],

@@ -78,14 +78,14 @@ const filterController = ['index', "filter", "type", i => `Filter ${i + 1}`, {
   builders: [
     ['grid', [[
       [{select: "Filter"}, "type"],
-      ["cutoff"],
-      "reson",
+      ["Cutoff", "cutoff"],
+      ["Reson", "reson"],
       ["Env Amt", "env/amt"],
       ["Velocity", "velo"],
     ], modItems("Cutoff Mod", "cutoff").concat(fmCombo.items), ([
-      ["pan"],
+      ["Pan", "pan"],
     ]).concat(modItems("Pan Mod", "pan")).concat([
-      ["drive"],
+      ["Drive", "drive"],
       ["Key Track", "keyTrk"],
     ])]],
   ], 
@@ -234,16 +234,16 @@ const lfoController = {
   prefix: { index: "lfo" }, 
   builders: [
     ['grid', [[
-      ["speed"],
+      ["Speed", "speed"],
       [{checkbox: "Clocked"}, "clock"],
       ["Key Track", "keyTrk"],
-      ["phase"],
-      ["delay"],
-      ["fade"],
+      ["Phase", "phase"],
+      ["Delay", "delay"],
+      ["Fade", "fade"],
     ],[
       ['switcher', ["1","2","3"], {l: "LFO"}],
       [{select: "Wave"}, "shape"],
-      "sync",
+      ["Sync", "sync"],
     ]]],
   ], 
   effects: [
@@ -257,7 +257,7 @@ const lfoController = {
 const voiceController = {
   builders: [
     // add before fEnv panels so it's in the back.
-    ['panel', 'fEnvCon', { color: 2, }, [[]]],
+    ['panel', 'fEnvCon', { color: 2, }],
     ['child', oscController(0), "osc0", {color: 1}],
     ['child', oscController(1), "osc1", {color: 1}],
     ['child', oscController(2), "osc2", {color: 1}],
