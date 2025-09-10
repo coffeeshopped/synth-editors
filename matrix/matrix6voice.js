@@ -18,8 +18,7 @@ const trkSrcOptions = modSourceOptions.map((s, i) => [i, s]).slice(1)
 const modDestinationOptions = ["Unused","DCO1 Freq","DCO1 PW","DCO1 Waveshape","DCO2 Freq","DCO2 PW","DCO2 Waveshape","Mix Level","VCF FM Amount","VCF Freq","VCF Resonance","VCA1 Level","VCA2 Level","Env1 Delay","Env1 Attack","Env1 Decay","Env1 Release","Env1 Amp","Env2 Delay","Env2 Attack","Env2 Decay","Env2 Release","Env2 Amp","Env3 Delay","Env3 Attack","Env3 Decay","Env3 Release","Env3 Amp","LFO1 Speed","LFO1 Amp","LFO2 Speed","LFO2 Amp","Porta Time"]
 
 const createPatchTruss = createFileData => ({
-  type: "singlePatch",
-  id: "matrix6.voice",
+  single: "matrix6.voice",
   bodyDataCount: 134,
   initFile: "matrix1000-init",
   parseBody: ['>',
@@ -32,8 +31,7 @@ const createPatchTruss = createFileData => ({
     b: '2comp',
   },
   namePack: {
-    type: 'filtered',
-    range: [0, 7],
+    filtered: [0, 7],
     toBytes: ['upper', char => char & 0x3f],
     toString: [byte => byte > 31 ? byte : (byte | 0x40), 'clean'],
   },
@@ -52,8 +50,7 @@ const createPatchTruss = createFileData => ({
 
 // 30404 is a full dump with extra global/splits info
 const createBankTruss = patchTruss => ({
-  type: "singleBank",
-  patchTruss: patchTruss,
+  singleBank: patchTruss,
   patchCount: 100, 
   createFile: {
     locationMap: sysexDataWithLocation,
@@ -149,7 +146,7 @@ const parms = [
     ["lfo/0/speed/pressure/amt", { p: 81, rng: [-63, 64] }],
     ["lfo/1/speed/key/amt", { p: 91, rng: [-63, 64] }],  
   ] },
-  { prefix: 'mod', count: 10, bx: 3, px: 0, block: mod => [
+  { prefix: 'mod', count: 10, bx: 3, px: 0, blockFn: mod => [
     ["src", { b: 104, p: -(mod + 1), opts: modSourceOptions }],
     ["amt", { b: 105, p: -(mod + 1), rng: [-63, 64] }],
     ["dest", { b: 106, p: -(mod + 1), opts: modDestinationOptions }],

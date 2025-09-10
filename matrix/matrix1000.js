@@ -3,10 +3,8 @@ const Voice = require('./matrix1000voice.js')
 const VoiceCtrlr = require('./matrix6voiceCtrlr.js')
 
 const bankFetch = bank => ['sequence', [
-  ['custom', [
-    ["send", Matrix.bankSelect(bank)], // select bank
-    ["send", Matrix.sysex(0xc)], // turn off bank lock
-  ]],
+  ["send", Matrix.bankSelect(bank)], // select bank
+  ["send", Matrix.sysex(0xc)], // turn off bank lock
   ['bankTruss', Matrix.fetchPatch('b')],
 ]]
 

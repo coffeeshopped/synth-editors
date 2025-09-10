@@ -3,8 +3,7 @@ const Voice = require('./matrix6voice.js')
 const VoiceCtrlr = require('./matrix6voiceCtrlr.js')
 
 const globalPatchTruss = {
-  type: "json",
-  id: "matrix6.global",
+  json: "matrix6.global",
   parms: [
     ["channel", { b: 0, max: 15, dispOff: 1 }],
     ["patch", { b: 1, max: 99 }],
@@ -23,9 +22,7 @@ const createEditorTruss = name => ({
     ["patch", ['sequence', [
       // on Matrix 6, selected patch has to match the patch we're editing so send pgmChange after fetch
       ['truss', Matrix.fetchPatch(Matrix.tempPatch)], 
-      ['custom', [
-        ["send", ['pgmChange', 'channel', Matrix.tempPatch]]
-      ]],
+      ['send', ['pgmChange', 'channel', Matrix.tempPatch]],
     ]]],
     ["bank", ['bankTruss', Matrix.fetchPatch('b')]],
   ],
