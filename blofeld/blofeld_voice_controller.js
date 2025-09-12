@@ -164,7 +164,7 @@ const pathFn = values => {
 }
 
 const envItem = (label, prefix, id) => ({
-  env: pathFn,
+  display: ['env', pathFn],
   l: label,
   maps: [
     ['=', "mode"],

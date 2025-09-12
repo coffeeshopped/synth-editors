@@ -9,8 +9,7 @@ const map = {
 }
 
 const createPatchTruss = (synthName, keys, initFile, validSizes) => ({
-  type: 'multiPatch',
-  id: `${synthName}.voice`,
+  multiPatch: `${synthName}.voice`,
   trussMap: keys.map(k => [k, map[k].patchTruss]),
   namePath: "voice",
   initFile: initFile,
@@ -19,8 +18,7 @@ const createPatchTruss = (synthName, keys, initFile, validSizes) => ({
 })
 
 const createBankTruss = (patchTruss, patchCount, initFile, keys) => ({
-  type: 'compactMultiBank',
-  patchTruss: patchTruss, 
+  compactMultiBank: patchTruss, 
   patchCount: patchCount, 
   initFile: initFile,
   fileDataCount: 4104,

@@ -199,12 +199,9 @@ const wave = {
 
 const pitchEnvs = {
   env: {
-    display: 'timeLevelEnv',
-    pointCount: 4, 
-    sustain: 2, 
-    bipolar: true,
+    display: ['timeLevelEnv', 4, 2, true],
     l: "Pitch",
-    maps: (4).map(i => ['u', `pitch/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['src', `pitch/env/level/${i}`, `level/${i}`, v => (v - 63) / 63])),
+    maps: (4).map(i => ['u', `pitch/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['src', `pitch/env/level/${i}`, v => (v - 63) / 63, `level/${i}`])),
     id: "env",
   },
   effect: ['editMenu', "env", {
@@ -256,10 +253,7 @@ const pitch = {
 
 const filterEnvs = {
   env: {
-    display: 'timeLevelEnv',
-    pointCount: 4, 
-    sustain: 2, 
-    bipolar: false,
+    display: ['timeLevelEnv', 4, 2, false],
     l: "Filter",
     maps: (4).map(i => ['u', `filter/env/time/${i}`, `time/${i}`]).concat((4).map(i => ['u', `filter/env/level/${i}`, `level/${i}`])),
     id: "env",
@@ -317,10 +311,7 @@ const filter = {
 
 const ampEnvs = {
   env: {
-    display: 'timeLevelEnv',
-    pointCount: 4, 
-    sustain: 2, 
-    bipolar: false,
+    display: ['timeLevelEnv', 4, 2, false],
     l: "Amp",
     maps: (4).map(i => ['u', `amp/env/time/${i}`, `time/${i}`]).concat((3).map(i => ['u', `amp/env/level/${i}`, `level/${i}`])),
     id: "env",

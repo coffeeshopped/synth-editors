@@ -12,8 +12,8 @@ const negMap = value => value < 0 ? value + 128 : value
 module.exports = {
   patchTruss: patchTruss,
   patchTransform: {
-    type: 'singlePatch',
     throttle: 200,
+    singlePatch: patchOut,
     param: (path, parm, value) => {
       if (!parm) { return null }
 
@@ -40,14 +40,12 @@ module.exports = {
         return [[Matrix.sysex([0x06, parm.p, negMap(value)]), 10]]
       } 
     }, 
-    patch: patchOut,
     name: patchOut,
   },
   bankTruss: Matrix6Voice.createBankTruss(patchTruss),
   bankTransform: bank => ({
-    type: 'singleBank',
     throttle: 0,
-    bank: (location) => [
+    singleBank: (location) => [
       [Matrix.bankSelect(bank), 100],
       [Matrix6Voice.sysexDataWithLocation(location), 50],
     ],

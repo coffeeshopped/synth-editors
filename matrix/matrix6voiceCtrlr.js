@@ -5,7 +5,7 @@ const env = label => {
   return {
     display: 'dadsrEnv',
     l: label,
-    maps: parts.map(part => ["src", part, v => v / 63]),
+    maps: parts.map(part => ["u", part, 63]),
     id: "env"
   }
 }

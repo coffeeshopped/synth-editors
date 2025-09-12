@@ -180,7 +180,7 @@ module.exports = {
   createBankTruss: createBankTruss,
   
   patchTransform: {
-    type: 'singlePatch',
+    singlePatch: patchOut, 
     throttle: 200,
     param: (path, parm, value) => {
       if (!parm) { return null }
@@ -198,16 +198,14 @@ module.exports = {
         ]
       }
     }, 
-    patch: patchOut, 
     name: patchOut,
   },
 
   parms: parms,
   
   bankTransform: {
-    type: 'singleBank',
     throttle: 0,
-    bank: location => [[sysexDataWithLocation(location), 50]],
+    singleBank: location => [[sysexDataWithLocation(location), 50]],
   },
 
 }
