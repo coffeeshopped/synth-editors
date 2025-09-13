@@ -133,13 +133,13 @@ const parms = [
   ["fseq/formant/seq/delay", { b: 0x26, max: 99 }],
   ["fseq/level/velo", { b: 0x27, dispOff: -64 }],
   { prefix: 'ctrl', count: 8, bx: 1, block: [
-    { prefix: 'part', count: 4, block: part => 
+    { prefix: 'part', count: 4, blockFn: part => 
       ['', { b: 0x28, bit: part }]
     },
     ["dest", { b: 0x40, opts: destOptions }],
     ["depth", { b: 0x48, dispOff: -64 }],
   ] },
-  { prefix: 'ctrl', count: 8, block: ctrl => 
+  { prefix: 'ctrl', count: 8, blockFn: ctrl => 
     ([
     "knob/0",
     "knob/1",
@@ -160,7 +160,7 @@ const parms = [
       [path, { b: 0x30 + (2 * ctrl) + (i < 7 ? 1 : 0), bit: i % 7 }]
     )
   },
-  { prefix: 'reverb', count: 16, block: i => {
+  { prefix: 'reverb', count: 16, blockFn: i => {
     if (i < 8) {
       return ["", { b: 0x50 + 2 * i, packIso: multiPack(0x50 + 2 * i) }]
     }
@@ -168,10 +168,10 @@ const parms = [
       return ["", { b: 0x60 + i - 8 }]
     }
   } },
-  { prefix: 'vary', count: 16, block: i => 
+  { prefix: 'vary', count: 16, blockFn: i => 
     ["", { p: 2, b: 0x68 + 2 * i }]
   },
-  { prefix: 'insert', count: 16, block: i => 
+  { prefix: 'insert', count: 16, blockFn: i => 
     ["", { p: 2, b: 0x88 + 2 * i }]
   },
   { inc: 1, b: 0xa8, block: [
@@ -263,14 +263,12 @@ const sysexData = FS1R.sysexData([0x10, 0x00, 0x00])
 const sysexDataWithLocation = location => FS1R.sysexData([0x11, 0x00, location])
 
 const patchTruss = {
-  type: 'singlePatch',
-  id: "perf", 
-  bodyDataCount: 400, 
+  single: "perf", 
   namePack: [0, 0x0c],
   parms: parms, 
   initFile: "fs1r-perf-init", 
   createFile: sysexData,
-  parseBody: FS1R.parseOffset,
+  parseBody: ['bytes', { start: FS1R.parseOffset, count: 400 }],
 }
 
 // instead of sending <value>, we send the byte from the bytes array, because some params share bytes with others
@@ -1123,8 +1121,7 @@ const insertParams = [
 module.exports = {
   patchTruss: patchTruss,
   bankTruss: {
-    type: 'singleBank',
-    patchTruss: patchTruss,
+    singleBank: patchTruss,
     patchCount: 128, 
     createFile: {
       locationMap: location => sysexDataWithLocation(location)
@@ -1132,8 +1129,8 @@ module.exports = {
     locationIndex: 8,
   },
   patchTransform: {
-    type: 'singlePatch',
     throttle: 30,
+    singlePatch: [[sysexData, 100]], 
     param: (path, parm, value) => {
       const part = path[0] == 'part' ? path[1] : -1
       if (part >= 0) {
@@ -1151,15 +1148,13 @@ module.exports = {
         return [[commonParamData(byte, byteCount), 30]]
       }
     }, 
-    patch: [[sysexData, 100]], 
     name: patchTruss.namePack.rangeMap(i => [
       commonParamData(i, 1), 30
     ]),
   },
   bankTransform: {
-    type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexDataWithLocation(location), 100]
+    singleBank: location => [sysexDataWithLocation(location), 100]
   },
   reverbParams,
   varyParams,

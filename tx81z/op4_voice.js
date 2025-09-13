@@ -9,7 +9,7 @@ const map = {
 }
 
 const createPatchTruss = (synthName, keys, initFile, validSizes) => ({
-  multiPatch: `${synthName}.voice`,
+  multi: `${synthName}.voice`,
   trussMap: keys.map(k => [k, map[k].patchTruss]),
   namePath: "voice",
   initFile: initFile,
@@ -38,9 +38,9 @@ const opOnByte = (dict, newOp, value) => {
 }
 
 const patchTransform = keys => ({
-  type: 'multiDictPatch',
   throttle: 100,
   editorVal: opOns,
+  multiPatch: keys.map(k => [[k, map[k].patchWerk.sysexData], 100]),
   param: (path, parm, value) => {
     const first = pathPart(path, 0)
     const isOpOn = first == 'voice' && pathLast(path) == 'on'
@@ -64,7 +64,6 @@ const patchTransform = keys => ({
     }
     return [[data, 0]]
   }, 
-  patch: keys.map(k => [[k, map[k].patchWerk.sysexData], 100]),
   name: VCED.patchTruss.namePack.rangeMap(i => [
     ['voice', VCED.patchWerk.paramData([i, ['byte', i]])], 10
   ]),

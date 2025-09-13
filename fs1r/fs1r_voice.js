@@ -189,14 +189,12 @@ const tempSysexData = part => FS1R.sysexData([0x40 + part, 0x00, 0x00])
 const sysexData = location => FS1R.sysexData([0x51, 0x00, location])
 
 const patchTruss = {
-  type: 'singlePatch',
-  id: "voice", 
-  bodyDataCount: 608, 
+  single: "voice", 
   namePack: [0, 10], 
   parms: parms, 
   initFile: "fs1r-init", 
   createFile: tempSysexData(0), 
-  parseBody: FS1R.parseOffset,
+  parseBody: ['bytes', { start: FS1R.parseOffset, count: 608 }],
 }
 
 const bankValidBundle = { sizes: [79232, 39616] }
@@ -303,8 +301,7 @@ const bankK = ["MM-Shock 1", "MM-Shock 2", "Wallop 1", "Wallop 2", "Angel", "Bac
 module.exports = {
   patchTruss: patchTruss,
   bankTruss: {
-    type: 'singleBank',
-    patchTruss: patchTruss,
+    singleBank: patchTruss,
     patchCount: 128, 
     createFile: {
       locationMap: sysexData,
@@ -313,8 +310,7 @@ module.exports = {
     validBundle: bankValidBundle,
   },
   bank64Truss: {
-    type: 'singleBank',
-    patchTruss: patchTruss,
+    singleBank: patchTruss,
     patchCount: 64, 
     createFile: {
       locationMap: sysexData,
@@ -323,8 +319,8 @@ module.exports = {
     validBundle: bankValidBundle,
   },
   patchTransform: (part) => ({
-    type: 'singlePatch',
     throttle: 30,
+    singlePatch: [[tempSysexData(part), 100]], 
     param: (path, parm, value) => {
       // special check for fseq on/off for op, since that's a COMMON param...
       if (!(pathLen(path) == 4 && pathPart(path,3) == 'fseq')) {
@@ -336,15 +332,13 @@ module.exports = {
       // common params have param address stored in .b
       return [[commonParamData(part, parm.b), 30]]
     }, 
-    patch: [[tempSysexData(part), 100]], 
     name: patchTruss.namePack.rangeMap(i => [
       commonParamData(part, i), 30
     ]),
   }),
   bankTransform: {
-    type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexData(location), 100]
+    singleBank: location => [sysexData(location), 100]
   },
   fixedFreq: fixedFreq,
   voicedFreq: (oscMode, spectralForm, coarse, fine) => {

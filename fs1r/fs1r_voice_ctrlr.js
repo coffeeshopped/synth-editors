@@ -5,9 +5,7 @@ const opPaths = ['>', Voice.patchTruss.parms,
 ]
 
 const opEnv = prefix => ({
-  display: 'timeLevelEnv',
-  pointCount: 5, 
-  sustain: 3,
+  display: ['timeLevelEnv', 5, 3],
   maps: ([
     ['u', "level", "gain", 99],
     ['u', "hold", "time/0", 99],
@@ -58,7 +56,7 @@ const miniOpController = ['index', "op", "op", i => `${i + 1}`, {
       ['colorItem', "osc/mode", 1],
     ]],
     // on-click for the VC's view, send an event up.
-    ['click', null, (state, locals) => ['event', "op", state, locals]],
+    ['click', (state, locals) => ['event', "op", state, locals], null],
     // .editMenu(nil, paths: opPaths, type: "Op", init: {
     //   let bd = try! patchTruss.createInitBodyData()
     //   return opPaths.map { patchTruss.getValue(bd, path: "op/0" + $0) ?? 0 }
@@ -129,13 +127,10 @@ const modsController = {
 }
 
 const env = label => ({
-  display: 'timeLevelEnv',
-  pointCount: 4, 
-  sustain: 2, 
-  bipolar: true,
+  display: ['timeLevelEnv', 4, 2, true],
   l: label,
   maps: ([
-    ['src', "level/-1", "start/level", v => (v - 50) / 50],
+    ['src', "level/-1", v => (v - 50) / 50, "start/level"],
   ]).concat(
     (4).flatMap(i => [
       ['u', ["time", i], 99],
@@ -386,14 +381,11 @@ const voicedOscController = {
 }
 
 const freqEnv = {
-  display: 'timeLevelEnv',
-  pointCount: 2, 
-  sustain: 999, 
-  bipolar: true,
+  display: ['timeLevelEnv', 2, 999, true],
   l: "Freq EG", 
   maps: [
-    ['src', "freq/env/innit", "start/level", v => (v - 50) / 50],
-    ['src', "freq/env/attack/level", "level/0", v => (v - 50) / 50],
+    ['src', "freq/env/innit", v => (v - 50) / 50, "start/level"],
+    ['src', "freq/env/attack/level", v => (v - 50) / 50, "level/0"],
     ['u', "freq/env/attack", "time/0", 99],
     ['u', "freq/env/decay", "time/1", 99],
   ], 
@@ -506,9 +498,7 @@ const opAmpController = {
   prefix: {fixed: "amp/env"}, 
   gridBuilder: [[
     {
-      display: 'timeLevelEnv',
-      pointCount: 5, 
-      sustain: 3,
+      display: ['timeLevelEnv', 5, 3],
       l: "Amp EG",
       maps: ([
         ['u', "hold", "time/0", 99],

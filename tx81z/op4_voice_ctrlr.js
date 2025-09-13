@@ -124,7 +124,7 @@ module.exports = {
   opPaths,
   opItems,
   envItem,
-  algoCtrlr: miniOp => ['fm', Algorithms.algorithms, miniOp, {
+  algoCtrlr: miniOp => ['fmFn', Algorithms.algorithms, miniOp, {
     algo: 'voice/algo',
   }],
   miniOpController: (index, ratioEffect, opType, allPaths) => ({

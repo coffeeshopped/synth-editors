@@ -47,17 +47,14 @@ const parms = [
 
 module.exports = {
   patchTruss: {
-    type: 'singlePatch',
-    id: "global", 
-    bodyDataCount: 76, 
+    single: "global", 
     parms: parms, 
     createFile: sysexData, 
-    parseBody: 9,
+    parseBody: ['bytes', { start: 9, count: 76 }],
   },
   patchTransform: {
-    type: 'singlePatch',
     throttle: 100, 
+    singlePatch: [[sysexData, 100]],
     param: (path, parm, value) => [[FS1R.dataSetMsg([0x00, 0x00, parm.b], value), 30]], 
-    patch: [[sysexData, 100]],
   },
 }

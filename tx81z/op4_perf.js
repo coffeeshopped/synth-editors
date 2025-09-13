@@ -5,22 +5,20 @@ const sysexData = ['yamCmd', ['channel', 0x7e, 0x00, 0x78], [["enc", "LM  8976PE
 const patchWerk = Op4.patchWerk(0x10, sysexData)
 
 const createPatchTruss = parms => ({
-  type: 'singlePatch',
-  id: 'tx81z.perf',
-  bodyDataCount: 110, 
+  single: 'tx81z.perf',
   namePack: [100, 110],
   parms: parms, 
   initFile: "tx81z-perf-init", 
   createFile: sysexData,
-  parseBody: 16,
+  parseBody: ['bytes', { start: 16, count: 110 }],
 })
 
 const createCompactTruss = compactParms => ({
-  type: 'singlePatch',
-  id: 'tx81z.perf.compact',
-  bodyDataCount: 76,
+  single: 'tx81z.perf.compact',
   namePack: [66, 76],
   parms: compactParms,
+  parseBody: ['bytes', { start: 0, count: 76 }],
+  createFile: 'b',
 })
 
 const createBankTruss = (patchCount, patchTruss, compactTruss) => {
@@ -29,8 +27,7 @@ const createBankTruss = (patchCount, patchTruss, compactTruss) => {
   const patchPad = 32 - patchCount
   const padData = (compactTruss.bodyDataCount * patchPad).map(i => 0)
   return {
-    type: 'compactSingleBank',
-    patchTruss: patchTruss,
+    compactSingleBank: patchTruss,
     patchCount: patchCount,
     fileDataCount: 2450, 
     createFile: {

@@ -80,7 +80,7 @@ module.exports = {
         ["Mono", "poly"],
       ]]],
       ['panel', 'transpose', { prefix: "voice", color: 2 }, [[
-        ["transpose"],
+        ["Transpose", "transpose"],
         ["P Bend", "bend"],
       ],[
         ["Porta Time" , "porta/time"],

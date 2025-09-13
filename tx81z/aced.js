@@ -46,10 +46,8 @@ const compactParms = ([3,1,2,0]).map((op, i) => ({
 const sysexData = ['yamCmd', ['channel', 0x7e, 0x00, 0x21], [["enc", "LM  8976AE"], "b"]]
 
 const patchTruss = {
-  type: 'singlePatch',
-  id: 'tx81z.aced',
-  bodyDataCount: 23,
-  parseBody: 16,
+  single: 'tx81z.aced',
+  parseBody: ['bytes', { start: 16, count: 23 }],
   createFile: sysexData,
   parms: parms,
   randomize: () => [
@@ -61,10 +59,10 @@ const patchTruss = {
 }
 
 const compactTruss = {
-  type: 'singlePatch',
-  id: 'tx81z.aced.compact',
-  bodyDataCount: 128,
+  single: 'tx81z.aced.compact',
   parms: compactParms,
+  parseBody: ['bytes', { start: 0, count: 128 }],
+  createFile: 'b',
 }
 
 module.exports = {

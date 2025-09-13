@@ -24,7 +24,7 @@ const bankVoiceNumberPack = byte => ['splitter', [
 ]]
 
 const parms = [
-  { prefix: 'part', count: 8, bx: 12, block: i => [
+  { prefix: 'part', count: 8, bx: 12, blockFn: i => [
     ["voice/reserve", { b: 0, max: 8 }],
     ["voice/number", { b: 2, packIso: voiceNumberPack(i * 12 + 2 ), max: 159 }],
     ["channel", { b: 3, opts: (16).map(i => `${i + 1}`).concat(["Omni"]) }],
@@ -44,7 +44,7 @@ const parms = [
 ]
 
 const compactParms = [
-  { prefix: 'part', count: 8, bx: 8, block: i => [
+  { prefix: 'part', count: 8, bx: 8, blockFn: i => [
     ["voice/reserve", { b: 0, bits: [0, 4] }],
     ["voice/number", { b: 1, packIso: bankVoiceNumberPack(i * 8 + 1) }], // MSB in bit 4 of po + 0
     ["channel", { b: 2, bits: [0, 3] }],

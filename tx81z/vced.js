@@ -121,10 +121,9 @@ const compactParms = ([3,1,2,0]).map((op, i) => ({
 const sysexData = ['yamCmd', ['channel', 0x03, 0x00, 0x5d], "b"]
 
 const patchTruss = {
-  singlePatch: 'tx81z.vced',
-  bodyDataCount: 93,
+  single: 'tx81z.vced',
   initFile: "dx100-init",
-  parseBody: 6,
+  parseBody: ['bytes', { start: 6, count: 93 }],
   createFile: sysexData,
   parms: parms,
   namePack: [77, 87],
@@ -163,10 +162,11 @@ const patchTruss = {
 }
 
 const compactTruss = {
-  singlePatch: 'tx81z.vced.compact',
-  bodyDataCount: 128,
+  single: 'tx81z.vced.compact',
   namePack: [57, 67],
   parms: compactParms,
+  createFile: ['b'],
+  parseBody: ['bytes', { start: 0, count: 128 }]
 }
   
 module.exports = {

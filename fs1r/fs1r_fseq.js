@@ -39,14 +39,14 @@ const sysexDataWithLocation = location =>
 
 
 const patchTruss = {
-  type: 'singlePatch',
-  id: "fseq", 
+  single: "fseq", 
   bodyDataCount: 6443 - 11,
   namePack: [0, 8], 
   parms: parms, 
   createFile: sysexData, 
   initFile: "fs1r-fseq-init", 
   // variable data length - 50 bytes per frame
+  // TODO: this seems problematic wrt createEmptyInitBodyData
   parseBody: ['bytes', { start: 9, end: -2 }],
   validBundle: { counts: [6443, 12843, 19243, 25643] },
 } 
@@ -77,8 +77,7 @@ const bankIsValid = (sysex) => {
 module.exports = {
   patchTruss: patchTruss,
   bankTruss: {
-    type: 'singleBank',
-    patchTruss: patchTruss,
+    singleBank: patchTruss,
     patchCount: 6,
     createFile: {
       locationMap: sysexDataWithLocation,
@@ -92,8 +91,8 @@ module.exports = {
     completeFetch: bankIsValid,
   },
   patchTransform: {
-    type: 'singlePatch',
     throttle: 30,
+    singlePatch: [[sysexData, 30]], 
     param: (path, parm, value) => {
       return null
       //      guard let param = FS1RFseqPatch.params[path] else { return nil }
@@ -111,15 +110,13 @@ module.exports = {
       //        return [(perfCommonParamData(editor, patch: patch, paramAddress: byte, byteCount: byteCount), 0.03)]
       //      }
     }, 
-    patch: [[sysexData, 30]], 
     name: patchTruss.namePack.rangeMap(i => [
       headerParamData(i, 1), 30
     ]),
   },
   bankTransform: {
-    type: 'singleBank',
     throttle: 0,
-    bank: location => [sysexDataWithLocation(location), 100],
+    singleBank: location => [sysexDataWithLocation(location), 100],
   },
   presets: presets,
 }
