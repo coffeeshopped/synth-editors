@@ -750,8 +750,8 @@ const opController = {
   ], 
   effects: [
     ['indexChange', i => [
-      ['setIndex', "v", i],
-      ['setIndex', "n", i],
+      ['setIndex', i, "v"],
+      ['setIndex', i, "n"],
     ]],
   ], 
   simpleGridLayout: [
@@ -771,9 +771,9 @@ const controller = {
     ]]],
   ], 
   effects: [
-    ['indexChange', i => ['setIndex', "algo", i]],
+    ['indexChange', i => ['setIndex', i, "algo"]],
     // listen for events from the algo controller to select index.
-    ['listen', "op", (state, locals) => ['setIndex', null, state.index]],
+    ['listen', "op", (state, locals) => ['setIndex', state.index, null]],
   ], 
   layout: [
     ['row', [["algo", 8], ["feed",2], ["switch", 6]]],
