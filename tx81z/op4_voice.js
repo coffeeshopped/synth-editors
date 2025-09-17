@@ -13,8 +13,7 @@ const createPatchTruss = (synthName, keys, initFile, validSizes) => ({
   trussMap: keys.map(k => [k, map[k].patchTruss]),
   namePath: "voice",
   initFile: initFile,
-  validSizes: validSizes,
-  includeFileDataCount: true,
+  validSizes: validSizes.concat(['auto']),
 })
 
 const createBankTruss = (patchTruss, patchCount, initFile, keys) => ({

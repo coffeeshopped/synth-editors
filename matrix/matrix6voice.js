@@ -56,8 +56,7 @@ const createBankTruss = patchTruss => ({
     locationMap: sysexDataWithLocation,
   }, 
   locationIndex: 4, 
-  validSizes: [30404], 
-  includeFileDataCount: true,
+  validSizes: ['auto', 30404], 
 })
 
 const parms = [

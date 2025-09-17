@@ -110,8 +110,7 @@ function createPatchTruss(proteus, parms, initFile) {
         return bytes
       }
     }, 
-    validSizes: [1280, 265],
-    includeFileDataCount: true,
+    validSizes: ['auto', 1280, 265],
     pack: (parm, value) => Proteus.pack(parm.p, value),
     unpack: (parm) => Proteus.unpack(parm.p),
   }
