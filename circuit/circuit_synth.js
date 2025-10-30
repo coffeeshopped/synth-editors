@@ -182,6 +182,63 @@ const bankTruss = {
   patchCount: 64,
   initFile: "circuit-synth-bank-init",
 }
+
+
+const patchTransform(location) = {
+  throttle: 200,
+  singlePatch: patch.sysexData(-(location + 1)),
+  param: (path, parm, value) => {
+      guard let param = type(of: patch).params[path] else { return nil }
+  let channel = self.channel(forSynth: location)
+  switch param.parm {
+  case 0..<10000:
+    // CC
+    return [Data(Midi.cc(param.parm, value: value, channel: channel))]
+  case 10000..<Int.max:
+    // NRPN
+    let msbCC = (param.parm - 10000) / 1000
+    let lsbCC = (param.parm - 10000) % 1000
+    let v: Int
+    switch lsbCC {
+    case 122:
+      guard let lfo = path.i(1) else { return nil }
+      switch path[2] {
+      case .oneShot:
+        v = 12 + value + lfo * 10
+      case .key:
+        v = 14 + value + lfo * 10
+      case .common:
+        v = 16 + value + lfo * 10
+      case .delay:
+        v = 18 + value + lfo * 10
+      default:
+        v = 0
+      }
+    case 123:
+      guard let lfo = path.i(1) else { return nil }
+      v = value + lfo * 4
+    default:
+      v = value
+    }
+    return [Data(
+      Midi.cc(99, value: msbCC, channel: channel) +
+      Midi.cc(98, value: lsbCC, channel: channel) +
+      Midi.cc(6, value: v, channel: channel)
+      )]
+  default:
+    // Send whole patch
+    return [patch.sysexData(-(location + 1))]
+  }
+  }, 
+  name: patch.sysexData(-(location + 1)),
+}
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(loc), 50]],
+}
+
+
   // static func location(forData data: Data) -> Int { return Int(data[7] & 0x3f) }
 
   class CircuitSynthBank : TypicalTypedSysexPatchBank<CircuitSynthPatch> {

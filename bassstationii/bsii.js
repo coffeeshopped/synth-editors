@@ -34,7 +34,7 @@ const editor = {
     ["extra", overlayFetchCommands],
     ["bank/patch", (128).flatMap(loc => [
       // pgmChange on global channel
-      ['send', [['+', 'channel' 0xc0], loc]],
+      ['send', ['pgmChange', 'channel', loc]],
       ['wait', 30],
       fetchCmd([0x40]),
       ['wait', 30],
