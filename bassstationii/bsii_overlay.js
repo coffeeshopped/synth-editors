@@ -114,6 +114,41 @@ const keyPatchTruss = {
   includeFileDataCount: true,
 }
 
+const patchTransform = {
+  throttle: 200,
+  param: (path, parm, value) => {
+    if params.count == 1 && params.first?.key.suffix(1) == [.mute] && (params.first?.value ?? 0) > 0 {
+      guard let index = params.first?.key.i(1),
+            let key = patch.subpatches[[.key, .i(index)]] as? BassStationIIOverlayKeyPatch else { return nil }
+      return [key.paramSysexData(location: index)]
+    }
+    
+    // just send the keys that we need to
+    var keys = Set<Int>()
+    params.forEach { (path, value) in
+      guard let key = path.i(1) else { return }
+      keys.insert(key)
+    }
+    return keys.compactMap {
+      guard let key = patch.subpatches[[.key, .i($0)]] as? BassStationIIOverlayKeyPatch else { return nil }
+      return key.paramSysexData(location: $0)
+    }
+  },
+  singlePatch: [[sysexData, 10]], 
+  name: n => {
+    guard let index = path.i(1) else { return nil }
+    let nameBytes = String(name.unicodeScalars.filter { return $0.isASCII }).bytes(forCount: 16)
+    return [BassStationIIOverlayKeyPatch.nameSysexData(location: index, nameBytes: nameBytes)]
+  },
+}
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: (location) => [
+    [sysexData(bank: location + 1), 50],
+  ],
+}
+
 class BassStationIIOverlayKeyPatch : BassStationIIPatch {
   
   static func location(forData data: Data) -> Int { return Int(data[8]) }
@@ -290,10 +325,6 @@ class BassStationIIOverlayBank : TypicalTypedSysexPatchBank<BassStationIIOverlay
       overlays[UInt8($0)] ?? BassStationIIOverlayPatch()
     }
     super.init(patches: patches)
-  }
-  
-  required init(patches p: [Patch]) {
-    super.init(patches: p)
   }
   
   func sysexData() -> [Data] {

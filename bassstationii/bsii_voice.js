@@ -212,6 +212,62 @@ const patchTruss = {
   ]
 }
 
+
+const patchTransform = {
+  throttle: 50,
+  param: (path, parm, value) => {
+    guard let param = type(of: patch).params[path] else { return nil }
+    let channel = UInt8(self.channel)
+    
+    if param.parm < 0 {
+      return [patch.sysexData(save: false)]
+    }
+    
+    // type of MIDI msg depends on parameter type (CC, multi-CC, or NRPN)
+    let msgs: [MidiMessage]
+    if let lsb = param.extra[BassStationIIVoicePatch.LSB] {
+      msgs = [
+        .cc(channel: channel, number: UInt8(param.parm), value: UInt8(value >> 1)),
+        .cc(channel: channel, number: UInt8(lsb), value: value % 2 == 0 ? 0 : 64),
+      ]
+    }
+    else if let nrpn = param.extra[BassStationIIVoicePatch.NRPN] {
+      var m: [MidiMessage] =  [
+        .cc(channel: channel, number: 99, value: UInt8(param.parm)),
+        .cc(channel: channel, number: 98, value: UInt8(nrpn)),
+      ]
+      if let rangeParam = param as? ParamWithRange,
+         rangeParam.range.upperBound > 127 {
+        m += [
+          .cc(channel: channel, number: 6, value: UInt8(value >> 1)),
+          .cc(channel: channel, number: 38, value: UInt8(value & 0x1) << 6)
+        ]
+      }
+      else {
+        m += [.cc(channel: channel, number: 6, value: UInt8(value))]
+      }
+      msgs = m
+    }
+    else {
+      msgs = [
+        .cc(channel: channel, number: UInt8(param.parm), value: UInt8(value))
+      ]
+    }
+    
+    return msgs.map { Data($0.bytes()) }
+  },
+  singlePatch: [[sysexData(false), 10]], 
+  name: [[sysexData(false), 10]],
+}
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: (location) => [
+    [sysexData(true, location), 50],
+  ],
+}
+
+
 class BassStationIIVoicePatch : BassStationIIPatch, BankablePatch {
 
   static func location(forData data: Data) -> Int { return Int(data[8]) }
@@ -246,8 +302,6 @@ class BassStationIIVoicePatch : BassStationIIPatch, BankablePatch {
     self["arp/on"] = 0
   }
 
-  
-
 }
 
 
@@ -267,10 +321,6 @@ class BassStationIIVoiceBank : TypicalTypedSysexPatchBank<BassStationIIVoicePatc
       }
     }
     super.init(data: data)
-  }
-  
-  required init(patches p: [Patch]) {
-    super.init(patches: p)
   }
   
   override func fileData() -> Data {

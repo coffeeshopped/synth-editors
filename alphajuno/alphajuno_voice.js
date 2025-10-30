@@ -40,6 +40,35 @@ const parms = [
   ] },
 ]
 
+  /// Patch as sysex for edit buffer - 3.1.1 (dump WITH name)
+const sysexData = ({
+  const params = (0..<36).map { parm => 
+    guard let paramPair = type(of: self).params.first(where: { $0.value.parm == parm }) else { return 0 }
+    if let rangeParam = paramPair.value as? RangeParam,
+      rangeParam.range.upperBound == 15 {
+      return (self[paramPair.key] ?? 0) << 3 // again, weird shift
+    }
+    else {
+      return self[paramPair.key] ?? 0
+    }
+  }
+  // then name
+  const name = bytes[type(of: self).nameByteRange].map { UInt8($0.bits([0, 5])) }
+  return [0xf0, 0x41, 0x35, 'channel', 0x23, 0x20, 0x01, params, name, 0xf7]
+})()
+
+const patchTransform = {
+  throttle: 20,
+  param: (path, parm, value) => {
+    guard let param = type(of: patch).params[path] else { return nil }
+    let v = (param as? RangeParam)?.range.upperBound == 15 ? value << 3 : value
+    return [Data([0xf0, 0x41, 0x36, UInt8(self.channel), 0x23, 0x20, 0x01, UInt8(param.parm), UInt8(v), 0xf7])]
+
+  },
+  singlePatch: [[sysexData, 10]], 
+  name: [[sysexData, 10]],
+}
+
 const patchTruss = {
   single: 'alpha_juno.voice'
   // const fileDataCount = 54 // FILES will be in 3.1.1 format!
@@ -145,25 +174,6 @@ class AlphaJunoVoicePatch : AlphaJunoNamedPatch, BankablePatch, VoicePatch {
     return sysexData(channel: 0)
   }
   
-  /// Patch as sysex for edit buffer - 3.1.1 (dump WITH name)
-  func sysexData(channel: Int) -> Data {
-    var data = Data([0xf0, 0x41, 0x35, UInt8(channel), 0x23, 0x20, 0x01])
-    let params = (0..<36).map { parm -> UInt8 in
-      guard let paramPair = type(of: self).params.first(where: { $0.value.parm == parm }) else { return 0 }
-      if let rangeParam = paramPair.value as? RangeParam,
-        rangeParam.range.upperBound == 15 {
-        return UInt8(self[paramPair.key] ?? 0) << 3 // again, weird shift
-      }
-      else {
-        return UInt8(self[paramPair.key] ?? 0)
-      }
-    }
-    data.append(contentsOf: params)
-    // then name
-    data.append(contentsOf: bytes[type(of: self).nameByteRange].map { UInt8($0.bits([0, 5])) })
-    data.append(0xf7)
-    return data
-  }
 
   /// Helper function to reference bits like the docs do
   private func b(_ index: Int) -> UInt8 {
@@ -287,10 +297,6 @@ class AlphaJunoVoiceBank : TypicalTypedSysexPatchBank<AlphaJunoVoicePatch>, Voic
     (0..<(type(of: self).patchCount-p.count)).forEach { _ in
       p.append(Patch.init())
     }
-    super.init(patches: p)
-  }
-  
-  required init(patches p: [Patch]) {
     super.init(patches: p)
   }
   

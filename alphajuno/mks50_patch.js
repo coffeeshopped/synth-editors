@@ -29,6 +29,53 @@ const patchTruss = {
   parms: parms,
 }
 
+  /// Patch as sysex for edit buffer - 4.1.4 (dump with name)
+const sysexData = ({
+  const params = (0..<13).map { parm -> UInt8 in
+    switch parm {
+    case 9:
+      // multiple params in param 9
+      var byte = 0
+      type(of: self).params.filter { $0.value.parm == 9 }.forEach {
+        byte = byte.set(bit: $0.value.bits!.lowerBound, value: 1 - self[$0.key]!)
+      }
+      return UInt8(byte)
+    default:
+      guard let paramPair = type(of: self).params.first(where: { $0.value.parm == parm }) else { return 0 }
+      let v = self[paramPair.key] ?? 0
+      return UInt8(v < 0 ? 128 + v : v) << (parm == 12 ? 5 : 0)
+    }
+  }
+  // then name
+  const name = bytes[type(of: self).nameByteRange].map { UInt8($0.bits([0, 5])) }
+  
+  return [0xf0, 0x41, 0x35, 'channel', 0x23, 0x30, 0x01, params, name, 0xf7]
+})()
+
+const patchTransform = {
+  throttle: 20,
+  param: (path, parm, value) => {
+    guard let param = type(of: patch).params[path] else { return nil }
+    let v: Int
+    switch param.parm {
+    case 9:
+      // multiple params in param 9
+      var byte = 0
+      MKS50PatchPatch.params.filter { $0.value.parm == 9 }.forEach {
+        byte = byte.set(bit: $0.value.bits!.lowerBound, value: 1 - patch[$0.key]!)
+      }
+      v = byte
+    default:
+      let sv = value < 0 ? 128 + value : value
+      v = (param.parm == 12 ? value << 5 : sv)
+    }
+    return [Data([0xf0, 0x41, 0x36, UInt8(self.channel), 0x23, 0x30, 0x01, UInt8(param.parm), UInt8(v), 0xf7])]
+  },
+  singlePatch: [[sysexData, 10]], 
+  name: [[sysexData, 10]],
+
+}
+
 class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
   
   const bankType: SysexPatchBank.Type = MKS50PatchBank.self
@@ -88,30 +135,6 @@ class MKS50PatchPatch : AlphaJunoNamedPatch, BankablePatch {
     return sysexData(channel: 0)
   }
   
-  /// Patch as sysex for edit buffer - 4.1.4 (dump with name)
-  func sysexData(channel: Int) -> Data {
-    var data = Data([0xf0, 0x41, 0x35, UInt8(channel), 0x23, 0x30, 0x01])
-    let params = (0..<13).map { parm -> UInt8 in
-      switch parm {
-      case 9:
-        // multiple params in param 9
-        var byte = 0
-        type(of: self).params.filter { $0.value.parm == 9 }.forEach {
-          byte = byte.set(bit: $0.value.bits!.lowerBound, value: 1 - self[$0.key]!)
-        }
-        return UInt8(byte)
-      default:
-        guard let paramPair = type(of: self).params.first(where: { $0.value.parm == parm }) else { return 0 }
-        let v = self[paramPair.key] ?? 0
-        return UInt8(v < 0 ? 128 + v : v) << (parm == 12 ? 5 : 0)
-      }
-    }
-    data.append(contentsOf: params)
-    // then name
-    data.append(contentsOf: bytes[type(of: self).nameByteRange].map { UInt8($0.bits([0, 5])) })
-    data.append(0xf7)
-    return data
-  }
 
   subscript(path: SynthPath) -> Int? {
     get {
