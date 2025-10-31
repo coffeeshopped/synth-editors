@@ -423,7 +423,7 @@ const bankTruss = {
   initFile: "tg33-bank-init",
 }
 
-const patchTransform = (location) => ({
+const patchTransform = {
   throttle: 100,
   param: (path, parm, value) => {
     // HIDDEN PARAMS
@@ -484,8 +484,12 @@ const patchTransform = (location) => ({
   },
   singlePatch: [[sysexData, 10]],
   name: [[sysexData, 10]],
-})
+}
 
+const bankTransform = {
+  throttle: 0,
+  singleWholeBank: [[bankSysexData, 50]],
+}
 
 class TG33VoiceBank : TypicalTypedSysexPatchBank<TG33VoicePatch>, ChannelizedSysexible {
   

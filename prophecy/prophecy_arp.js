@@ -98,7 +98,7 @@ class ProphecyArpBank : TypicalTypedSysexPatchBank<ProphecyArpPatch> {
     
 }
 
-const patchTransform = (location) => ({
+const patchTransform = {
   throttle: 50,
   param: (path, parm, value) => {
     if path == [.number] {
@@ -115,6 +115,6 @@ const patchTransform = (location) => ({
     return [Data(self.paramChange(group: 2, paramId: param.parm, value: value))]
   },
   singlePatch: [[sysexData(program: self.tempArp), 10]],
-})
+}
 
 

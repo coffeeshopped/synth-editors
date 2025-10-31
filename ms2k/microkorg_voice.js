@@ -400,14 +400,14 @@ const patchTransform = {
   name: [[sysexData, 10]],
 }
 
-const bankTransform = bank => ({
+const bankTransform = {
   throttle: 0,
   singleBank: loc => [
     sysexData, 
     [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, 0x11, 0x00, loc, 0xf7]
   ],
   // TODO: might need custom fn for when there's a full bank push?
-})
+}
 
 
 static var fileDataCount: Int { return 37163 }

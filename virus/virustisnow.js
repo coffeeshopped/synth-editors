@@ -12,6 +12,14 @@ const editor = {
   ],
 
   midiOuts: [
+    ([
+      ["global", Global.patchTransform],
+      ["patch", Voice.patchTransform],
+      ["multi", EmbeddedMulti.patchTransform],
+      ["multi/bank", EmbeddedMulti.bankTransform],
+    ]).concat(
+      (4).map(i => [["bank", i] = Voice.bankTransform(i) }
+    ),
   ],
   
   midiChannels: [
@@ -53,29 +61,6 @@ class VirusTISnowEditor : SingleDocSynthEditor, VirusEditor {
     }
   }
     
-  
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
-
-    (0..<4).forEach { i in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/i")!.output, patchTransform: {
-        guard let patch = $0 as? VirusTIVoicePatch else { return nil }
-        return [patch.sysexData(deviceId: self.deviceId, bank: UInt8(i + 1), part: UInt8($1))]
-      }))
-    }
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("multi/bank")!.output, patchTransform: {
-      guard let patch = $0 as? VirusTISnowEmbeddedMultiPatch else { return nil }
-      return patch.sysexData(deviceId: self.deviceId, location: $1)
-    }))
-
-    return midiOuts
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     if let bankIndex = path.i(1) {
       return {

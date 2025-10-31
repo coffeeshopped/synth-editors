@@ -15,9 +15,15 @@ const editor = {
   fetchTransforms: [
   ],
 
-  midiOuts: [
-  ],
-  
+  midiOuts: ([
+    ["global", Global.patchTransform],
+    ['patch', Voice.patchTransform],
+    ['wave', Wave.patchTransform],
+    ['bank/wave', Wave.bankTransform],
+  ]).concat(
+    (4).map(i => [['bank', i], Voice.bankTransform(i)])
+  ),
+    
   midiChannels: [
     ["voice", "basic"],
   ],

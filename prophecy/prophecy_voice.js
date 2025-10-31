@@ -736,11 +736,16 @@ class ProphecyVoiceBank : TypicalTypedSysexPatchBank<ProphecyVoicePatch>, VoiceB
     
 }
 
-const patchTransform = (location) => ({
+const patchTransform = {
   throttle: 50,
   param: (path, parm, value) => {
     return [Data(self.paramChange(group: 1, paramId: param.parm, value: value))]
   },
   singlePatch: [[sysexData, 10]],
   name: [[sysexData, 10]],
+}
+
+const bankTransform = (bank) => ({
+  throttle: 0,
+  singleBank: loc => [[sysexData(channel: self.channel, bank: bank, program: $1), 50]],
 })

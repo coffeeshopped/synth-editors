@@ -63,3 +63,9 @@ const patchTransform = ({
       }
   },
 })
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(loc), 50]],
+}
+

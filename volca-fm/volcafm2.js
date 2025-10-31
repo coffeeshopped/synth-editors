@@ -13,7 +13,11 @@ const editor = {
   ],
 
   midiOuts: [
-  ],
+    ["patch", Voice.patchTransform],
+    ["perf", Sequence.patchTransform],
+    ["bank", Voice.patchWerk.bankTransform],
+    ["perf/bank", Sequence.patchWerk.bankTransform],
+  ]
   
   midiChannels: [
     ["voice", "basic"],
@@ -21,8 +25,6 @@ const editor = {
   slotTransforms: [
   ],
 }
-
-
 
 
 public enum VolcaFM2 {
@@ -58,13 +60,6 @@ extension VolcaFM2 {
      ]
      t.extraParamOuts = [
        ("perf", .bankNames("bank", "patch/name"))
-     ]
-     
-     t.midiOuts = [
-       ("patch", Voice.patchTransform),
-       ("perf", Sequence.patchTransform),
-       ("bank", Voice.patchWerk.bankTransform()),
-       ("perf/bank", Sequence.patchWerk.bankTransform()),
      ]
      
      t.midiChannels = [

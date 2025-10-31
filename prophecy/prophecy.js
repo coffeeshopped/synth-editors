@@ -18,7 +18,18 @@ const editor = {
   ],
 
   midiOuts: [
+    ["global", Global.patchTransform],
+    ["patch", Voice.patchTransform],
+    ["arp", Arp.patchTransform],
+    ["bank/patch/0", Voice.bankTransform(0)],
+    ["bank/patch/1", Voice.bankTransform(1)],
+    // ["bank/arp", Arp.bankTruss],
   ],
+  
+  //    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/arp")!.output, patchTransform: {
+  //      guard let patch = $0 as? Deepmind12ArpPatch else { return nil }
+  //      return [patch.sysexData(channel: self.deviceId, program: $1)]
+  //    }))
   
   midiChannels: [
     ["patch", "basic"],
@@ -125,28 +136,6 @@ class ProphecyEditor : SingleDocSynthEditor {
   // make those big multi-msg pushes happen faster!
 //  override var sendInterval: TimeInterval { return 0.01 }
 
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(globalOut(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
-    midiOuts.append(arpOut(input: patchStateManager("arp")!.typedChangesOutput()))
-
-    (0..<2).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/patch/bank")!.output, patchTransform: {
-        guard let patch = $0 as? ProphecyVoicePatch else { return nil }
-        return [patch.sysexData(channel: self.channel, bank: bank, program: $1)]
-      }))
-    }
-
-//    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/arp")!.output, patchTransform: {
-//      guard let patch = $0 as? Deepmind12ArpPatch else { return nil }
-//      return [patch.sysexData(channel: self.deviceId, program: $1)]
-//    }))
-
-    return midiOuts
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path {
     case "bank/patch/0":

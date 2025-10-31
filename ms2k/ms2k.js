@@ -11,6 +11,8 @@ const editor = {
   ],
 
   midiOuts: [
+    ['patch', Voice.patchTransform],
+    ['bank', Voice.bankTransform],
   ],
   
   midiChannels: [
@@ -19,8 +21,6 @@ const editor = {
   slotTransforms: [
   ],
 }
-
-
 
 class MS2KEditor : SingleDocSynthEditor {
     
@@ -41,16 +41,6 @@ class MS2KEditor : SingleDocSynthEditor {
     return Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x58, 0x4e, 0x01, 0x00, 0xf7])
   }
   
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-
-    midiOuts.append(bank(input: bankStateManager("bank")!.typedChangesOutput()))
-
-    return midiOuts
-  }
-    
 }
 
 

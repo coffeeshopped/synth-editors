@@ -143,6 +143,11 @@ const patchTransform = {
   }
 }
 
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(deviceId, loc), 50]],
+}
+  
   private func tempMultiData(patch: VirusTIEmbeddedMultiPatch) -> [Data] {
   return patch.sysexData(deviceId: deviceId, location: -1)
 }

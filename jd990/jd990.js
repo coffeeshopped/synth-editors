@@ -92,14 +92,7 @@ class JD990Editor : RolandNewAddressableEditor {
     ]
     changePatch(forPath: "perf", MakeParamsChange(params), transmit: true)
   }
-  
-  
-  // MARK: MIDI I/O
-  
-  override var requestHeader: Data {
-    return Data([0xf0, 0x41, UInt8(deviceId), 0x57, 0x11])
-  }
-  
+    
   override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
     if path == "part/0" {
       guard let addressable = sysexibleType(path: path) as? RolandAddressable.Type else { return nil }
@@ -127,11 +120,7 @@ class JD990Editor : RolandNewAddressableEditor {
     guard let i = path.i(1) else { return 0 }
     return patch(forPath: "perf")?["part/i/channel"] ?? 0
   }
-    
-  
-  private var perfParamsOutput: Observable<SynthPathParam>?
-  private var perfDisposeBag: DisposeBag?
-    
+        
   private func initPerfParamsOutput() {
     guard let params = super.paramsOutput(forPath: "perf"),
       let patchBank0Out = bankChangesOutput(forPath: "bank/patch/0"),

@@ -9,6 +9,8 @@ const editor = {
   ],
 
   midiOuts: [
+    ["patch", Voice.patchTransform],
+    ["bank/patch", Voice.bankTransform],
   ],
   
   midiChannels: [
@@ -38,18 +40,5 @@ class MinilogueEditor : SingleDocSynthEditor {
     }
   }
 
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank")!.output, patchTransform: {
-      guard let patch = $0 as? MiniloguePatch else { return nil }
-      return [patch.sysexData(channel: self.channel, location: $1)]
-    }))
-    
-    return midiOuts
-  }
-  
 }
 

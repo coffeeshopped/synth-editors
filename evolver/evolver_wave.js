@@ -57,6 +57,19 @@ const bankTruss = {
   initFile: "evolver-wave-bank-init",
 }
 
+const patchTransform = {
+  // TODO: sending twice on push.. why?
+  // only send if wave # is 96 or higher
+  guard self.waveNumber >= 96 else { return nil }
+  let data = $0.sysexData(location: Int(self.waveNumber) - 96)
+  return [data]
+}
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(loc), 50]],
+}
+
 class EvolverWaveBank : TypicalTypedSysexPatchBank<EvolverWavePatch> {
   
   override func fileData() -> Data {

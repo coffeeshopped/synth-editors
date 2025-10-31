@@ -954,6 +954,11 @@ const patchTransform = (location) => ({
     },
 })
 
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(loc), 50]],
+}
+
 
 class TG77VoiceBank : TypicalTypedSysexPatchBank<TG77VoicePatch> {
     

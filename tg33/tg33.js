@@ -11,6 +11,10 @@ const editor = {
   ],
 
   midiOuts: [
+    ["patch", Voice.patchTransform],
+    ["bank", Voice.bankTransform],
+    ["multi", Multi.patchTransform],
+    ["multi/bank", Multi.bankTransform],
   ],
   
   midiChannels: [
@@ -19,7 +23,6 @@ const editor = {
   slotTransforms: [
   ],
 }
-
 
 
 class TG33Editor : SingleDocSynthEditor {
@@ -42,9 +45,6 @@ class TG33Editor : SingleDocSynthEditor {
     return "request(data)"
   }
   
-  private var perfParamsOutput: Observable<SynthPathParam>?
-  private var paramsDisposeBag: DisposeBag?
-    
   private func initPerfParamsOutput() {
     guard let origPerfParams = super.paramsOutput(forPath: "multi"),
           let bankOut = bankChangesOutput(forPath: "bank") else { return }
@@ -65,25 +65,5 @@ class TG33Editor : SingleDocSynthEditor {
       return super.paramsOutput(forPath: path)
     }
   }
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
     
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-    
-    midiOuts.append(GenericMidiOut.wholeBank(input: bankStateManager("bank")!.output, bankTransform: {
-      guard let bank = $0 as? ChannelizedSysexible else { return nil }
-      return [bank.sysexData(channel: self.channel)]
-    }))
-
-    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
-    
-    midiOuts.append(GenericMidiOut.wholeBank(input: bankStateManager("multi/bank")!.output, bankTransform: {
-      guard let bank = $0 as? ChannelizedSysexible else { return nil }
-      return [bank.sysexData(channel: self.channel)]
-    }))
-
-    return midiOuts
-  }
-  
 }

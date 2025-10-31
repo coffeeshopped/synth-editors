@@ -10,9 +10,12 @@ const editor = {
   fetchTransforms: [
   ],
 
-  midiOuts: [
-  ],
-  
+  midiOuts: ([
+    ['patch', Voice.patchTransform],
+  ]).concat(
+    (8).map(i => [["bank/patch", i] = Voice.bankTransform(i))
+  ),  
+
   midiChannels: [
     ["patch", "basic"],
   ],
@@ -93,21 +96,6 @@ class MicronEditor : SingleDocSynthEditor {
     default:
       return nil
     }
-  }
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
-
-    (0..<8).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/patch/bank")!.output) {
-        guard let patch = $0 as? MicronVoicePatch else { return nil }
-        return [patch.sysexData(bank: UInt8(bank), location: UInt8($1))]
-      })
-    }
-    
-    return midiOuts
   }
   
   override func onSave(toBankPath bankPath: SynthPath, index: Int, fromPatchPath patchPath: SynthPath) {

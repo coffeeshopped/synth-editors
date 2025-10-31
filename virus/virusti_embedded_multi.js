@@ -96,3 +96,8 @@ class VirusTIEmbeddedMultiBank : TypicalTypedSysexPatchBank<VirusTIEmbeddedMulti
   }
 }
 
+
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(deviceId, loc), 50]],
+}

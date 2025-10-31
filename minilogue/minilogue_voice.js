@@ -427,10 +427,10 @@ const bankTruss = {
   initFile: "minilogue-bank-init",
 }
 
-const bankTransform = bank => ({
+const bankTransform = {
   throttle: 0,
   singleBank: (location) => sysexData(location),
-})
+}
 
 class MinilogueBank : TypedSysexPatchBank {
   

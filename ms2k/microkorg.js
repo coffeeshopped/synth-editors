@@ -9,8 +9,10 @@ const editor = {
   ],
 
   midiOuts: [
+    ["global", Global.patchTransform],
+    ['patch', Voice.patchTransform],
+    ['bank', Voice.bankTransform],
   ],
-  
   midiChannels: [
     ["patch", "basic"],
   ],
@@ -40,15 +42,7 @@ class MicrokorgEditor : SingleDocSynthEditor {
       return nil
     }
   }
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    midiOuts.append(global(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-    midiOuts.append(bank(input: bankStateManager("bank")!.typedChangesOutput()))
-    return midiOuts
-  }
-  
+    
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     return {
       let letter = $0 < 64 ? "A" : "B"

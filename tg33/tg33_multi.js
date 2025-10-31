@@ -116,7 +116,7 @@ const patchTruss = {
   parseBody: ['bytes', { start: 0x10, count: 208 }],
 }
 
-const patchTransform = (location) => ({
+const patchTransform = {
   throttle: 100,
   param: (path, parm, value) => {
     // HIDDEN PARAMS
@@ -137,7 +137,12 @@ const patchTransform = (location) => ({
   },
   singlePatch: [[sysexData, 10]],
   name: [[sysexData, 10]],
-})
+}
+
+const bankTransform = {
+  throttle: 0,
+  singleWholeBank: [[bankSysexData, 50]],
+}
 
 
 class TG33MultiBank : TypicalTypedSysexPatchBank<TG33MultiPatch>, ChannelizedSysexible {

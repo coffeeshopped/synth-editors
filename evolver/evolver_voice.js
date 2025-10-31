@@ -293,6 +293,10 @@ const patchTransform = {
   singlePatch: [[sysexData, 10]], 
 }
 
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [[sysexData(bank, loc), 50]],
+})
 
 class EvolverTypeVoiceBank<T:EvolverVoicePatch> : TypicalTypedSysexPatchBank<T> {
   

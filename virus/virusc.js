@@ -13,6 +13,15 @@ const editor = {
   ],
 
   midiOuts: [
+    ([
+      ["global", Global.patchTransform],
+      ["patch", Voice.patchTransform(0x40)],
+      ["multi", Multi.patchTransform],
+      ["multi/bank", Multi.bankTransform],
+    ]).concat(
+      (16).map(i => [["part", i] = Voice.patchTransform(i) }
+      (2).map(i => [["bank", i] = Voice.bankTransform(i) }
+    ),
   ],
   
   midiChannels: [
@@ -47,35 +56,6 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
     }
   }
     
-  
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-
-    midiOuts.append(global(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput(), part: 0x40))
-    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
-
-    midiOuts.append(contentsOf: (0..<16).map {
-      voice(input: patchStateManager("part/$0")!.typedChangesOutput(), part: UInt8($0))
-    })
-    
-    (0..<2).forEach { i in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/i")!.output, patchTransform: {
-        guard let patch = $0 as? VirusCVoicePatch else { return nil }
-        return [patch.sysexData(deviceId: self.deviceId, bank: UInt8(i + 1), part: UInt8($1))]
-      }))
-    }
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("multi/bank")!.output, patchTransform: {
-      guard let patch = $0 as? VirusMultiPatch else { return nil }
-      return [patch.sysexData(deviceId: self.deviceId, bank: 1, part: UInt8($1))]
-    }))
-
-    return midiOuts
-  }
-  
- 
   private func initPerfParamsOutput() {
     guard let params = super.paramsOutput(forPath: "multi") else { return }
     

@@ -465,4 +465,8 @@ const patchTransform = part => ({
   }
 })
 
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [[sysexData(deviceId, bank + 1, loc), 50]],
+})
   

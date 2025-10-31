@@ -13,6 +13,13 @@ const editor = {
   ],
 
   midiOuts: [
+    ["global", System.patchTransform],
+    ["patch", Voice.patchTransform],
+    ["bank", Voice.bankTransform],
+    ["multi", Multi.patchTransform],
+    ["multi/bank", Multi.bankTransform],
+    ["pan", Pan.patchTransform],
+    ["pan/bank", Pan.bankTransform],
   ],
   
   midiChannels: [
@@ -171,16 +178,7 @@ class TG77Editor : SingleDocSynthEditor {
     guard path == "pan" else { return super.patchChangesOutput(forPath: path) }
     return panPatchOutput
   }
-  
-  
-  private var voiceParamsOutput: Observable<SynthPathParam>?
-  private var perfParamsOutput: Observable<SynthPathParam>?
-  private var panParamsOutput: Observable<SynthPathParam>?
-  private var perfDisposeBag: DisposeBag?
-  
-  private var tempPanOut = PublishSubject<(PatchChange, SysexPatch?)>()
-  private var panPatchOutput: Observable<(PatchChange, SysexPatch?)>?
-    
+      
   private func initPerfParamsOutput() {
     perfDisposeBag = DisposeBag()
 
@@ -274,36 +272,6 @@ class TG77Editor : SingleDocSynthEditor {
     }
   }
   
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-
-    midiOuts.append(system(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
-    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
-    midiOuts.append(pan(input: patchStateManager("pan")!.typedChangesOutput()))
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank")!.output) {
-      guard let patch = $0 as? TG77VoicePatch else { return nil }
-      return [patch.sysexData(channel: self.deviceId, location: $1)]
-    })
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("multi/bank")!.output) {
-      guard let patch = $0 as? TG77MultiPatch else { return nil }
-      return [patch.sysexData(channel: self.deviceId, location: $1)]
-    })
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("pan/bank")!.output) {
-      guard let patch = $0 as? TG77PanPatch else { return nil }
-      return [patch.sysexData(channel: self.deviceId, location: $1)]
-    })
-
-    return midiOuts
-  }
-
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path[0] {
     case .bank:
@@ -330,40 +298,6 @@ extension TG77Editor {
     let v1 = UInt8((value >> 7) & 0x7f)
     let v2 = UInt8(value & 0x7f)
     return Data([0xf0, 0x43, 0x10 + UInt8(channel), 0x34, t1, t2, n1, n2, v1, v2, 0xf7])
-  }
-  
-  //  private static func voiceNameData(channel: Int, patch: TX81ZVCEDPatch) -> Data {
-  //    return TX81ZVCEDPatch.nameByteRange.map {
-  //      vcedParamData(channel: channel, paramAddress: $0, value: patch.bytes[$0])
-  //      }.reduce(Data(), +)
-  //  }
-  
-
-  func multiCommon(input: Observable<(PatchChange, TG77MultiCommonPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).param(path) as? TG33Param else { return nil }
-      
-      let v: Int
-      if param.bits != nil {
-        // grab the whole byte from the patch instead
-        let byteIndex = param.byte
-        let b = param.length == 2 ? ((patch.bytes[byteIndex] & 0x1) << 7) + patch.bytes[byteIndex+1] : patch.bytes[byteIndex]
-        v = Int(b)
-      }
-      else {
-        v = value
-      }
-      return [self.paramData(param: param, value: v)]
-      
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.deviceId)]
-      
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      // TODO: this
-      return nil
-    })
-    
   }
   
 }

@@ -47,6 +47,25 @@ const editor = {
   midiOuts: [
   ],
   
+  midiOuts.append(perf(input: perfManager!.typedChangesOutput().filter {
+    // no-param change is for priming
+    guard case let .paramsChange(params) = $0.0 else { return true }
+    for (path,_) in params {
+      guard !path.starts(with: "patch") else { return false }
+    }
+    return true
+    }))
+  
+  (0..<4).forEach {
+    midiOuts.append(part(location: $0, input: filteredPerfDocOutput(part: $0)))
+  }
+  
+  (0..<4).forEach { i in
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/voice/i")!.output) {
+      guard let patch = $0 as? NordLead2VoicePatch else { return nil }
+    })
+  }
+  
   midiChannels: [
     ["voice", "basic"],
   ],
@@ -143,32 +162,6 @@ class NordLead2Editor : SingleDocSynthEditor {
       return true
     }
   }
-  
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(perf(input: perfManager!.typedChangesOutput().filter {
-      // no-param change is for priming
-      guard case let .paramsChange(params) = $0.0 else { return true }
-      for (path,_) in params {
-        guard !path.starts(with: "patch") else { return false }
-      }
-      return true
-      }))
-    
-    (0..<4).forEach {
-      midiOuts.append(part(location: $0, input: filteredPerfDocOutput(part: $0)))
-    }
-    
-    (0..<4).forEach { i in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/voice/i")!.output) {
-        guard let patch = $0 as? NordLead2VoicePatch else { return nil }
-      })
-    }
-
-    return midiOuts
-  }
-  
   
   override func midiChannel(forPath path: SynthPath) -> Int {
     return perfPatch?[path + "channel"] ?? 0

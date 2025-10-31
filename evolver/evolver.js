@@ -15,8 +15,17 @@ const editor = {
   fetchTransforms: [
   ],
 
-  midiOuts: [
-  ],
+  midiOuts: ([
+    ["global", Global.patchTransform],
+    ['patch', Voice.patchTransform],
+    ['wave', Wave.patchTransform],
+    ['bank/wave', Wave.bankTransform],
+  ]).concat(
+    (4).map(i => [['bank', i], Voice.bankTransform(i)])
+  ),
+  
+  midiOuts.append(GenericMidiOut.pushOnlyPatch(input: patchStateManager("wave")!.typedChangesOutput() as Observable<(PatchChange,EvolverWavePatch, Bool)>, patchTransform: {
+  }))
   
   midiChannels: [
     ["voice", "basic"],
@@ -76,41 +85,5 @@ class EvolverEditor : SingleDocSynthEditor {
           let wave = changes["number"] else { return }
     waveNumber = UInt8(wave)
   }
-
-
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-
-    midiOuts.append(globalOut(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
-
-    midiOuts.append(GenericMidiOut.pushOnlyPatch(input: patchStateManager("wave")!.typedChangesOutput() as Observable<(PatchChange,EvolverWavePatch, Bool)>, patchTransform: {
-      // TODO: sending twice on push.. why?
-      
-      // only send if wave # is 96 or higher
-      guard self.waveNumber >= 96 else { return nil }
-      let data = $0.sysexData(location: Int(self.waveNumber) - 96)
-      return [data]
-    }))
-    
-    (0..<4).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/bank")!.output, patchTransform: {
-        guard let b = $0 as? EvolverVoicePatch else { return nil }
-        return b.sysexData(bank: bank, location: $1)
-      }))
-    }
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/wave")!.output, patchTransform: {
-      guard let b = $0 as? EvolverWavePatch else { return nil }
-      return [b.sysexData(location: $1)]
-    }))
-
-    return midiOuts
-  }
-
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
-  }
-
   
 }

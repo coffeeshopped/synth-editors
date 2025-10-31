@@ -104,6 +104,11 @@ const patchTransform = {
   singlePatch: [[sysexData, 10]], 
 }
 
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[sysexData(location: $1), 50]],
+}
+
 class DW8KVoiceBank : TypicalTypedSysexPatchBank<DW8KVoicePatch>, VoiceBank {
   
   override class var fileDataCount: Int { return patchCount * 64 } // larger patch file size

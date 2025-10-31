@@ -864,7 +864,12 @@ const patchTransform = {
   }
 }
 
-  private func tempPatchData(patch: VirusTIVoicePatch) -> [Data] {
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [[sysexData(deviceId, bank + 1, loc), 50]],
+})
+  
+private func tempPatchData(patch: VirusTIVoicePatch) -> [Data] {
   return [patch.sysexData(deviceId: deviceId, bank: 0, part: 0x40)]
 }
 
