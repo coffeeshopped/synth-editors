@@ -303,6 +303,113 @@ const bankTruss = {
   validSizes: ['auto', 37392],
 }
 
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    if param.parm > 0 {
+            // if parm > 0, use NRPN
+            // not using Midi.nrpn bc of the way values were stored in param.parm
+            let outValue: Int
+            if path == [.arp, .on] || path == [.arp, .latch] {
+              outValue = value * 0x40
+            }
+            else if path == [.arp, .type] {
+              outValue = value * 0x16
+            }
+            else if path == [.arp, .gate, .time] {
+              outValue = Self.arpGateMap.firstIndex(of: value) ?? 0
+            }
+            else if path.last == .src || path.last == .dest {
+              outValue = value * 0x10
+            }
+            else {
+              outValue = value
+            }
+            return [
+              Data(Midi.cc(99, value: (param.parm >> 8) & 0x7f, channel: self.channel) +
+                   Midi.cc(98, value: param.parm & 0x7f, channel: self.channel) +
+                   Midi.cc(6, value: outValue, channel: self.channel))
+            ]
+    //        return [Data(Midi.nrpn(param.parm, value: value, channel: self.channel))]
+          }
+          else if param.parm < 0 {
+            // if < 0, look for ctrl # in Global
+            guard let g = self.patch(forPath: [.global]),
+                  let cc = g[[.ctrl, .i(param.parm * -1)]] else { return [patch.sysexData(channel: self.channel)] }
+    
+            // select timbre if needed
+            let selData: Data
+            if path.starts(with: [.tone, .i(0)]) {
+              selData = Data(Midi.cc(95, value: 0, channel: self.channel))
+            }
+            else if path.starts(with: [.tone, .i(1)]) {
+              selData = Data(Midi.cc(95, value: 2, channel: self.channel))
+            }
+            else {
+              selData = Data()
+            }
+              
+            let outValue: Int
+            if path.suffix(4) == [.osc, .i(0), .wave, .mode] {
+              outValue = value * 0x10
+            }
+            else if path.suffix(3) == [.osc, .i(0), .wave] {
+              outValue = value * 2
+            }
+            else if path.suffix(3) == [.osc, .i(1),  .wave] {
+              outValue = value * 63
+            }
+            else if path.suffix(2) == [.mod, .select] {
+              outValue = value * 0x20
+            }
+            else if path.last == .semitone {
+              outValue = Self.semitoneMap.firstIndex(of: value - 64) ?? 0
+            }
+            else if path.suffix(2) == [.filter, .type] {
+              outValue = value * 0x20
+            }
+            else if path.suffix(2) == [.formant, .shift] {
+              outValue = value * 26
+            }
+            else if path.last == .dist {
+              outValue = value * 0x40
+            }
+            else if path.suffix(3) == [.lfo, .i(0), .wave] {
+              outValue = value * 0x20
+            }
+            else if path.suffix(3) == [.lfo, .i(0), .sync, .note] || path.suffix(3) == [.lfo, .i(1), .sync, .note] {
+              outValue = value * 9
+            }
+            else if path.suffix(3) == [.lfo, .i(1), .wave] {
+              outValue = value * 0x20
+            }
+            else if path == [.delay, .sync, .note] {
+              outValue = value * 9
+            }
+            else {
+              outValue = value
+            }
+            return [selData + Data(Midi.cc(cc, value: outValue, channel: self.channel))]
+          }
+          else {
+            // else send whole patch
+            return [patch.sysexData(channel: self.channel)]
+          }
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+}
+
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [
+    sysexData, 
+    [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, 0x11, 0x00, loc, 0xf7]
+  ],
+  // TODO: might need custom fn for when there's a full bank push?
+})
+
+
 static var fileDataCount: Int { return 37163 }
 static var contentByteCount: Int { return 37157 }
 

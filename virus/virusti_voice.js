@@ -845,3 +845,26 @@ class VirusTISeriesVoiceBank<T:VirusTIVoicePatch> : TypicalTypedSysexPatchBank<T
   }
 
 }
+
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    let section = param.byte / 128 // should be 0...3
+    let cmdByte: UInt8 = [0x70, 0x71, 0x6e, 0x6f][section]
+    let cmdBytes = self.sysexCommand([cmdByte, 0x40, UInt8(param.byte % 128), UInt8(value)])
+    return [Data(cmdBytes)]
+  },
+  singlePatch: [[tempPatchData(patch: patch), 10]],
+  name: { (patch, path, name) -> [Data]? in
+    // batch as a single data so that it doesn't get .wait()s interleaved
+    return [Data(patch.nameBytes.enumerated().map {
+      Data(self.sysexCommand([0x71, 0x40, UInt8(0x70 + $0.offset), $0.element]))
+    }.joined())]
+
+  }
+}
+
+  private func tempPatchData(patch: VirusTIVoicePatch) -> [Data] {
+  return [patch.sysexData(deviceId: deviceId, bank: 0, part: 0x40)]
+}
+

@@ -19,17 +19,6 @@
 //      "\(JP8080VoiceBank.bankIndexToPrefix($0)): \($1)"
 //    }
 //  }
-//
-//  public static func bankInfo(forPatchTemplate templateType: PatchTemplate.Type) -> [(SynthPath, String)] {
-//    switch templateType {
-//    case is PerfPatch.Type:
-//      return [([.bank, .perf], "Perf Bank")]
-//    case is VoicePatch.Type:
-//      return [([.bank, .patch], "Patch Bank")]
-//    default:
-//      return []
-//    }
-//  }
 //  
 //  public static func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
 //    switch path {
@@ -57,8 +46,6 @@
 //    [.bank, .patch] : JP8080VoiceBank.self,
 //  ]
 //
-//  public static let migrationMap: [SynthPath:String]? = nil
-//  
 //  public static var compositeMap: [SynthPath : MultiSysexTemplate.Type] = [
 //      [.backup] : JP8080Backup.self,
 //    ]

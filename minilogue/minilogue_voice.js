@@ -395,14 +395,45 @@ const parms = [
   ] },
 ]
 
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    guard param.parm > 0 else { return [patch.sysexData(channel: self.channel)] }
+    // look for a CC number we can use
+    // TODO: value is going to be way out of range for many params (up to 1023)
+    // find a way to scale. maybe based on param type
+    //        let outV = Int((127*Float(value)/Float(1+ param.maxVal - param.minVal)).rounded())
+    let outV: Int
+    if param is Minilogue10BitParam {
+      outV = value.map(inRange: 0...1023, outRange: 0...127)
+    }
+    else if let param = param as? ParamWithRange {
+      let range = param.range
+      outV = Int( 128 * Float(value) / Float(1 + range.upperBound - range.lowerBound) ) + 1
+    }
+    else { outV = value }
+    
+    return [Data(Midi.cc(param.parm, value: outV, channel: self.channel))]
+
+
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+}
+
 const bankTruss = {
   singleBank: patchTruss,
   patchCount: 200,
   initFile: "minilogue-bank-init",
 }
+
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: (location) => sysexData(location),
+})
+
 class MinilogueBank : TypedSysexPatchBank {
   
-
     static let fileDataCount = 104400 // extra bytes for locations
   
   static func location(forData data: Data) -> Int {

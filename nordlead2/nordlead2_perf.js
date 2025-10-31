@@ -91,3 +91,8 @@ const patchTruss = {
   ],
   initFile: "Nord-Lead-perf-init",
 }
+
+const patchTransform = (location) => ({
+  throttle: 300,
+  singlePatch: [[$0.sysexData(deviceId: self.deviceId, bank: NordLead2PerfPatch.tempBuffer, location: 0), 10]],
+})

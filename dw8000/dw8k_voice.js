@@ -96,6 +96,14 @@ const bankTruss = {
   validSizes: ['auto', 3648, 4224],
 }
 
+const patchTransform = {
+  throttle: 50,
+  param: (path, parm, value) => {
+    return [Data([0xf0, 0x42, 0x30 + UInt8(self.channel), 0x03, 0x41, UInt8(param.byte), UInt8(value), 0xf7])]
+  },
+  singlePatch: [[sysexData, 10]], 
+}
+
 class DW8KVoiceBank : TypicalTypedSysexPatchBank<DW8KVoicePatch>, VoiceBank {
   
   override class var fileDataCount: Int { return patchCount * 64 } // larger patch file size

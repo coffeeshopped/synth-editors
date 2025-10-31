@@ -18,18 +18,6 @@ class EvolverEditor : SingleDocSynthEditor {
   }()
   class var patchMap: [SynthPath:Sysexible.Type] { return _patchMap }
   
-  required init(baseURL: URL) {
-    var migrationMap: [SynthPath:String] = [
-      [.global] : "Global.syx",
-      [.patch] : "Patch.syx",
-      [.wave] : "Wave.syx",
-      [.bank, .wave] : "Wave Bank.syx",
-    ]
-    (0..<4).forEach { migrationMap[[.bank, .i($0)]] = "Bank \($0 + 1).syx" }
-
-    super.init(baseURL: baseURL, sysexMap: type(of: self).patchMap, migrationMap: migrationMap)
-  }
-
   var sysexHeader: Data {
     return Data([0xf0, 0x01, 0x20, 0x01])
   }
@@ -108,73 +96,5 @@ class EvolverEditor : SingleDocSynthEditor {
     return channel
   }
 
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is EvolverVoicePatch.Type:
-      return [[.bank, .i(0)],[.bank, .i(1)],[.bank, .i(2)], [.bank, .i(3)]]
-    case is EvolverWavePatch.Type:
-      return [[.bank, .wave]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is EvolverVoicePatch.Type:
-      return ["Bank 1","Bank 2","Bank 3", "Bank 4"]
-    case is EvolverWavePatch.Type:
-      return ["Wave Bank"]
-    default:
-      return []
-    }
-  }
   
 }
-
-extension EvolverEditor {
-  
-  /// Transform <change,patch> into MIDI out data
-  func globalOut(input: Observable<(PatchChange, EvolverGlobalPatch, Bool)>) -> Observable<[Data]?> {
-
-    return GenericMidiOut.patchChange(throttle: .milliseconds(300), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-
-      let lNib = patch.bytes[param.byte] & 0x0f
-      let mNib = (patch.bytes[param.byte] >> 4) & 0x0f
-      return [Data([0xf0, 0x01, 0x20, 0x01, 0x09, UInt8(param.byte), lNib, mNib, 0xf7])]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.fileData()]
-      
-    })
-
-  }
-  
-  /// Transform <channel, patchChange, patch> into MIDI out data
-  func voiceOut(input: Observable<(PatchChange, EvolverVoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(200), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-
-      if path.first == .seq && path.last != .dest {
-        guard let seq = path.i(1), let step = path.i(3) else { return nil }
-        let lNib = UInt8(value) & 0x0f
-        let mNib = (UInt8(value) >> 4) & 0x0f
-        return [Data([0xf0, 0x01, 0x20, 0x01, 0x08, UInt8(seq * 16 + step), lNib, mNib, 0xf7])]
-      }
-      else {
-        // use byte instead of passed value bc some params are 2-in-1-byte
-        let lNib = patch.bytes[param.byte] & 0x0f
-        let mNib = (patch.bytes[param.byte] >> 4) & 0x0f
-        return [Data([0xf0, 0x01, 0x20, 0x01, 0x01, UInt8(param.byte), lNib, mNib, 0xf7])]
-      }
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.fileData()]
-
-    })
-  }
-  
-}
-

@@ -158,31 +158,6 @@ class JD800Editor : RolandNewAddressableEditor {
       return 0
     }
   }
-    
-  // MARK: Interactions
-  
-  
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return [[.bank, .patch]]
-    case is RhythmPatch.Type:
-      return [[.bank, .rhythm]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return ["Patch Bank"]
-    case is RhythmPatch.Type:
-      return ["Special Setup Bank"]
-    default:
-      return []
-    }
-  }
   
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     guard path == [.bank, .patch] else { return super.bankIndexLabelBlock(forPath: path) }

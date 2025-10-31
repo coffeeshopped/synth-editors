@@ -56,14 +56,6 @@
 //    return channel
 //  }
 //  
-//  override func bankPaths(forPatchType: SysexPatch.Type) -> [SynthPath] {
-//    return [[.bank]]
-//  }
-//  
-//  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-//    return ["Voice Bank"]
-//  }
-//  
 //}
 //
 //public extension DX7StyleEditor {

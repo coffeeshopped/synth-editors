@@ -16,14 +16,6 @@ class EvolverVoicePatch : ByteBackedSysexPatch, BankablePatch {
     nameData.append(0xf7)
     return [data, nameData]
   }
-
-  /// Saved as edit buffer, no name.
-  func fileData() -> Data {
-    var data = Data([0xf0, 0x01, 0x20, 0x01, 0x03])
-    data.append78(bytes: bytes, count: type(of: self).dataByteCount)
-    data.append(0xf7)
-    return data
-  }
   
   func randomize() {
     randomizeAllParams()
@@ -267,11 +259,38 @@ required init(data: Data) {
   }
 }
 
+  /// Saved as edit buffer, no name.
+const sysexData = {
+  var data = Data([0xf0, 0x01, 0x20, 0x01, 0x03])
+  data.append78(bytes: bytes, count: .dataByteCount)
+  data.append(0xf7)
+  return data
+}
 
 const patchTruss = {
   parms: parms,
   initFile: "evolver-voice-init",
   validSizes: ['auto', 228, 252, 24],
+}
+
+const patchTransform = {
+  throttle: 200,
+  param: (path, parm, value) => {
+    if path.first == .seq && path.last != .dest {
+      guard let seq = path.i(1), let step = path.i(3) else { return nil }
+      let lNib = UInt8(value) & 0x0f
+      let mNib = (UInt8(value) >> 4) & 0x0f
+      return [Data([0xf0, 0x01, 0x20, 0x01, 0x08, UInt8(seq * 16 + step), lNib, mNib, 0xf7])]
+    }
+    else {
+      // use byte instead of passed value bc some params are 2-in-1-byte
+      let lNib = patch.bytes[param.byte] & 0x0f
+      let mNib = (patch.bytes[param.byte] >> 4) & 0x0f
+      return [Data([0xf0, 0x01, 0x20, 0x01, 0x01, UInt8(param.byte), lNib, mNib, 0xf7])]
+    }
+
+  },
+  singlePatch: [[sysexData, 10]], 
 }
 
 

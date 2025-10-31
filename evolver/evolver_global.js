@@ -26,6 +26,8 @@ const parms = [
 
 // TODO: the old code was parsing as nibbles, but outputting (createFile) as 7-bit LSB byte followed by 1-bit MSB. What's right?
 
+const sysexData = [0xf0, 0x01, 0x20, 0x01, 0x0f, ['nibblizeLSB', 'b'], 0xf7]
+
 const patchTruss = {
   single: 'global',
   parms: parms,
@@ -34,5 +36,17 @@ const patchTruss = {
     ['bytes', { start: 5, count: 32 }],
     ['denibblizeLSB'],
   ],
-  createFile: [0xf0, 0x01, 0x20, 0x01, 0x0f, ['nibblizeLSB', 'b'], 0xf7],
+  createFile: sysexData,
 }
+
+const patchTransform = {
+  throttle: 300,
+  param: (path, parm, value) => {
+    let lNib = patch.bytes[param.byte] & 0x0f
+    let mNib = (patch.bytes[param.byte] >> 4) & 0x0f
+    return [Data([0xf0, 0x01, 0x20, 0x01, 0x09, UInt8(param.byte), lNib, mNib, 0xf7])]
+
+  },
+  singlePatch: [[sysexData, 10]], 
+}
+

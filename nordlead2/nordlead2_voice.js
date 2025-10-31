@@ -124,3 +124,28 @@ const bankTruss = {
   return sysexData { $0.sysexData(deviceId: 0, bank: 1, location: $1) }
 }
 
+const patchTransform = (location) => ({
+  throttle: 300,
+  param: (path, parm, value) => {
+    if path.subpath(from: 2) == [.filter, .type] && value == 5 {
+      // secret filter mode
+      return [patch.patchSysexData(deviceId: self.deviceId, location: location)]
+    }
+    else if param.parm > 0 {
+      let partChannel = self.midiChannel(forPath: [.part, .i(location)])
+      return [Data([UInt8(0xb0 + partChannel), UInt8(param.parm), UInt8(value)])]
+    }
+    else {
+      // some params can't be sent individually (e.g. velocity sens)
+      return [patch.patchSysexData(deviceId: self.deviceId, location: location)]
+    }  
+  },
+  singlePatch: [[patch.patchSysexData(deviceId: self.deviceId, location: location), 10]],
+})
+
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [sysexData(self.deviceId, bank + 1, loc)],
+     // note we add 1 to bank since bank: 0 is temp
+})
+

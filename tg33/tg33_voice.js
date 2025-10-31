@@ -423,6 +423,70 @@ const bankTruss = {
   initFile: "tg33-bank-init",
 }
 
+const patchTransform = (location) => ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    // HIDDEN PARAMS
+    guard param.parm > 0 else { return [patch.sysexData(channel: self.channel)] }
+    
+    let adds = RolandAddress(param.parm).sysexBytes(count: 3) +
+      RolandAddress(param.parm2).sysexBytes(count: 2)
+    var v1 = UInt8((value >> 7) & 0x7f)
+    var v2 = UInt8(value & 0x7f)
+    var preST: UInt8
+    var postST: UInt8
+    switch path[0] {
+    case .common:
+      preST = 0x00
+      postST = 0x00
+      
+      if path.last == .mod {
+        v2 = v2 << param.bits!.lowerBound
+      }
+    case .vector:
+      preST = 0x01
+      postST = 0x00
+    case .element:
+      guard let i = path.i(1) else { return nil }
+      if path[2] == .env {
+        preST = 0x03
+        postST = UInt8(i)
+        
+        if path.last == .delay {
+          v1 = value == 0 ? 0 : 1
+          v2 = 0
+        }
+      }
+      else {
+        preST = 0x02
+        postST = UInt8(i)
+      }
+      
+      if path.last == .aftertouch || path.last == .env {
+        if value < 0 {
+          let v = Int(UInt8(bitPattern: Int8(value))) << param.bits!.lowerBound
+          v1 = 0
+          v2 = UInt8(v & 0x7f)
+        }
+        else {
+          v2 = v2 << param.bits!.lowerBound
+        }
+      }
+      else if path.last == .velo {
+        if value < 0 {
+          v2 = UInt8(0x0b + value)
+        }
+      }
+    default:
+      return nil
+    }
+    return [Data([0xf0, 0x43, 0x10 + UInt8(self.channel), 0x26, preST, adds[0], postST, adds[1], adds[2], adds[3], adds[4], v1, v2, 0xf7])]
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+})
+
+
 class TG33VoiceBank : TypicalTypedSysexPatchBank<TG33VoicePatch>, ChannelizedSysexible {
   
   override class var fileDataCount: Int { return 37631 }

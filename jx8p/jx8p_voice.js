@@ -237,6 +237,28 @@ const parms = [
   ] },  
 ]
 
+const patchTransform = {
+  throttle: 200,
+  param: (path, parm, value) => {
+    let isPatch = byte > 58
+    var data = Data([0xf0, 0x41, 0x36, UInt8(channel), 0x21, isPatch ? 0x30 : 0x20, 0x01])
+    data.append(UInt8(byte % 59))
+    data.append(UInt8(value))
+    data.append(0xf7)
+    return data
+  },
+  singlePatch: [[sysexData, 10]],
+  name: n => {
+    var data = Data([0xf0, 0x41, 0x36, UInt8(self.channel), 0x21, 0x20, 0x01])
+    (0..<10).forEach {
+      data.append(UInt8($0))
+      data.append(UInt8(patch.bytes[$0]))
+    }
+    data.append(0xf7)
+    return [data]
+  } 
+}
+
 
 
 class JX8PVoiceBank : TypicalTypedSysexPatchBank<JX8PVoicePatch>, VoiceBank {

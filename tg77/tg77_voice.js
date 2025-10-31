@@ -914,6 +914,47 @@ const bankTruss = {
   initFile: "tg77-voice-bank-init",
 }
 
+const patchTransform = (location) => ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    let v: Int
+    if param.byte < 0 {
+      // op on
+      guard let el = path.i(1) else { return nil }
+      v = (0..<6).map {
+        guard patch[[.element, .i(el), .fm, .op, .i($0), .on]] == 1 else { return 0 }
+        return 1 << (5 - $0)
+        }.reduce(0, +)
+    }
+    else if value < 0 {
+      let upper = (param as? ParamWithRange)?.range.upperBound ?? 0
+      v = -value + upper + 1
+    }
+    else if param.parm2 == 0x0019 && param.byte > 25 {
+      // phase is weird
+      var byteIndex = patch.byteIndex(forPath: path)
+      if param.bits != nil { byteIndex -= 1 }
+      v = Int(((patch.bytes[byteIndex] & 1) << 7) + patch.bytes[byteIndex + 1])
+    }
+    else if param.bits != nil {
+      // grab the whole byte from the patch instead
+      let byteIndex = patch.byteIndex(forPath: path)
+      let b = param.length == 2 ? ((patch.bytes[byteIndex] & 0x1) << 7) + patch.bytes[byteIndex+1] : patch.bytes[byteIndex]
+      v = Int(b)
+    }
+    else {
+      v = value
+    }
+    return [self.paramData(param: param, value: v)]
+  },
+  singlePatch: [[sysexData, 10]],
+  name: (patch, path, name) -> [Data]? in
+  return TG77VoicePatch.nameByteRange.map {
+    self.paramData(parm: 0x0200, parm2: Int($0), value: Int(patch.bytes[$0]))
+    },
+})
+
+
 class TG77VoiceBank : TypicalTypedSysexPatchBank<TG77VoicePatch> {
     
   override func fileData() -> Data {

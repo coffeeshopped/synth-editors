@@ -10,12 +10,6 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
     ]
     (0..<16).forEach { map[[.part, .i($0)]] = VirusCVoicePatch.self }
     (0..<2).forEach { map[[.bank, .i($0)]] = VirusCVoiceBank.self }
-
-    super.init(baseURL: baseURL, sysexMap: map)
-    load { [weak self] in
-      self?.initPerfParamsOutput()
-    }
-
   }
 
     
@@ -104,30 +98,6 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   }
 
   
-  // MARK: Bank Support
-
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return (0..<2).map { [.bank, .i($0)] }
-    case is PerfPatch.Type:
-      return [[.multi, .bank]]
-    default:
-      return []
-    }
-  }
-
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return ["Bank A", "Bank B"]
-    case is PerfPatch.Type:
-      return ["Multi"]
-    default:
-      return []
-    }
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     if let bankIndex = path.i(1) {
       return {
@@ -142,70 +112,3 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
 
 
 }
-
-extension VirusCEditor {
-
-  /// Transform <patchChange, patch> into MIDI out data
-  func global(input: PatchTransmitObservable<VirusCGlobalPatch>) -> Observable<[Data]?> {
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      let noSendParms: [SynthPath] = [[.deviceId]]
-      guard !noSendParms.contains(path) else { return nil }
-
-      let pushParms: [SynthPath] = [[.knob, .vib]]
-      if pushParms.contains(path) {
-        return [patch.sysexData(deviceId: self.deviceId)]
-      }
-      else {
-        guard let param = type(of: patch).params[path] else { return nil }
-        return [Data(self.sysexCommand([0x72, 0x00, UInt8(param.byte), UInt8(value)]))]
-      }
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(deviceId: self.deviceId)]
-    })
-  }
-
-  /// Transform <patchChange, patch> into MIDI out data
-  func voice(input: PatchTransmitObservable<VirusCVoicePatch>, part: UInt8) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      
-      let section = param.byte / 128 // should be 0...3
-      let cmdByte: UInt8 = [0x70, 0x71, 0x6e, 0x6f][section]
-      let cmdBytes = self.sysexCommand([cmdByte, part, UInt8(param.byte % 128), UInt8(value)])
-      return [Data(cmdBytes)]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(deviceId: self.deviceId, bank: 0, part: part)]
-
-    }) { (patch, path, name) -> [Data]? in
-      // batch as a single data so that it doesn't get .wait()s interleaved
-      return [Data(patch.nameBytes.enumerated().map {
-        Data(self.sysexCommand([0x71, part, UInt8(0x70 + $0.offset), $0.element]))
-      }.joined())]
-    }
-  }
-    
-  func multi(input: PatchTransmitObservable<VirusCMultiPatch>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      let loPage: [SynthPathItem] = [.fx, .pan]
-      guard let param = type(of: patch).params[path] else { return nil }
-      let part = path.i(1) ?? 0
-      let cmdByte: UInt8 = loPage.contains(path.last!) ? 0x70 : 0x72
-      return [Data(self.sysexCommand([cmdByte, UInt8(part), UInt8(param.parm), UInt8(value)]))]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(deviceId: self.deviceId, bank: 0, part: 0)]
-
-    }) { (patch, path, name) -> [Data]? in
-      return [Data(name.bytes(forCount: 10).enumerated().map {
-        Data(self.sysexCommand([0x72, 0, UInt8(0x04 + $0.offset), $0.element]))
-      }.joined())]
-    }
-  }
-    
-}
-
-

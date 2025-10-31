@@ -48,3 +48,18 @@ const bankTruss = {
   patchCount: 32,
   initFile: "tg77-pan-bank-init",
 }
+
+const patchTransform = ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    let parm = 0x0a00 + self.tempPan
+    return [self.paramData(parm: parm, parm2: param.parm2, value: value)]
+  },
+  singlePatch: [[patch.sysexData(channel: self.deviceId, location: self.tempPan), 10]],
+  name: { (patch, path, name) -> [Data]? in
+    let parm = 0x0a00 + self.tempPan
+    return name.bytes(forCount: 10).enumerated().map {
+      self.paramData(parm: parm, parm2: Int($0.offset) + 0x11, value: Int($0.element))
+      }
+  },
+})

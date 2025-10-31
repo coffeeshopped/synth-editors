@@ -261,50 +261,6 @@ class MicronVoicePatch : ByteBackedSysexPatch, BankablePatch {
     }
   }
 
-    // save to synth
-    // f0 00 00 0e 22 01 <bank> 02 <location> ...
-    // fetch (huge) bank (micron/miniak)
-    // f0 00 00 0e 22 41 00 06 00 f7
-    // fetch patch (from bank only?) bank 0 loc 0 doesn't respond tho?
-    // f0 00 00 0e 22 41 <bank> 00 <location> f7
-    func sysexData(bank: UInt8, location: UInt8) -> Data {
-      var sum: Int64 = 0
-      (0..<78).forEach {
-        sum += (Int64(bytes[($0 * 4)])     << 24)
-        sum += (Int64(bytes[($0 * 4) + 1]) << 16)
-        sum += (Int64(bytes[($0 * 4) + 2]) << 8)
-        sum += (Int64(bytes[($0 * 4) + 3]) << 0)
-      }
-      sum = -1 * sum
-      let sum32 = Int(truncatingIfNeeded: sum)
-      
-      // 0x02 command saves by location! 0x00 saves by name.
-      var data = Data([0xf0, 0x00, 0x00, 0x0e, 0x26, 0x01, bank, 0x02, location])
-      var bytes78 = [UInt8]()
-      bytes78 += "Q01SYNTH".unicodeScalars.map { UInt8($0.value) }
-      // checksum ( 4 bytes)
-      bytes78 += [UInt8(sum32.bits([24, 31])),
-                  UInt8(sum32.bits([16, 23])),
-                  UInt8(sum32.bits([8, 15])),
-                  UInt8(sum32.bits([0, 7]))]
-      // version # (4 bytes)
-      bytes78 += [0x80, 0x00, 0x00, 0x00]
-      // blank bytes
-      bytes78 += [UInt8](repeating: 0, count: 28)
-      // size
-      bytes78 += [0x00, 0x00, 0x01, 0x3b]
-      // blank bytes
-      bytes78 += [UInt8](repeating: 0, count: 8)
-      bytes78 += bytes
-      data.appendR78(bytes: bytes78, count: 424)
-      data.append(0xf7)
-      return data
-    }
-    
-    func fileData() -> Data {
-      return sysexData(bank: 7, location: 127)
-    }
-
     func randomize() {
       randomizeAllParams()
     }
@@ -722,6 +678,101 @@ const bankTruss = {
   patchCount: 128,
   initFile: "micron-voice-bank-init",
 }
+
+    // save to synth
+// f0 00 00 0e 22 01 <bank> 02 <location> ...
+// fetch (huge) bank (micron/miniak)
+// f0 00 00 0e 22 41 00 06 00 f7
+// fetch patch (from bank only?) bank 0 loc 0 doesn't respond tho?
+// f0 00 00 0e 22 41 <bank> 00 <location> f7
+func sysexData(bank, location) -> Data {
+  var sum: Int64 = 0
+  (0..<78).forEach {
+    sum += (Int64(bytes[($0 * 4)])     << 24)
+    sum += (Int64(bytes[($0 * 4) + 1]) << 16)
+    sum += (Int64(bytes[($0 * 4) + 2]) << 8)
+    sum += (Int64(bytes[($0 * 4) + 3]) << 0)
+  }
+  sum = -1 * sum
+  let sum32 = Int(truncatingIfNeeded: sum)
+  
+  // 0x02 command saves by location! 0x00 saves by name.
+  var data = Data([0xf0, 0x00, 0x00, 0x0e, 0x26, 0x01, bank, 0x02, location])
+  var bytes78 = [UInt8]()
+  bytes78 += "Q01SYNTH".unicodeScalars.map { UInt8($0.value) }
+  // checksum ( 4 bytes)
+  bytes78 += [UInt8(sum32.bits([24, 31])),
+              UInt8(sum32.bits([16, 23])),
+              UInt8(sum32.bits([8, 15])),
+              UInt8(sum32.bits([0, 7]))]
+  // version # (4 bytes)
+  bytes78 += [0x80, 0x00, 0x00, 0x00]
+  // blank bytes
+  bytes78 += [UInt8](repeating: 0, count: 28)
+  // size
+  bytes78 += [0x00, 0x00, 0x01, 0x3b]
+  // blank bytes
+  bytes78 += [UInt8](repeating: 0, count: 8)
+  bytes78 += bytes
+  data.appendR78(bytes: bytes78, count: 424)
+  data.append(0xf7)
+  return data
+}
+
+func fileData() -> Data {
+  return sysexData(bank: 7, location: 127)
+}
+
+private func tempSysexData(_ patch: MicronVoicePatch) -> [Data] {
+  // SIDE EFFECT, WHOOPS
+  makeFetchMatchWrite()
+
+  return [patch.sysexData(bank: tempBank, location: tempLocation)]
+}
+
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    guard param.parm >= 0 else { return self.tempSysexData(patch) }
+    
+    var outValue = value
+    switch path[0] {
+    case .osc:
+      if path.count == 3 {
+        switch path[2] {
+        case .octave:
+          outValue -= 3
+        case .semitone:
+          outValue -= 7
+        default:
+          break
+        }
+      }
+    default:
+      break
+    }
+    
+    // NRPN
+    let msbCC = param.parm >> 7
+    let lsbCC = param.parm & 0x7f
+    let v = Int16(outValue)
+    let msbV = Int(UInt8(bitPattern: Int8(v >> 7)) & 0x7f)
+    let lsbV = Int(UInt8(bitPattern: Int8(v & 0x7f)))
+    return [Data(
+      Midi.cc(99, value: msbCC, channel: self.channel) +
+      Midi.cc(98, value: lsbCC, channel: self.channel) +
+      Midi.cc(6, value: msbV, channel: self.channel) +
+      Midi.cc(38, value: lsbV, channel: self.channel)
+      )]
+  },
+  singlePatch: [[tempSysexData, 10]],
+  name: [[tempSysexData, 10]],
+}
+
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: (location) => sysexData(bank, location),
+})
 
 class MicronVoiceBank : TypicalTypedSysexPatchBank<MicronVoicePatch> {
     

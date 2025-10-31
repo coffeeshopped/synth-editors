@@ -8,13 +8,6 @@ class NordLead2Editor : SingleDocSynthEditor {
       [.perf] : NordLead2PerfPatch.self,
     ]
     (0..<4).forEach { map[[.bank, .voice, .i($0)]] = NordLead2VoiceBank.self }
-
-    var migrationMap: [SynthPath:String] = [
-      [.perf] : "Performance.syx",
-    ]
-    (0..<4).forEach { migrationMap[[.bank, .voice, .i($0)]] = "Voice Bank \($0+1)" }
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
   }
   
   private var perfManager: PatchStateManager? {
@@ -120,8 +113,6 @@ class NordLead2Editor : SingleDocSynthEditor {
     (0..<4).forEach { i in
       midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank, .voice, .i(i)])!.output) {
         guard let patch = $0 as? NordLead2VoicePatch else { return nil }
-        // note we add 1 to bank since bank: 0 is temp
-        return [patch.sysexData(deviceId: self.deviceId, bank: i + 1, location: $1)]
       })
     }
 
@@ -133,59 +124,7 @@ class NordLead2Editor : SingleDocSynthEditor {
     return perfPatch?[path + [.channel]] ?? 0
   }
   
-  // MARK: Bank Support
-
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    return [
-      [.bank, .voice, .i(0)],
-      [.bank, .voice, .i(1)],
-      [.bank, .voice, .i(2)],
-      [.bank, .voice, .i(3)],
-    ]
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    return ["Voice Bank Int", "Card Bank 1", "Card Bank 2", "Card Bank 3"]
-  }
-  
 }
-
-extension NordLead2Editor {
-  
-  /// Transform <deviceId,patch> into MIDI out data
-  func perf(input: Observable<(PatchChange, NordLead2PerfPatch, Bool)>) -> Observable<[Data]?> {
-    return GenericMidiOut.wholePatchChange(input: input) {
-      return [$0.sysexData(deviceId: self.deviceId, bank: NordLead2PerfPatch.tempBuffer, location: 0)]
-    }
-  }
-  
-  /// Transform <deviceId, location, partChannel, patchChange, patch> into MIDI out data
-  func part(location: Int, input: Observable<(PatchChange, NordLead2PerfPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(300), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      if path.subpath(from: 2) == [.filter, .type] && value == 5 {
-        // secret filter mode
-        return [patch.patchSysexData(deviceId: self.deviceId, location: location)]
-      }
-      else if param.parm > 0 {
-        let partChannel = self.midiChannel(forPath: [.part, .i(location)])
-        return [Data([UInt8(0xb0 + partChannel), UInt8(param.parm), UInt8(value)])]
-      }
-      else {
-        // some params can't be sent individually (e.g. velocity sens)
-        return [patch.patchSysexData(deviceId: self.deviceId, location: location)]
-      }
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.patchSysexData(deviceId: self.deviceId, location: location)]
-
-    })
-
-  }
-  
-}
-
 
 
 class NordLead2XEditor : NordLead2Editor {

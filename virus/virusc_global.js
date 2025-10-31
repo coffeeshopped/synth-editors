@@ -82,3 +82,22 @@ func sysexData(deviceId: UInt8) -> Data {
 }
 
 func fileData() -> Data { return sysexData(deviceId: 16) }
+
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    let noSendParms: [SynthPath] = [[.deviceId]]
+    guard !noSendParms.contains(path) else { return nil }
+    
+    let pushParms: [SynthPath] = [[.knob, .vib]]
+    if pushParms.contains(path) {
+      return [patch.sysexData(deviceId: self.deviceId)]
+    }
+    else {
+      guard let param = type(of: patch).params[path] else { return nil }
+      return [Data(self.sysexCommand([0x72, 0x00, UInt8(param.byte), UInt8(value)]))]
+    }
+
+  },
+  singlePatch: [[sysexData, 10]],
+}

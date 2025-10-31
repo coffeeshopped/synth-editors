@@ -117,6 +117,25 @@ class TG77MultiPatch : YamahaMultiPatch, BankablePatch {
   }
 }
 
+const patchTransform = (location) => ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    let v: Int
+    if param.bits != nil {
+      // grab the whole byte from the patch instead
+      let byteIndex = param.byte
+      let p = patch.subpatches[[.common]] as! TG77MultiCommonPatch
+      let b = param.length == 2 ? ((p.bytes[byteIndex] & 0x1) << 7) + p.bytes[byteIndex+1] : p.bytes[byteIndex]
+      v = Int(b)
+    }
+    else {
+      v = value
+    }
+    return [self.paramData(param: param, value: v)]
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+})
 
 
 class TG77MultiBank : TypicalTypedSysexPatchBank<TG77MultiPatch> {

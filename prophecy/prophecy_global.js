@@ -99,3 +99,13 @@ const patchTruss = {
   ],
   createFile: sysexData,
 }
+
+const patchTransform = (location) => ({
+  throttle: 50,
+  param: (path, parm, value) => {
+    return [Data(self.paramChange(group: 0, paramId: param.parm, value: value))]
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+})
+

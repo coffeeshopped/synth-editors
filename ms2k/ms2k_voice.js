@@ -323,3 +323,25 @@ const bankTruss = {
   validSizes: ['auto', 37392],
 }
 
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    let v = (param as? RangeParam)?.displayOffset == -64 ? value - 64 : value
+    var data = Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x58, 0x41])
+    let b1 = UInt8(value & 0x7f)
+    let b2 = UInt8((value >> 7) & 0x7f)
+    data.append(contentsOf: [UInt8(param.parm & 0x7f), UInt8((param.parm >> 7) & 0x7f), b1, b2])
+    data.append(0xf7)
+    return data
+  
+  },
+  singlePatch: [[sysexData, 10]],
+  name: n => {
+    return MS2KPatch.nameByteRange.map {
+    self.paramData(paramAddress: $0, value: Int(patch.bytes[$0]))
+    }
+  }
+}
+
+// bankTransform is microKorg bankTransform.
+

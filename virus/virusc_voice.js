@@ -448,4 +448,21 @@ class VirusCVoiceBank : TypicalTypedSysexPatchBank<VirusCVoicePatch>, VoiceBank 
   }
 }
 
+const patchTransform = part => ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    let section = param.byte / 128 // should be 0...3
+    let cmdByte: UInt8 = [0x70, 0x71, 0x6e, 0x6f][section]
+    let cmdBytes = self.sysexCommand([cmdByte, part, UInt8(param.byte % 128), UInt8(value)])
+    return [Data(cmdBytes)]
+  },
+  singlePatch: [[patch.sysexData(deviceId: self.deviceId, bank: 0, part: part), 10]],
+  name: { (patch, path, name) -> [Data]? in
+    // batch as a single data so that it doesn't get .wait()s interleaved
+    return [Data(patch.nameBytes.enumerated().map {
+      Data(self.sysexCommand([0x71, part, UInt8(0x70 + $0.offset), $0.element]))
+    }.joined())]
+  }
+})
+
   

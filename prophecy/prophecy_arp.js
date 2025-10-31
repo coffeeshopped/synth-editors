@@ -98,3 +98,23 @@ class ProphecyArpBank : TypicalTypedSysexPatchBank<ProphecyArpPatch> {
     
 }
 
+const patchTransform = (location) => ({
+  throttle: 50,
+  param: (path, parm, value) => {
+    if path == [.number] {
+      return [
+        Data(
+          Midi.cc(99, value: 0, channel: self.channel) +
+          Midi.cc(98, value: 1, channel: self.channel) +
+          Midi.cc(6, value: value, channel: self.channel)
+        )
+      ]
+    }
+    
+    guard let param = type(of: patch).params[path] else { return nil }
+    return [Data(self.paramChange(group: 2, paramId: param.parm, value: value))]
+  },
+  singlePatch: [[sysexData(program: self.tempArp), 10]],
+})
+
+

@@ -83,3 +83,11 @@ const patchTruss = {
   initFile: "tg77-system-init",
   parseBody: ['bytes', { start: 32, count: 64 }],
 }
+
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    return [self.paramData(param: param, value: value)]
+  },
+  singlePatch: [[sysexData, 10]],
+}

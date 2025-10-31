@@ -71,3 +71,21 @@ const patchTruss = {
   parseBody: ['unpack87', { count: 56, range: [8, 71] }],
   createFile: sysexData,
 }
+
+const patchTransform = {
+  throttle: 50,
+  param: (path, parm, value) => {
+    guard let param = type(of: patch).params[path] else { return nil }
+    let channel = UInt8(self.channel)
+    
+    let msgs: [MidiMessage] = [
+      .cc(channel: channel, number: 99, value: 0x02),
+      .cc(channel: channel, number: 98, value: UInt8(param.byte + 44)),
+      .cc(channel: channel, number: 6, value: UInt8(value >> 7)),
+      .cc(channel: channel, number: 38, value: UInt8(value & 0x7f))
+    ]
+    
+    return msgs.map { Data($0.bytes()) }
+  },
+  singlePatch: [[sysexData, 10]], 
+}

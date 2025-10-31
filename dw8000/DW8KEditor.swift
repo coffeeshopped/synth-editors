@@ -10,13 +10,6 @@ class DW8KEditor : SingleDocSynthEditor {
       [.bank] : DW8KVoiceBank.self,
     ]
 
-    let migrationMap: [SynthPath:String] = [
-      [.global] : "Global.json",
-      [.patch] : "Voice.syx",
-      [.bank] : "Voice Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
   }
 
   // MARK: MIDI I/O
@@ -59,14 +52,6 @@ class DW8KEditor : SingleDocSynthEditor {
     return channel
   }
   
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    return [[.bank]]
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    return ["Voice Bank"]
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     return {
       let bank = ($0 / 8) + 1
@@ -75,23 +60,3 @@ class DW8KEditor : SingleDocSynthEditor {
     }
   }
 }
-
-// MARK: Midi Out
-
-extension DW8KEditor {
-  
-  func voiceOut(input: Observable<(PatchChange, DW8KVoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      return [Data([0xf0, 0x42, 0x30 + UInt8(self.channel), 0x03, 0x41, UInt8(param.byte), UInt8(value), 0xf7])]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    })
-    
-  }
-  
-}
-

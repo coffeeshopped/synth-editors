@@ -98,13 +98,6 @@ class ProphecyEditor : SingleDocSynthEditor {
 //    }
 //    return arpPatchOutput
 //  }
-
-
-////    comparator.check(path: path, change: change)
-//  }
-//
-//  private let comparator = PatchComparator<Deepmind12VoicePatch>(path: [.patch])
-
 //
 //  override func sysexible(forPath path: SynthPath) -> Sysexible? {
 //    // used by the overlay popup loader
@@ -144,28 +137,6 @@ class ProphecyEditor : SingleDocSynthEditor {
     return channel
   }
   
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is ProphecyVoicePatch.Type:
-      return (0..<2).map { [.bank, .patch, .i($0)] }
-    case is ProphecyArpPatch.Type:
-      return [[.bank, .arp]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is ProphecyVoicePatch.Type:
-      return (0..<2).map { "Voice Bank \(ProphecyVoiceBank.bankLetter($0))" }
-    case is ProphecyArpPatch.Type:
-      return ["Arp Bank"]
-    default:
-      return []
-    }
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path {
     case [.bank, .patch, .i(0)]:
@@ -188,54 +159,4 @@ extension ProphecyEditor {
        UInt8(value & 0x7f), UInt8((value >> 7) & 0x7f), 0xf7]
   }
   
-  func globalOut(input: Observable<(PatchChange, ProphecyGlobalPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(50), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      return [Data(self.paramChange(group: 0, paramId: param.parm, value: value))]
-      
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    })
-  }
-
-  func voiceOut(input: Observable<(PatchChange, ProphecyVoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(50), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      return [Data(self.paramChange(group: 1, paramId: param.parm, value: value))]
-      
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    })
-    
-  }
-  
-  func arpOut(input: Observable<(PatchChange, ProphecyArpPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(50), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      if path == [.number] {
-        return [
-          Data(
-            Midi.cc(99, value: 0, channel: self.channel) +
-            Midi.cc(98, value: 1, channel: self.channel) +
-            Midi.cc(6, value: value, channel: self.channel)
-          )
-        ]
-      }
-      
-      guard let param = type(of: patch).params[path] else { return nil }
-      return [Data(self.paramChange(group: 2, paramId: param.parm, value: value))]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.channel, program: self.tempArp)]
-
-    })
-  }
-
 }

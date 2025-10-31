@@ -11,8 +11,6 @@ class JX8PEditor : SingleDocSynthEditor {
   }()
   class var sysexMap: [SynthPath:Sysexible.Type] { _sysexMap }
   
-  static let migrationMap: [SynthPath:String] = [:]
-  
   required init(baseURL: URL) {
     super.init(baseURL: baseURL, sysexMap: Self.sysexMap, migrationMap: Self.migrationMap)
   }
@@ -47,57 +45,6 @@ class JX8PEditor : SingleDocSynthEditor {
     }))
 
     return midiOuts
-  }
-  
-  private func voice(_ input: Observable<(PatchChange, JX8PVoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(10), input: input, paramTransform: { [weak self] (patch, path, value) -> [Data]? in
-      guard let self = self,
-        let param = type(of: patch).params[path] else { return nil }
-      return [self.paramData(byte: param.byte, value: value)]
-
-    }, patchTransform: { [weak self] (patch) -> [Data]? in
-      guard let self = self else { return nil }
-      return [patch.sysexData(channel: self.channel)]
-
-    }) { [weak self] (patch, path, name) -> [Data]? in
-      guard let self = self else { return nil }
-      var data = Data([0xf0, 0x41, 0x36, UInt8(self.channel), 0x21, 0x20, 0x01])
-      (0..<10).forEach {
-        data.append(UInt8($0))
-        data.append(UInt8(patch.bytes[$0]))
-      }
-      data.append(0xf7)
-      return [data]
-      
-    }
-  }
-  
-  private func paramData(byte: Int, value: Int) -> Data {
-    let isPatch = byte > 58
-    var data = Data([0xf0, 0x41, 0x36, UInt8(channel), 0x21, isPatch ? 0x30 : 0x20, 0x01])
-    data.append(UInt8(byte % 59))
-    data.append(UInt8(value))
-    data.append(0xf7)
-    return data
-  }
-  
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return [[.bank]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return ["Tone Bank"]
-    default:
-      return []
-    }
   }
   
 }

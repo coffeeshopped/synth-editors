@@ -26,18 +26,6 @@ class TG77Editor : SingleDocSynthEditor {
   }
 
   required init(baseURL: URL) {
-    let migrationMap: [SynthPath:String] = [
-      [.global] : "System.syx",
-      [.patch] : "Voice.syx",
-      [.bank] : "Voice Bank.syx",
-      [.multi] : "Multi.syx",
-      [.multi, .bank] : "Multi Bank.syx",
-      [.pan] : "Pan.syx",
-      [.pan, .bank] : "Pan Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: Self.map, migrationMap: migrationMap)
-    
     load { [weak self] in
       self?.initVoiceDocSubscription()
       self?.initPerfParamsOutput()
@@ -51,12 +39,7 @@ class TG77Editor : SingleDocSynthEditor {
       }
     }
   }
-  
-  
-  deinit {
-    voiceDocSubscription?.dispose()
-  }
-  
+    
   func initVoiceDocSubscription() {
     voiceDocSubscription = voiceDocInput.asObservable().subscribe(onNext: { [weak self] in
       guard let self = self,
@@ -227,8 +210,6 @@ class TG77Editor : SingleDocSynthEditor {
     }
   }
   
-  
-  
   // MARK: MIDI I/O
   
   func fetchData(forHeader header: String, location: Int) -> Data {
@@ -312,32 +293,6 @@ class TG77Editor : SingleDocSynthEditor {
   override func midiChannel(forPath path: SynthPath) -> Int {
     return channel
   }
-
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is TG77VoicePatch.Type:
-      return [[.bank]]
-    case is TG77MultiPatch.Type, is TG77MultiCommonPatch.Type:
-      return [[.multi, .bank]]
-    case is TG77PanPatch.Type:
-      return [[.pan, .bank]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is TG77VoicePatch.Type:
-      return ["Voice Bank"]
-    case is TG77MultiPatch.Type, is TG77MultiCommonPatch.Type:
-      return ["Multi Bank"]
-    case is TG77PanPatch.Type:
-      return ["Pan Bank"]
-    default:
-      return []
-    }
-  }
   
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path[0] {
@@ -353,53 +308,6 @@ class TG77Editor : SingleDocSynthEditor {
 
 extension TG77Editor {
   
-  func voice(input: Observable<(PatchChange, TG77VoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] as? TG33Param else { return nil }
-      
-      let v: Int
-      if param.byte < 0 {
-        // op on
-        guard let el = path.i(1) else { return nil }
-        v = (0..<6).map {
-          guard patch[[.element, .i(el), .fm, .op, .i($0), .on]] == 1 else { return 0 }
-          return 1 << (5 - $0)
-          }.reduce(0, +)
-      }
-      else if value < 0 {
-        let upper = (param as? ParamWithRange)?.range.upperBound ?? 0
-        v = -value + upper + 1
-      }
-      else if param.parm2 == 0x0019 && param.byte > 25 {
-        // phase is weird
-        var byteIndex = patch.byteIndex(forPath: path)
-        if param.bits != nil { byteIndex -= 1 }
-        v = Int(((patch.bytes[byteIndex] & 1) << 7) + patch.bytes[byteIndex + 1])
-      }
-      else if param.bits != nil {
-        // grab the whole byte from the patch instead
-        let byteIndex = patch.byteIndex(forPath: path)
-        let b = param.length == 2 ? ((patch.bytes[byteIndex] & 0x1) << 7) + patch.bytes[byteIndex+1] : patch.bytes[byteIndex]
-        v = Int(b)
-      }
-      else {
-        v = value
-      }
-      return [self.paramData(param: param, value: v)]
-      
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.deviceId)]
-      
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      return TG77VoicePatch.nameByteRange.map {
-        self.paramData(parm: 0x0200, parm2: Int($0), value: Int(patch.bytes[$0]))
-        }
-
-    })
-    
-  }
-  
   private func paramData(param: TG33Param, value: Int) -> Data {
     return paramData(parm: param.parm, parm2: param.parm2, value: value)
   }
@@ -413,8 +321,6 @@ extension TG77Editor {
     let v2 = UInt8(value & 0x7f)
     return Data([0xf0, 0x43, 0x10 + UInt8(channel), 0x34, t1, t2, n1, n2, v1, v2, 0xf7])
   }
-
-  
   
   //  private static func voiceNameData(channel: Int, patch: TX81ZVCEDPatch) -> Data {
   //    return TX81ZVCEDPatch.nameByteRange.map {
@@ -422,33 +328,6 @@ extension TG77Editor {
   //      }.reduce(Data(), +)
   //  }
   
-  func multi(input: Observable<(PatchChange, TG77MultiPatch, Bool)>) -> Observable<[Data]?> {
-
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).param(path) as? TG33Param else { return nil }
-      
-      let v: Int
-      if param.bits != nil {
-        // grab the whole byte from the patch instead
-        let byteIndex = param.byte
-        let p = patch.subpatches[[.common]] as! TG77MultiCommonPatch
-        let b = param.length == 2 ? ((p.bytes[byteIndex] & 0x1) << 7) + p.bytes[byteIndex+1] : p.bytes[byteIndex]
-        v = Int(b)
-      }
-      else {
-        v = value
-      }
-      return [self.paramData(param: param, value: v)]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.deviceId)]
-      
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      // TODO: this
-      return nil
-    })
-
-  }
 
   func multiCommon(input: Observable<(PatchChange, TG77MultiCommonPatch, Bool)>) -> Observable<[Data]?> {
     
@@ -477,38 +356,4 @@ extension TG77Editor {
     
   }
   
-  func pan(input: Observable<(PatchChange, TG77PanPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] as? TG33Param else { return nil }
-      
-      let parm = 0x0a00 + self.tempPan
-      return [self.paramData(parm: parm, parm2: param.parm2, value: value)]
-      
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.deviceId, location: self.tempPan)]
-      
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      let parm = 0x0a00 + self.tempPan
-      return name.bytes(forCount: 10).enumerated().map {
-        self.paramData(parm: parm, parm2: Int($0.offset) + 0x11, value: Int($0.element))
-        }
-    })
-    
-  }
-
-  func system(input: Observable<(PatchChange, TG77SystemPatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] as? TG33Param else { return nil }
-      return [self.paramData(param: param, value: value)]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.deviceId)]
-      
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      // TODO: this
-      return nil
-    })
-  }
 }

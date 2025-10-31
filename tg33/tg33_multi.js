@@ -116,6 +116,29 @@ const patchTruss = {
   parseBody: ['bytes', { start: 0x10, count: 208 }],
 }
 
+const patchTransform = (location) => ({
+  throttle: 100,
+  param: (path, parm, value) => {
+    // HIDDEN PARAMS
+    guard param.parm > 0 else { return [patch.sysexData(channel: self.channel)] }
+    
+    let adds = RolandAddress(param.parm).sysexBytes(count: 5)
+    let v1 = UInt8((value >> 7) & 0x7f)
+    let v2 = UInt8(value & 0x7f)
+    var postST: UInt8
+    switch path[0] {
+    case .part:
+      guard let i = path.i(1) else { return nil }
+      postST = UInt8(i)
+    default:
+      postST = 0
+    }
+    return [Data([0xf0, 0x43, 0x10 + UInt8(self.channel), 0x26, 0x04, adds[0], postST, adds[1], adds[2], adds[3], adds[4], v1, v2, 0xf7])]
+  },
+  singlePatch: [[sysexData, 10]],
+  name: [[sysexData, 10]],
+})
+
 
 class TG33MultiBank : TypicalTypedSysexPatchBank<TG33MultiPatch>, ChannelizedSysexible {
   

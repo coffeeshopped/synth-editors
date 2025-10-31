@@ -26,11 +26,7 @@ class JD990Editor : RolandNewAddressableEditor {
   }()
   class var sysexMap: [SynthPath:Sysexible.Type] { return _sysexMap }
   
-  static let migrationMap: [SynthPath:String] = [:]
-
-  required init(baseURL: URL) {
-    super.init(baseURL: baseURL, sysexMap: type(of: self).sysexMap, migrationMap: type(of: self).migrationMap)
-    
+  required init(baseURL: URL) {    
     load { [weak self] in
       self?.initPerfParamsOutput()
       self?.initPatchParamsOutput()
@@ -152,34 +148,7 @@ class JD990Editor : RolandNewAddressableEditor {
     }
     return super.paramsOutput(forPath: path)
   }
-  
-  
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return [[.bank, .patch, .i(0)], [.bank, .patch, .i(1)]]
-    case is PerfPatch.Type:
-      return [[.bank, .perf, .i(0)], [.bank, .perf, .i(1)]]
-    case is RhythmPatch.Type:
-      return [[.bank, .rhythm, .i(0)], [.bank, .rhythm, .i(1)]]
-    default:
-      return []
-    }
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    switch patchType {
-    case is VoicePatch.Type:
-      return ["Patch Bank", "C: Patch Bank"]
-    case is PerfPatch.Type:
-      return ["Perf Bank", "C: Perf Bank"]
-    case is RhythmPatch.Type:
-      return ["Rhythm Bank", "C: Rhythm Bank"]
-    default:
-      return []
-    }
-  }
-  
+    
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     guard path.starts(with: [.bank, .patch]) else { return super.bankIndexLabelBlock(forPath: path) }
     return {

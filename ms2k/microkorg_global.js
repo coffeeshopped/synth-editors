@@ -58,3 +58,9 @@ const patchTruss = {
   parseBody: ['unpack87', { count: 200, rng: [5, 233] }],
   initFile: "microkorg-global-init",
 }
+
+const patchTransform = {
+  throttle: 1000,
+  singlePatch: [[sysexData, 10]],
+}
+

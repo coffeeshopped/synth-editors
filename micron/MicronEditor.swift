@@ -21,15 +21,6 @@ class MicronEditor : SingleDocSynthEditor {
     ]
     (0..<8).forEach { map[[.bank, .patch, .i($0)]] = MicronVoiceBank.self }
 
-    var migrationMap: [SynthPath:String] = [
-      [.global] : "Global.json",
-      [.patch] : "Voice.syx",
-      [.memory, .patch] : "VoiceTOC.syx",
-    ]
-    (0..<8).forEach { migrationMap[[.bank, .patch, .i($0)]] = "Voice Bank \($0).syx" }
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
-    
     addMidiInHandler(throttle: .milliseconds(0)) { [weak self] (msg) in
       self?.handleMidiIn(msg)
     }
@@ -134,76 +125,10 @@ class MicronEditor : SingleDocSynthEditor {
     return channel
   }
   
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    return (0..<8).map { [.bank, .patch, .i($0)] }
-  }
-
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    return (0..<8).map { "Pgm Bank \($0)" }
-  }
-
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path[0] {
     default:
       return { "\($0)" }
     }
-  }
-}
-
-// MARK: Midi Out
-
-extension MicronEditor {
-  
-  func voiceOut(input: Observable<(PatchChange, MicronVoicePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      guard param.parm >= 0 else { return self.tempSysexData(patch) }
-
-      var outValue = value
-      switch path[0] {
-      case .osc:
-        if path.count == 3 {
-          switch path[2] {
-          case .octave:
-            outValue -= 3
-          case .semitone:
-            outValue -= 7
-          default:
-            break
-          }
-        }
-      default:
-        break
-      }
-      
-      // NRPN
-      let msbCC = param.parm >> 7
-      let lsbCC = param.parm & 0x7f
-      let v = Int16(outValue)
-      let msbV = Int(UInt8(bitPattern: Int8(v >> 7)) & 0x7f)
-      let lsbV = Int(UInt8(bitPattern: Int8(v & 0x7f)))
-      return [Data(
-        Midi.cc(99, value: msbCC, channel: self.channel) +
-        Midi.cc(98, value: lsbCC, channel: self.channel) +
-        Midi.cc(6, value: msbV, channel: self.channel) +
-        Midi.cc(38, value: lsbV, channel: self.channel)
-        )]
-
-    }, patchTransform: { (patch) -> [Data]? in
-      return self.tempSysexData(patch)
-
-    }, nameTransform: { (patch, path, name) -> [Data]? in
-      return self.tempSysexData(patch)
-
-    })
-    
-  }
-  
-  private func tempSysexData(_ patch: MicronVoicePatch) -> [Data] {
-    // SIDE EFFECT, WHOOPS
-    makeFetchMatchWrite()
-
-    return [patch.sysexData(bank: tempBank, location: tempLocation)]
   }
 }

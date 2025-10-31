@@ -256,6 +256,34 @@ function bankTruss(bank) => ({
   },
 })
 
+const patchTransform = {
+  throttle: 50,
+  param: (path, parm, value) => {
+    guard let param = type(of: patch).params[path] else { return nil }
+    let channel = UInt8(self.channel)
+    
+    let v: Int
+    if let param = param as? ParamWithRange,
+       param.range.lowerBound < 0 {
+      v = value - param.range.lowerBound
+    }
+    else {
+      v = value
+    }
+    
+    let msgs: [MidiMessage] = [
+      .cc(channel: channel, number: 99, value: UInt8(param.byte >> 7)),
+      .cc(channel: channel, number: 98, value: UInt8(param.byte & 0x7f)),
+      .cc(channel: channel, number: 6, value: UInt8(v >> 7)),
+      .cc(channel: channel, number: 38, value: UInt8(v & 0x7f))
+    ]
+    
+    return msgs.map { Data($0.bytes()) }
+  },
+  singlePatch: [[sysexData, 10]], 
+  name: [[sysexData, 10]], 
+}
+
   // override class var fileDataCount: Int { return 128 * 291 }
 // 
 // static func bankLetter(_ index: Int) -> String {

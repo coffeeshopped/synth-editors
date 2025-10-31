@@ -134,4 +134,21 @@ class VirusCMultiBank : TypicalTypedSysexPatchBank<VirusCMultiPatch>, PerfBank {
   }
 }
 
+const patchTransform = {
+  throttle: 100,
+  param: (path, parm, value) => {
+    let loPage: [SynthPathItem] = [.fx, .pan]
+    guard let param = type(of: patch).params[path] else { return nil }
+    let part = path.i(1) ?? 0
+    let cmdByte: UInt8 = loPage.contains(path.last!) ? 0x70 : 0x72
+    return [Data(self.sysexCommand([cmdByte, UInt8(part), UInt8(param.parm), UInt8(value)]))]
+  },
+  singlePatch: [[patch.sysexData(deviceId: self.deviceId, bank: 0, part: 0), 10]],
+  name: { (patch, path, name) -> [Data]? in
+    return [Data(name.bytes(forCount: 10).enumerated().map {
+      Data(self.sysexCommand([0x72, 0, UInt8(0x04 + $0.offset), $0.element]))
+    }.joined())]
+  }
+}
+
   

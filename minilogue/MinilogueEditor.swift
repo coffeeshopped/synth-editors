@@ -10,13 +10,6 @@ class MinilogueEditor : SingleDocSynthEditor {
       [.bank] : MinilogueBank.self,
     ]
 
-    let migrationMap: [SynthPath:String] = [
-      [.global] : "Global.json",
-      [.patch] : "Voice.syx",
-      [.bank] : "Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
   }
 
   // MARK: MIDI I/O
@@ -54,46 +47,5 @@ class MinilogueEditor : SingleDocSynthEditor {
     return channel
   }
   
-  override func bankPaths(forPatchType patchType: SysexPatch.Type) -> [SynthPath] {
-    return [[.bank]]
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    return ["Voice Bank"]
-  }
-
 }
 
-extension MinilogueEditor {
-  
-  /// Transform <channel, patchChange, patch> into MIDI out data
-  func voice(input: Observable<(PatchChange, MiniloguePatch, Bool)>) -> Observable<[Data]?> {
-    
-    return GenericMidiOut.patchChange(throttle: .milliseconds(100), input: input, paramTransform: { (patch, path, value) -> [Data]? in
-      guard let param = type(of: patch).params[path] else { return nil }
-      guard param.parm > 0 else { return [patch.sysexData(channel: self.channel)] }
-      // look for a CC number we can use
-      // TODO: value is going to be way out of range for many params (up to 1023)
-      // find a way to scale. maybe based on param type
-      //        let outV = Int((127*Float(value)/Float(1+ param.maxVal - param.minVal)).rounded())
-      let outV: Int
-      if param is Minilogue10BitParam {
-        outV = value.map(inRange: 0...1023, outRange: 0...127)
-      }
-      else if let param = param as? ParamWithRange {
-        let range = param.range
-        outV = Int( 128 * Float(value) / Float(1 + range.upperBound - range.lowerBound) ) + 1
-      }
-      else { outV = value }
-      
-      return [Data(Midi.cc(param.parm, value: outV, channel: self.channel))]
-    }, patchTransform: { (patch) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    }) { (patch, path, name) -> [Data]? in
-      return [patch.sysexData(channel: self.channel)]
-
-    }
-  }
-  
-}
