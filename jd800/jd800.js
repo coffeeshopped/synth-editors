@@ -87,7 +87,13 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ['bank/patch', ['user', i => {
+      const bank = (i / 8) + 1
+      const patch = (i % 8) + 1
+      return `${bank}${patch}`
+    }]]
   ],
+  
 }
 
 
@@ -224,15 +230,5 @@ class JD800Editor : RolandNewAddressableEditor {
       return 0
     }
   }
-  
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    guard path == "bank/patch" else { return super.bankIndexLabelBlock(forPath: path) }
-    return {
-      let bank = ($0 / 8) + 1
-      let patch = ($0 % 8) + 1
-      return "\(bank)\(patch)"
-    }
-  }
-
   
 }

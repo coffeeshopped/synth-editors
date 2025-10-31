@@ -59,8 +59,11 @@ const editor = {
   midiChannels: [
     ["voice", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: ([
+    ["bank/arp", 'userZeroToOne']
+  ]).concat(
+    (8).map(i => [["bank/patch", i], 'userZeroToOne'])
+  ),
 }
 
 
@@ -125,19 +128,6 @@ class Deepmind12Editor : SingleDocSynthEditor {
   }
 
   // make those big multi-msg pushes happen faster!
-  override var sendInterval: TimeInterval { return 0.01 }
-
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
-  }
+  override var sendInterval: TimeInterval { return 0.01 }  
   
-  
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    switch path.last {
-    case .patch:
-      return { "\($0 + 1)" }
-    default:
-      return { "\($0+1)" }
-    }
-  }
 }

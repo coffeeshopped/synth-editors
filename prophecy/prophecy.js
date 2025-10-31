@@ -35,7 +35,11 @@ const editor = {
     ["patch", "basic"],
   ],
   slotTransforms: [
+    ["bank/patch/0", ['user', i => `A${i}`]],
+    ["bank/patch/1", ['user', i => `B${i}`]],
+    ["bank/arp", 'userZeroToOne'],
   ],
+
 }
 
 class ProphecyEditor : SingleDocSynthEditor {
@@ -135,17 +139,6 @@ class ProphecyEditor : SingleDocSynthEditor {
 
   // make those big multi-msg pushes happen faster!
 //  override var sendInterval: TimeInterval { return 0.01 }
-
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    switch path {
-    case "bank/patch/0":
-      return { "A\($0)" }
-    case "bank/patch/1":
-      return { "B\($0)" }
-    default:
-      return { "\($0 + 1)" }
-    }
-  }
 }
 
 // MARK: Midi Out

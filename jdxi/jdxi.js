@@ -34,6 +34,26 @@ function bankItems(prefix, bankWerk, startOff, count, mult = 1) {
   })
 }
 
+function userTransforms(prefix, count) {
+  return (count).map(b => {
+    var transform = null
+    if prefix == 'perf' {
+      const letters = b == 0 ? ["E", "F"] : ["G", "H"]
+      transform = i => `${letters[(i / 64) % 2]}${(i % 64) + 1}`
+    }
+    else {
+      const offset = 1 + 300 + b * 128
+      transform = i => `${i + offset}`
+    }
+    return [`bank/${prefix}/b`, ['user', transform]]
+  })
+}
+
+function presetTransformFn(bank) {
+  const offset = bank * 128 + 1
+  return (i => `{i + offset}`)
+}
+
 const editor = {
   rolandModelId: [0x00, 0x00, 0x00, 0x0e], 
   addressCount: 4,
@@ -61,8 +81,18 @@ const editor = {
   midiChannels: [
     ["voice", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: ([
+    ["preset/digital/0", ['preset', presetTransformFn(0), Program.Digital1Part.patchOptions]],
+    ["preset/digital/1", ['preset', presetTransformFn(1), Program.Digital2Part.patchOptions]],
+    ["preset/analog", ['preset', presetTransformFn(0), Program.AnalogPart.patchOptions]],
+    ["preset/rhythm", ['preset', presetTransformFn(0), Program.DrumPart.patchOptions]],
+    ["pgm", ['preset', i => "Program", ["--"]]],
+  ]).concat(
+    userTransforms('perf', 2),
+    userTransforms('digital', 4),
+    userTransforms('analog', 2),
+    userTransforms('rhythm', 2),
+  ),
 }
 
 
@@ -92,18 +122,6 @@ extension JDXi {
       t.midiOuts = werk.midiOuts()
       
       t.midiChannels = midiChannels(partPaths)
-
-      t.slotTransforms = userTransforms(.perf, count: 2)
-      <<< userTransforms(.digital, count: 4)
-      <<< userTransforms(.analog, count: 2)
-      <<< userTransforms(.rhythm, count: 2)
-      <<< [
-        "preset/digital/0" : .preset(presetTransformFn(bank: 0), names: Program.Digital1Part.patchOptions),
-        "preset/digital/1" : .preset(presetTransformFn(bank: 1), names: Program.Digital2Part.patchOptions),
-        "preset/analog" : .preset(presetTransformFn(bank: 0), names: Program.AnalogPart.patchOptions),
-        "preset/rhythm" : .preset(presetTransformFn(bank: 0), names: Program.DrumPart.patchOptions),
-        "pgm" : .preset({ _ in "Program" }, names: ["--"]),
-      ]
       
       return t
     }()
@@ -132,27 +150,6 @@ extension JDXi {
     private static func userIndex(bank: Int, pgm: Int) -> Int {
       pgm + 1 + 300 + bank * 128
     }
-    
-    private static func userTransforms(_ prefix: SynthPathItem, count: Int) -> [SynthPath:MemSlot.Transform] {
-      return count.dict { b in
-        let transform: MemSlot.Transform
-        switch prefix {
-        case .perf:
-          let letters = b == 0 ? ["E", "F"] : ["G", "H"]
-          transform = .user({ "\(letters[($0 / 64) % 2])\(($0 % 64) + 1)" })
-        default:
-          let offset = 1 + 300 + b * 128
-          transform = .user({ "\($0 + offset)" })
-        }
-        return [`bank/${prefix}/b` : transform]
-      }
-    }
-    
-    private static func presetTransformFn(bank: Int) -> MemSlot.TransformFn {
-      let offset = bank * 128 + 1
-      return { "\($0 + offset)" }
-    }
-           
   }
   
 }

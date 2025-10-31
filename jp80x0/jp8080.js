@@ -47,6 +47,12 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ['bank/perf', ['user', i => {
+      const bank = (i / 8) + 1
+      const patch = (i % 8) + 1
+      return `${bank}${patch}`
+    }]],
+    ['bank/patch', ['user', i => Voice.bankIndexToPrefix(i)]],
   ],
 }
 
@@ -65,20 +71,6 @@ extension JP80X0Editor {
    }
  }
  
- public static func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-   switch path {
-   case "bank/perf":
-     return {
-       let bank = ($0 / 8) + 1
-       let patch = ($0 % 8) + 1
-       return "\(bank)\(patch)"
-     }
-   case "bank/patch":
-     return { JP8080VoiceBank.bankIndexToPrefix($0) }
-   default:
-     return nil
-   }
- }
 }
 
 public struct JP8080Editor : JP80X0Editor {

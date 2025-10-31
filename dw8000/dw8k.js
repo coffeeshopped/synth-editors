@@ -16,6 +16,11 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ['bank/voice', ['user', i => {
+      const bank = (i / 8) + 1
+      const patch = (i % 8) + 1
+      return `${bank}${patch}`
+    }]]
   ],
 }
 
@@ -44,11 +49,4 @@ class DW8KEditor : SingleDocSynthEditor {
     }
   }
   
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    return {
-      let bank = ($0 / 8) + 1
-      let patch = ($0 % 8) + 1
-      return "\(bank)\(patch)"
-    }
-  }
 }

@@ -5,7 +5,7 @@ const editor = {
     ['patch', Voice.patchTruss],
     ['memory/patch', VoiceIndex.patchTruss],
   ]).concat(
-    (8).map(i => [["bank/patch", i] = Voice.bankTruss)
+    (8).map(i => [["bank/patch", i], Voice.bankTruss])
   ),
   fetchTransforms: [
   ],
@@ -13,14 +13,13 @@ const editor = {
   midiOuts: ([
     ['patch', Voice.patchTransform],
   ]).concat(
-    (8).map(i => [["bank/patch", i] = Voice.bankTransform(i))
+    (8).map(i => [["bank/patch", i, Voice.bankTransform(i)])
   ),  
 
   midiChannels: [
     ["patch", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: (8).map(i => [["bank/patch", i, 'userDirect']),
 }
 
 
@@ -121,10 +120,4 @@ class MicronEditor : SingleDocSynthEditor {
     ]), transmit: false)
   }
 
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    switch path[0] {
-    default:
-      return { "\($0)" }
-    }
-  }
 }

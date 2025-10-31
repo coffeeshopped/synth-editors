@@ -17,6 +17,12 @@ const editor = {
     ["patch", "basic"],
   ],
   slotTransforms: [
+    ['bank', ['user', i => {
+      const letter = i < 64 ? "A" : "B"
+      const bank = (i % 64) / 8 + 1
+      const slot = i % 8 + 1
+      return `${letter}${bank}${slot}`
+    }]]
   ],
 }
 
@@ -40,15 +46,6 @@ class MicrokorgEditor : SingleDocSynthEditor {
       return fetchCommand(functionID: 0x1c)
     default:
       return nil
-    }
-  }
-    
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    return {
-      let letter = $0 < 64 ? "A" : "B"
-      let bank = ($0 % 64) / 8 + 1
-      let slot = $0 % 8 + 1
-      return "\(letter)\(bank)\(slot)"
     }
   }
 
