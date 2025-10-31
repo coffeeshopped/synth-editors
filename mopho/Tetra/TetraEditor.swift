@@ -12,8 +12,6 @@ public struct TetraEditor : StaticEditorTemplate {
     [.bank, .perf] : TetraComboBank.self,
   ]
   
-  public static var migrationMap: [SynthPath : String]? = nil
-  
 
   static func channel(_ editor: TemplatedEditor) -> Int {
     // value of 0 == global
@@ -46,12 +44,6 @@ public struct TetraEditor : StaticEditorTemplate {
     default:
       return nil
     }
-  }
-  
-  
-  private static let comparator = PatchComparator<FnSinglePatch<TetraGlobalPatch>>(path: [.global])
-  public static func patchChanged(_ editor: TemplatedEditor, forPath path: SynthPath, _ change: PatchChange, transmit: Bool) {
-    comparator.check(path: path, change: change)
   }
   
   

@@ -1,26 +1,38 @@
+const editor = {
+  name: "",
+  trussMap: ([
+    ["global", Global.patchTruss],
+    ['patch', Voice.patchTruss],
+    ['memory/patch', VoiceIndex.patchTruss],
+  ]).concat(
+    (8).map(i => [["bank/patch", i] = Voice.bankTruss)
+  ),
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["patch", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class MicronEditor : SingleDocSynthEditor {
-  
-  var channel: Int { return patch(forPath: [.global])?[[.channel]] ?? 0 }
-  var tempBank: UInt8 { return UInt8(patch(forPath: [.global])?[[.bank]] ?? 7) }
-  var tempLocation: UInt8 { return UInt8(patch(forPath: [.global])?[[.location]] ?? 127) }
+  var tempBank: UInt8 { return UInt8(patch(forPath: "global")?["bank"] ?? 7) }
+  var tempLocation: UInt8 { return UInt8(patch(forPath: "global")?["location"] ?? 127) }
     
   // these should be read where needed, but only set by subscription to globalDoc
-  private let fetchBankPath: SynthPath = [.dump, .bank]
-  private let fetchLocationPath: SynthPath = [.dump, .location]
-  var fetchBank: UInt8 { return UInt8(patch(forPath: [.global])?[fetchBankPath] ?? 7) }
-  var fetchLocation: UInt8 { return UInt8(patch(forPath: [.global])?[fetchLocationPath] ?? 127) }
+  private let fetchBankPath: SynthPath = "dump/bank"
+  private let fetchLocationPath: SynthPath = "dump/location"
+  var fetchBank: UInt8 { return UInt8(patch(forPath: "global")?[fetchBankPath] ?? 7) }
+  var fetchLocation: UInt8 { return UInt8(patch(forPath: "global")?[fetchLocationPath] ?? 127) }
 
-  private var globalSubscription: Disposable?
-  
   required init(baseURL: URL) {
-    var map: [SynthPath:Sysexible.Type] = [
-      [.global] : MicronGlobalPatch.self,
-      [.patch] : MicronVoicePatch.self,
-      [.memory, .patch] : MiniakVoiceIndexPatch.self,
-    ]
-    (0..<8).forEach { map[[.bank, .patch, .i($0)]] = MicronVoiceBank.self }
-
     addMidiInHandler(throttle: .milliseconds(0)) { [weak self] (msg) in
       self?.handleMidiIn(msg)
     }
@@ -33,10 +45,10 @@ class MicronEditor : SingleDocSynthEditor {
     case .cc(let channel, let number, let value):
       guard channel == self.channel,
         number == 0x20 else { return }
-      changePatch(forPath: [.global], .paramsChange([fetchBankPath : Int(value)]), transmit: false)
+      changePatch(forPath: "global", .paramsChange([fetchBankPath : Int(value)]), transmit: false)
     case .pgmChange(let channel, let value):
       guard channel == self.channel else { return }
-      changePatch(forPath: [.global], .paramsChange([fetchLocationPath : Int(value)]), transmit: false)
+      changePatch(forPath: "global", .paramsChange([fetchLocationPath : Int(value)]), transmit: false)
     default:
       break
     }
@@ -62,7 +74,7 @@ class MicronEditor : SingleDocSynthEditor {
       return [fetchCommand([0x41, 0x00, 0x04, 0x00])]
     case .bank:
       guard let bank = path.i(2) else { return nil }
-      let voiceIndexPatch = patch(forPath: [.memory, .patch]) as? MiniakVoiceIndexPatch
+      let voiceIndexPatch = patch(forPath: "memory/patch") as? MiniakVoiceIndexPatch
       var fallbackLocation: Int?
       for i in 0..<128 {
         if voiceIndexPatch?.voices[bank][i] != nil {
@@ -86,10 +98,10 @@ class MicronEditor : SingleDocSynthEditor {
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
     
-    midiOuts.append(voiceOut(input: patchStateManager([.patch])!.typedChangesOutput()))
+    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
 
     (0..<8).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank, .patch, .i(bank)])!.output) {
+      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/patch/bank")!.output) {
         guard let patch = $0 as? MicronVoicePatch else { return nil }
         return [patch.sysexData(bank: UInt8(bank), location: UInt8($1))]
       })
@@ -100,9 +112,9 @@ class MicronEditor : SingleDocSynthEditor {
   
   override func onSave(toBankPath bankPath: SynthPath, index: Int, fromPatchPath patchPath: SynthPath) {
     // update fetch bank, location to match to where we just saved
-    guard patchPath == [.patch],
+    guard patchPath == "patch",
       let bank = bankPath.i(2) else { return }
-    changePatch(forPath: [.global], .paramsChange([
+    changePatch(forPath: "global", .paramsChange([
       fetchBankPath : bank,
       fetchLocationPath : index,
     ]), transmit: false)
@@ -115,16 +127,12 @@ class MicronEditor : SingleDocSynthEditor {
   }
 
   fileprivate func makeFetchMatchWrite() {
-    changePatch(forPath: [.global], .paramsChange([
+    changePatch(forPath: "global", .paramsChange([
       fetchBankPath : Int(tempBank),
       fetchLocationPath : Int(tempLocation)
     ]), transmit: false)
   }
 
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
-  }
-  
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
     switch path[0] {
     default:

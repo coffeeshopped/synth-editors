@@ -284,6 +284,12 @@ const patchTransform = {
   name: [[sysexData, 10]], 
 }
 
+const bankTransform = bank => ({
+  throttle: 0,
+  singleBank: loc => [[patch.sysexData(channel: self.deviceId, bank: bank, program: $1), 50]],
+})
+
+
   // override class var fileDataCount: Int { return 128 * 291 }
 // 
 // static func bankLetter(_ index: Int) -> String {

@@ -1,27 +1,29 @@
+const editor = {
+  name: "",
+  trussMap: [
+    ["global", Global.patchTruss],
+    ['patch', Voice.patchTruss],
+    ['bank', Voice.bankTruss],
+  ],
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["patch", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class MicrokorgEditor : SingleDocSynthEditor {
     
-  var channel: Int { return patch(forPath: [.global])?[[.channel]] ?? 0 }
-
-  required init(baseURL: URL) {
-    let map: [SynthPath:Sysexible.Type] = [
-      [.global] : MicrokorgGlobalPatch.self,
-      [.patch] : MicrokorgPatch.self,
-      [.bank] : MicrokorgBank.self,
-    ]
-
-    let migrationMap: [SynthPath:String] = [
-      [.patch] : "Voice.syx",
-      [.bank] : "Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
-  }
-    
-  // MARK: MIDI I/O
-  
   private func fetchCommand(functionID: UInt8) -> [RxMidi.FetchCommand] {
-    return [.request(Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x58, functionID, 0xf7]))]
+    return `request(Data([0xf0/${0x42}/${0x30 + UInt8(channel)}/${0x58}/${functionID}/${0xf7}`))]
   }
   
   override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
@@ -41,14 +43,10 @@ class MicrokorgEditor : SingleDocSynthEditor {
   
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
-    midiOuts.append(global(input: patchStateManager([.global])!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager([.patch])!.typedChangesOutput()))
-    midiOuts.append(bank(input: bankStateManager([.bank])!.typedChangesOutput()))
+    midiOuts.append(global(input: patchStateManager("global")!.typedChangesOutput()))
+    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
+    midiOuts.append(bank(input: bankStateManager("bank")!.typedChangesOutput()))
     return midiOuts
-  }
-  
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
   }
   
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {

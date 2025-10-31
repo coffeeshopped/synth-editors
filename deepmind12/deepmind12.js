@@ -22,7 +22,7 @@ const editor = {
     ["bank/patch/5", Voice.bankTruss],
     ["bank/patch/6", Voice.bankTruss],
     ["bank/patch/7", Voice.bankTruss],
-    ["bank/arp", Deepmind12ArpBank.self],
+    ["bank/arp", Arp.bankTruss],
   ],
   fetchTransforms: [
     ["global", ['truss', fetchCommand([0x05])]],
@@ -42,8 +42,20 @@ const editor = {
   ],
 
   midiOuts: [
-  ],
-  
+    ["global", Global.patchTransform],
+    ["patch", Voice.patchTransform],
+    ["arp", Arp.patchTransform],
+    ["bank/patch/0", Voice.bankTransform(0)],
+    ["bank/patch/1", Voice.bankTransform(1)],
+    ["bank/patch/2", Voice.bankTransform(2)],
+    ["bank/patch/3", Voice.bankTransform(3)],
+    ["bank/patch/4", Voice.bankTransform(4)],
+    ["bank/patch/5", Voice.bankTransform(5)],
+    ["bank/patch/6", Voice.bankTransform(6)],
+    ["bank/patch/7", Voice.bankTransform(7)],
+    ["bank/arp", Arp.bankTransform],
+  ],  
+
   midiChannels: [
     ["voice", "basic"],
   ],
@@ -115,28 +127,6 @@ class Deepmind12Editor : SingleDocSynthEditor {
   // make those big multi-msg pushes happen faster!
   override var sendInterval: TimeInterval { return 0.01 }
 
-  override func midiOuts() -> [Observable<[Data]?>] {
-    var midiOuts = [Observable<[Data]?>]()
-    
-    midiOuts.append(globalOut(input: patchStateManager("global")!.typedChangesOutput()))
-    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
-    midiOuts.append(arpOut(input: patchStateManager("arp")!.typedChangesOutput()))
-
-    (0..<8).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/patch/bank")!.output, patchTransform: {
-        guard let patch = $0 as? Deepmind12VoicePatch else { return nil }
-        return [patch.sysexData(channel: self.deviceId, bank: bank, program: $1)]
-      }))
-    }
-
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/arp")!.output, patchTransform: {
-      guard let patch = $0 as? Deepmind12ArpPatch else { return nil }
-      return [patch.sysexData(channel: self.deviceId, program: $1)]
-    }))
-
-    return midiOuts
-  }
-  
   override func midiChannel(forPath path: SynthPath) -> Int {
     return channel
   }

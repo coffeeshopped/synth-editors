@@ -1,37 +1,103 @@
 
+
+protocol JD800Patch : RolandSingleAddressable { }
+extension JD800Patch {
+  
+  // Different multi-byte param pack/unpack
+  
+  /// Compose Int value from bytes (MSB first)
+  static func multiByteParamInt(from: [UInt8]) -> Int {
+    guard from.count > 1 else { return Int(from[0]) }
+    return (1...from.count).reduce(0) {
+      let shift = (from.count - $1) * 7
+      return $0 + (Int(from[$1 - 1]) << shift)
+    }
+  }
+
+  /// Decompose Int to bytes (7! bits at a time)
+  static func multiByteParamBytes(from: Int, count: Int) -> [UInt8] {
+    guard count > 0 else { return [UInt8(from)] }
+    return (1...count).map {
+      let shift = (count - $0) * 7
+      return UInt8((from >> shift) & 0x7f)
+    }
+  }
+}
+
+protocol JD800MultiPatch : RolandCompactMultiAddressable { }
+extension JD800MultiPatch {
+  
+  // Overriding the RolandCompactMultiAddressable implementation bc I'm not sure if
+  // the D-110 needs that version (which does a single, huge sysex msg instead of multiple 266-byte msgs
+  func sysexData(deviceId: Int, address: RolandAddress) -> [Data] {
+    let sortedPaths = type(of: self).sortedSubpatchPaths()
+    var data: Data!
+    var bytes = [UInt8]()
+    sortedPaths.forEach {
+      guard let addressable = addressables[$0] else { return }
+
+      if data == nil {
+        data = type(of: addressable).dataSetHeader(deviceId: deviceId)
+      }
+
+      bytes.append(contentsOf: addressable.bytes)
+    }
+    
+    // now we have a slab of all the bytes. Break them up into 256-byte chunks, and make a sysex msg of each
+    let chunkSize = 256
+    return stride(from: 0, to: bytes.count, by: chunkSize).map {
+      let thisAdd = address + RolandAddress(intValue: $0)
+      var d = Data()
+      d.append(type(of: self).dataSetHeader(deviceId: deviceId))
+      d.append(contentsOf: thisAdd.sysexBytes(count: type(of: self).addressCount))
+      let boff = min($0 + chunkSize, bytes.count)
+      let theseB = [UInt8](bytes[$0..<boff])
+      d.append(contentsOf: theseB)
+      d.append(type(of: self).checksum(address: thisAdd, dataBytes: theseB))
+      d.append(0xf7)
+      return d
+    }
+  }
+
+}
+
+
+const editor = {
+  rolandModelId: [0x3d], 
+  addressCount: 3,
+  name: "",
+  map: ([
+    ["deviceId", ?, Settings.patchWerk],
+    ["global", System.patchWerk],
+    ["patch" , Voice.patchWerk],
+    ["rhythm", SpecialSetup.patchWerk],
+    ["perf"  , Parts.patchWerk],
+    ["bank/patch", Voice.bankWerk],
+    ["bank/rhythm", SpecialSetup.bankWerk],
+  ]).concat(
+    (5).map(i => [['part', i], , Voice.patchWerk])
+  ),
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["voice", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
+
 class JD800Editor : RolandNewAddressableEditor {
     
   override var deviceId: Int {
-    return patch(forPath: [.deviceId])?[[.deviceId]] ?? 0
+    return patch(forPath: "deviceId")?["deviceId"] ?? 0
   }
-  
-  private static let _sysexMap: [SynthPath:Sysexible.Type] = {
-    var map: [SynthPath:Sysexible.Type] = [
-      [.deviceId]     : JD800SettingsPatch.self,
-      [.global]       : JD800SystemPatch.self,
-      [.patch]        : JD800VoicePatch.self,
-      [.rhythm]       : JD800SpecialSetupPatch.self,
-      [.perf]         : JD800PartsPatch.self,
-      [.bank, .patch] : JD800VoiceBank.self,
-      [.bank, .rhythm] : JD800SpecialSetupBank.self
-    ]
-    (0..<5).forEach {
-      map[[.part, .i($0)]] = JD800VoicePatch.self
-    }
-    return map
-  }()
-  class var sysexMap: [SynthPath:Sysexible.Type] { return _sysexMap }
-  
-  static let migrationMap: [SynthPath:String] = [:]
-  
-  required init(baseURL: URL) {
-    super.init(baseURL: baseURL, sysexMap: type(of: self).sysexMap, migrationMap: type(of: self).migrationMap)
-    
-    load { [weak self] in
-      self?.initPatchParamsOutput()
-    }
-  }
-  
+
   // MARK: Interactions
   
   private var patchParamsOutput: Observable<SynthPathParam>?
@@ -39,16 +105,16 @@ class JD800Editor : RolandNewAddressableEditor {
     
   // add the PCM card param
   private func initPatchParamsOutput() {
-    guard let patchParams = super.paramsOutput(forPath: [.patch]),
-      let rhythmParams = super.paramsOutput(forPath: [.rhythm]),
-      let deviceOut = patchChangesOutput(forPath: [.deviceId]) else { return }
+    guard let patchParams = super.paramsOutput(forPath: "patch"),
+      let rhythmParams = super.paramsOutput(forPath: "rhythm"),
+      let deviceOut = patchChangesOutput(forPath: "deviceId") else { return }
     
     let deviceParams: Observable<SynthPathParam> = deviceOut.map {
       guard let patch = $0.1,
-        let pcm = patch[[.pcm]],
+        let pcm = patch["pcm"],
         let card = SOJD80Card.cards[pcm] else { return [:] }
       
-      return [[.pcm] : OptionsParam(options: card.waveOptions)]
+      return ["pcm" : OptionsParam(options: card.waveOptions)]
     }
 
     patchParamsOutput = Observable.merge(patchParams, deviceParams)
@@ -79,7 +145,7 @@ class JD800Editor : RolandNewAddressableEditor {
     // needs to request a different structure
     let addressable = JD800VoicePartPatch.self
     let address = addressable.startAddress(path)
-    return [.request(fetchRequestData(forAddress: address, size: addressable.size, addressCount: addressable.addressCount))]
+    return `request(fetchRequestData(forAddress: address/${size: addressable.size}/${addressCount: addressable.addressCount))}`
   }
 
   override func midiDataObservable(forPath path: SynthPath) -> Observable<[Data]?>? {
@@ -132,7 +198,7 @@ class JD800Editor : RolandNewAddressableEditor {
           return nil
         }
       case .nameChange(let path, _):
-        let p = path.count == 0 ? [.common] : path
+        let p = path.count == 0 ? "common" : path
         guard let addr = patch.addressables[p] else { return nil }
         return [addr.nameSetData(deviceId: editor.deviceId, address: address)]
         
@@ -148,19 +214,19 @@ class JD800Editor : RolandNewAddressableEditor {
   override func midiChannel(forPath path: SynthPath) -> Int {
     switch path[0] {
     case .patch:
-      return patch(forPath: [.deviceId])?[[.channel]] ?? 0
+      return patch(forPath: "deviceId")?["channel"] ?? 0
     case .rhythm:
-      return min(patch(forPath: [.perf])?[[.part, .i(5), .channel]] ?? 0, 15)
+      return min(patch(forPath: "perf")?["part/5/channel"] ?? 0, 15)
     case .part:
       guard let i = path.i(1) else { return 0 }
-      return min(patch(forPath: [.perf])?[[.part, .i(i), .channel]] ?? 0, 15)
+      return min(patch(forPath: "perf")?["part/i/channel"] ?? 0, 15)
     default:
       return 0
     }
   }
   
   override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    guard path == [.bank, .patch] else { return super.bankIndexLabelBlock(forPath: path) }
+    guard path == "bank/patch" else { return super.bankIndexLabelBlock(forPath: path) }
     return {
       let bank = ($0 / 8) + 1
       let patch = ($0 % 8) + 1

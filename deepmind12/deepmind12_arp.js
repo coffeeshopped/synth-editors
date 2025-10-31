@@ -72,6 +72,12 @@ const patchTransform = {
   singlePatch: [[sysexData, 10]], 
 }
 
+const bankTransform = {
+  throttle: 0,
+  singleBank: loc => [[patch.sysexData(channel: self.deviceId, program: $1), 50]],
+}
+
+
 class Deepmind12ArpBank : TypicalTypedSysexPatchBank<Deepmind12ArpPatch> {
 
   override class var fileDataCount: Int { return 32 * 90 }

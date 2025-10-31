@@ -18,14 +18,6 @@ extension MophoTypeEditor {
     return map
   }
   
-  public static var migrationMap: [SynthPath : String]? { [
-    [.global] : "Global.syx",
-    [.patch] : "TempVoice.syx",
-    [.bank, .i(0)] : "Bank 1.syx",
-    [.bank, .i(1)] : "Bank 2.syx",
-    [.bank, .i(2)] : "Bank 3.syx",
-  ] }
- 
   static func channel(_ editor: TemplatedEditor) -> Int {
     // value of 0 == global
     let ch = editor.patch(forPath: [.global])?[[.channel]] ?? 0

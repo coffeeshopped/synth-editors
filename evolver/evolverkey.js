@@ -1,17 +1,33 @@
+const Global = require('./evolverkey_global.js')
+const Voice = require('./evolverkey_voice.js')
+const Wave = require('./evolver_wave.js')
+
+const editor = {
+  name: "",
+  trussMap: ([
+    ["global", Global.patchTruss],
+    ['patch', Voice.patchTruss],
+    ['wave', Wave.patchTruss],
+    ['bank/wave', Wave.bankTruss],
+  ]).concat(
+    (4).map(i => [['bank', i], Voice.bankTruss])
+  ),
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["voice", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class EvolverKeyEditor : EvolverEditor {
-  
-  private static let _patchMap: [SynthPath:Sysexible.Type] = {
-    var map: [SynthPath:Sysexible.Type] = [
-      [.global] : EvolverKeyGlobalPatch.self,
-      [.patch] : EvolverKeyVoicePatch.self,
-      [.wave] : EvolverWavePatch.self,
-      [.bank, .wave] : EvolverWaveBank.self,
-    ]
-    (0..<4).forEach { map[[.bank, .i($0)]] = EvolverKeyVoiceBank.self }
-    return map
-  }()
-  class override var patchMap: [SynthPath:Sysexible.Type] { return _patchMap }
 
   override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
     switch path[0] {

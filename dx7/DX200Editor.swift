@@ -11,15 +11,6 @@ class DX200Editor : SingleDocSynthEditor, TX802StyleEditor {
       [.patch] : DX200PatternPatch.self,
       [.bank] : DX200PatternBank.self,
     ]
-
-    let migrationMap: [SynthPath:String] = [
-      [.global] : "Global.json",
-      [.system] : "System.syx",
-      [.patch] : "Pattern.syx",
-      [.bank] : "Pattern Bank.syx",
-    ]
-
-    super.init(baseURL: baseURL, sysexMap: map, migrationMap: migrationMap)
   }
   
 
@@ -127,14 +118,6 @@ class DX200Editor : SingleDocSynthEditor, TX802StyleEditor {
 
   override func midiChannel(forPath path: SynthPath) -> Int {
     return patch(forPath: [.system])?[[.voice, .channel]] ?? 0
-  }
-  
-  override func bankPaths(forPatchType: SysexPatch.Type) -> [SynthPath] {
-    return [[.bank]]
-  }
-  
-  override func bankTitles(forPatchType patchType: SysexPatch.Type) -> [String] {
-    return ["Pattern Bank"]
   }
   
   static let baseAddresses: [SynthPath:RolandAddress] = {

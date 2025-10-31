@@ -1,10 +1,35 @@
+const editor = {
+  name: "",
+  trussMap: [
+    ["global", System.patchTruss],
+    ["patch", Voice.patchTruss],
+    ["bank", Voice.bankTruss],
+    ["multi", Multi.patchTruss],
+    ["multi/bank", Multi.bankTruss],
+    ["pan", Pan.patchTruss],
+    ["pan/bank", Pan.bankTruss],
+  ],
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["voice", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class TG77Editor : SingleDocSynthEditor {
   
   var tempPan: Int = 0
   
-  var deviceId: Int { return ((patch(forPath: [.global])?[[.deviceId]] ?? 0) + 15) % 16 }
-  var channel: Int { return (patch(forPath: [.global])?[[.rcv, .channel]] ?? 0) % 16 }
+  var deviceId: Int { return ((patch(forPath: "global")?["deviceId"] ?? 0) + 15) % 16 }
+  var channel: Int { return (patch(forPath: "global")?["rcv/channel"] ?? 0) % 16 }
 
   let voiceDocInput: Variable<PatchChange> = Variable<PatchChange>(.noop)
   var voiceDocSubscription: Disposable?
@@ -13,29 +38,14 @@ class TG77Editor : SingleDocSynthEditor {
   var afmBackups = [[SynthPath:Int]](repeating: TG77VoicePatch().values(forElement: 0)!, count: 4)
   var awmBackups = [[SynthPath:Int]](repeating: TG77VoicePatch().values(forElement: 1)!, count: 4)
 
-  class var map: [SynthPath:Sysexible.Type] {
-    return [
-      [.global] : TG77SystemPatch.self,
-      [.patch] : TG77VoicePatch.self,
-      [.bank] : TG77VoiceBank.self,
-      [.multi] : TG77MultiPatch.self,
-      [.multi, .bank] : TG77MultiBank.self,
-      [.pan] : TG77PanPatch.self,
-      [.pan, .bank] : TG77PanBank.self,
-    ]
-  }
-
   required init(baseURL: URL) {
     load { [weak self] in
-      self?.initVoiceDocSubscription()
-      self?.initPerfParamsOutput()
-
-      guard let protect = self?.patch(forPath: [.global])?[[.protect]],
+      guard let protect = self?.patch(forPath: "global")?["protect"],
         protect == 0 else { return }
       
       // delay so that midi is set up
       DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-        self?.changePatch(forPath: [.global], .paramsChange([[.protect] : 0]), transmit: true)
+        self?.changePatch(forPath: "global", .paramsChange(["protect" : 0]), transmit: true)
       }
     }
   }
@@ -43,13 +53,13 @@ class TG77Editor : SingleDocSynthEditor {
   func initVoiceDocSubscription() {
     voiceDocSubscription = voiceDocInput.asObservable().subscribe(onNext: { [weak self] in
       guard let self = self,
-        let voiceManager = self.patchStateManager([.patch]) else { return }
+        let voiceManager = self.patchStateManager("patch") else { return }
       
       // if a structure change is happening, store old patch before patch changes are applied
       let backupElements: Bool
       switch $0 {
       case .paramsChange(let change):
-        backupElements = change[[.structure]] != nil
+        backupElements = change["structure"] != nil
       case .replace:
         backupElements = true
       default:
@@ -87,7 +97,7 @@ class TG77Editor : SingleDocSynthEditor {
             let pc = TG77VoicePatch.paramChange(forElement: elem, algorithm: $0.value) {
             voiceManager.patchChangesInput.value = (pc, true)
           }
-          else if $0.key == [.structure],
+          else if $0.key == "structure",
             let newPatch = voiceManager.patch as? TG77VoicePatch {
             // structure change
             
@@ -97,11 +107,11 @@ class TG77Editor : SingleDocSynthEditor {
             var elemDict = [SynthPath:Int]()
             (0..<newPatch.elementCount).forEach { elem in
               if newPatch.isElementFM(elem) {
-                elemDict.merge(new: self.afmBackups[afmIndex].prefixed([.element, .i(elem)]))
+                elemDict.merge(new: self.afmBackups[afmIndex].prefixed("element/elem"))
                 afmIndex += 1
               }
               else {
-                elemDict.merge(new: self.awmBackups[awmIndex].prefixed([.element, .i(elem)]))
+                elemDict.merge(new: self.awmBackups[awmIndex].prefixed("element/elem"))
                 awmIndex += 1
               }
             }
@@ -117,7 +127,7 @@ class TG77Editor : SingleDocSynthEditor {
             let chorusType = $0.value
             var dict = [SynthPath:Int]()
             (0..<4).forEach { param in
-              let path: SynthPath = [.fx, .chorus, .i(chorus), .param, .i(param)]
+              let path: SynthPath = "fx/chorus/chorus/param/param"
               dict[path] = TG77VoicePatch.chorusParamDefaults[chorusType][param]
             }
             voiceManager.patchChangesInput.value = (MakeParamsChange(dict), true)
@@ -130,7 +140,7 @@ class TG77Editor : SingleDocSynthEditor {
             let reverbType = $0.value
             var dict = [SynthPath:Int]()
             (0..<3).forEach { param in
-              let path: SynthPath = [.fx, .reverb, .i(reverb), .param, .i(param)]
+              let path: SynthPath = "fx/reverb/reverb/param/param"
               dict[path] = TG77VoicePatch.reverbParamDefaults[reverbType][param]
             }
             voiceManager.patchChangesInput.value = (MakeParamsChange(dict), true)
@@ -144,21 +154,21 @@ class TG77Editor : SingleDocSynthEditor {
   
   override func changePatch(forPath path: SynthPath, _ change: PatchChange, transmit: Bool) {
     switch path {
-    case [.patch]:
+    case "patch":
       voiceDocInput.value = change
-    case [.pan]:
+    case "pan":
       guard case .paramsChange(let values) = change,
-            let number = values[[.number]] else { return super.changePatch(forPath: path, change, transmit: transmit) }
+            let number = values["number"] else { return super.changePatch(forPath: path, change, transmit: transmit) }
       tempPan = number
-      tempPanOut.onNext((.paramsChange([[.number] : number]), nil))
-      fetch(forPath: [.pan])
+      tempPanOut.onNext((.paramsChange(["number" : number]), nil))
+      fetch(forPath: "pan")
     default:
       super.changePatch(forPath: path, change, transmit: transmit)
     }
   }
   
   override func patchChangesOutput(forPath path: SynthPath) -> Observable<(PatchChange, SysexPatch?)>? {
-    guard path == [.pan] else { return super.patchChangesOutput(forPath: path) }
+    guard path == "pan" else { return super.patchChangesOutput(forPath: path) }
     return panPatchOutput
   }
   
@@ -174,36 +184,36 @@ class TG77Editor : SingleDocSynthEditor {
   private func initPerfParamsOutput() {
     perfDisposeBag = DisposeBag()
 
-    if let params = super.paramsOutput(forPath: [.multi]) {
-      let bankOut = bankChangesOutput(forPath: [.bank])!
-      let patchBankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: [.patch, .name])
+    if let params = super.paramsOutput(forPath: "multi") {
+      let bankOut = bankChangesOutput(forPath: "bank")!
+      let patchBankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: "patch/name")
       perfParamsOutput = Observable.merge([patchBankMap, params])
     }
     
-    if let params = super.paramsOutput(forPath: [.patch]) {
-      let bankOut = bankChangesOutput(forPath: [.pan, .bank])!
-      let bankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: [.pan, .name])
+    if let params = super.paramsOutput(forPath: "patch") {
+      let bankOut = bankChangesOutput(forPath: "pan/bank")!
+      let bankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: "pan/name")
       voiceParamsOutput = Observable.merge([bankMap, params])
     }
 
-    if let params = super.paramsOutput(forPath: [.pan]) {
-      let bankOut = bankChangesOutput(forPath: [.pan, .bank])!
-      let bankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: [.pan, .name])
+    if let params = super.paramsOutput(forPath: "pan") {
+      let bankOut = bankChangesOutput(forPath: "pan/bank")!
+      let bankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: "pan/name")
       panParamsOutput = Observable.merge([bankMap, params])
     }
 
-    if let patchOut = super.patchChangesOutput(forPath: [.pan]) {
+    if let patchOut = super.patchChangesOutput(forPath: "pan") {
       panPatchOutput = Observable.merge(patchOut, tempPanOut)
     }
   }
   
   override func paramsOutput(forPath path: SynthPath) -> Observable<SynthPathParam>? {
     switch path {
-    case [.patch]:
+    case "patch":
       return voiceParamsOutput
-    case [.multi]:
+    case "multi":
       return perfParamsOutput
-    case [.pan]:
+    case "pan":
       return panParamsOutput
     default:
       return super.paramsOutput(forPath: path)
@@ -267,22 +277,22 @@ class TG77Editor : SingleDocSynthEditor {
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
 
-    midiOuts.append(system(input: patchStateManager([.global])!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager([.patch])!.typedChangesOutput()))
-    midiOuts.append(multi(input: patchStateManager([.multi])!.typedChangesOutput()))
-    midiOuts.append(pan(input: patchStateManager([.pan])!.typedChangesOutput()))
+    midiOuts.append(system(input: patchStateManager("global")!.typedChangesOutput()))
+    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput()))
+    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
+    midiOuts.append(pan(input: patchStateManager("pan")!.typedChangesOutput()))
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank])!.output) {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank")!.output) {
       guard let patch = $0 as? TG77VoicePatch else { return nil }
       return [patch.sysexData(channel: self.deviceId, location: $1)]
     })
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.multi, .bank])!.output) {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("multi/bank")!.output) {
       guard let patch = $0 as? TG77MultiPatch else { return nil }
       return [patch.sysexData(channel: self.deviceId, location: $1)]
     })
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.pan, .bank])!.output) {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("pan/bank")!.output) {
       guard let patch = $0 as? TG77PanPatch else { return nil }
       return [patch.sysexData(channel: self.deviceId, location: $1)]
     })

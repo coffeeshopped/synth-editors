@@ -1,23 +1,39 @@
+const Global = require('./evolver_global.js')
+const Voice = require('./evolver_voice.js')
+const Wave = require('./evolver_wave.js')
+
+const editor = {
+  name: "",
+  trussMap: ([
+    ["global", Global.patchTruss],
+    ['patch', Voice.patchTruss],
+    ['wave', Wave.patchTruss],
+    ['bank/wave', Wave.bankTruss],
+  ]).concat(
+    (4).map(i => [['bank', i], Voice.bankTruss])
+  ),
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["voice", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class EvolverEditor : SingleDocSynthEditor {
     
   var channel: Int {
-    let ch = patch(forPath: [.global])?[[.channel]] ?? 0
+    let ch = patch(forPath: "global")?["channel"] ?? 0
     return ch > 0 ? ch - 1 : 0
   }
 
-  private static let _patchMap: [SynthPath:Sysexible.Type] = {
-    var map: [SynthPath:Sysexible.Type] = [
-      [.global] : EvolverGlobalPatch.self,
-      [.patch] : EvolverVoicePatch.self,
-      [.wave] : EvolverWavePatch.self,
-      [.bank, .wave] : EvolverWaveBank.self,
-    ]
-    (0..<4).forEach { map[[.bank, .i($0)]] = EvolverVoiceBank.self }
-    return map
-  }()
-  class var patchMap: [SynthPath:Sysexible.Type] { return _patchMap }
-  
   var sysexHeader: Data {
     return Data([0xf0, 0x01, 0x20, 0x01])
   }
@@ -55,9 +71,9 @@ class EvolverEditor : SingleDocSynthEditor {
   
   override func changePatch(forPath path: SynthPath, _ change: PatchChange, transmit: Bool) {
     super.changePatch(forPath: path, change, transmit: transmit)
-    guard path == [.wave],
+    guard path == "wave",
           case let .paramsChange(changes) = change,
-          let wave = changes[[.number]] else { return }
+          let wave = changes["number"] else { return }
     waveNumber = UInt8(wave)
   }
 
@@ -65,10 +81,10 @@ class EvolverEditor : SingleDocSynthEditor {
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
 
-    midiOuts.append(globalOut(input: patchStateManager([.global])!.typedChangesOutput()))
-    midiOuts.append(voiceOut(input: patchStateManager([.patch])!.typedChangesOutput()))
+    midiOuts.append(globalOut(input: patchStateManager("global")!.typedChangesOutput()))
+    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
 
-    midiOuts.append(GenericMidiOut.pushOnlyPatch(input: patchStateManager([.wave])!.typedChangesOutput() as Observable<(PatchChange,EvolverWavePatch, Bool)>, patchTransform: {
+    midiOuts.append(GenericMidiOut.pushOnlyPatch(input: patchStateManager("wave")!.typedChangesOutput() as Observable<(PatchChange,EvolverWavePatch, Bool)>, patchTransform: {
       // TODO: sending twice on push.. why?
       
       // only send if wave # is 96 or higher
@@ -78,13 +94,13 @@ class EvolverEditor : SingleDocSynthEditor {
     }))
     
     (0..<4).forEach { bank in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank, .i(bank)])!.output, patchTransform: {
+      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/bank")!.output, patchTransform: {
         guard let b = $0 as? EvolverVoicePatch else { return nil }
         return b.sysexData(bank: bank, location: $1)
       }))
     }
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank, .wave])!.output, patchTransform: {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/wave")!.output, patchTransform: {
       guard let b = $0 as? EvolverWavePatch else { return nil }
       return [b.sysexData(location: $1)]
     }))

@@ -1,19 +1,27 @@
+const editor = {
+  name: "",
+  trussMap: [
+    ["global", "channel"],
+    ['voice', Voice.patchTruss],
+    ['bank/voice', Voice.bankTruss],
+  ],
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["voice", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class DW8KEditor : SingleDocSynthEditor {
     
-  var channel: Int { return patch(forPath: [.global])?[[.channel]] ?? 0 }
-
-  required init(baseURL: URL) {
-    let map: [SynthPath:Sysexible.Type] = [
-      [.global] : ChannelSettingsPatch.self,
-      [.patch] : DW8KVoicePatch.self,
-      [.bank] : DW8KVoiceBank.self,
-    ]
-
-  }
-
-  // MARK: MIDI I/O
-  
   private func patchFetchCommand() -> RxMidi.FetchCommand {
     return .request(Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x03, 0x10, 0xf7]))
   }
@@ -38,9 +46,9 @@ class DW8KEditor : SingleDocSynthEditor {
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
     
-    midiOuts.append(voiceOut(input: patchStateManager([.patch])!.typedChangesOutput()))
+    midiOuts.append(voiceOut(input: patchStateManager("patch")!.typedChangesOutput()))
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank])!.output) {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank")!.output) {
       guard let patch = $0 as? DW8KVoicePatch else { return nil }
       return patch.sysexData(channel: self.channel, location: $1)
     })

@@ -1,20 +1,31 @@
+const editor = {
+  name: "",
+  trussMap: ([
+    ["global", Global.patchTruss],
+    ["patch", Voice.patchTruss],
+    ["multi", Multi.patchTruss],
+    ["multi/bank", Multi.bankTruss],
+  ]).concat(
+    (16).map(i => [["part", i] = Voice.patchTruss }
+    (2).map(i => [["bank", i] = Voice.bankTruss }
+  ),
+  fetchTransforms: [
+  ],
+
+  midiOuts: [
+  ],
+  
+  midiChannels: [
+    ["patch", "basic"],
+  ],
+  slotTransforms: [
+  ],
+}
+
+
 
 class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   
-  required init(baseURL: URL) {
-    var map: [SynthPath:Sysexible.Type] = [
-      [.global] : VirusCGlobalPatch.self,
-      [.patch] : VirusCVoicePatch.self,
-      [.multi] : VirusCMultiPatch.self,
-      [.multi, .bank] : VirusCMultiBank.self,
-    ]
-    (0..<16).forEach { map[[.part, .i($0)]] = VirusCVoicePatch.self }
-    (0..<2).forEach { map[[.bank, .i($0)]] = VirusCVoiceBank.self }
-  }
-
-    
-  // MARK: MIDI I/O
-      
 //  override var sendInterval: TimeInterval { return 0.2 }
   
   override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
@@ -41,22 +52,22 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   override func midiOuts() -> [Observable<[Data]?>] {
     var midiOuts = [Observable<[Data]?>]()
 
-    midiOuts.append(global(input: patchStateManager([.global])!.typedChangesOutput()))
-    midiOuts.append(voice(input: patchStateManager([.patch])!.typedChangesOutput(), part: 0x40))
-    midiOuts.append(multi(input: patchStateManager([.multi])!.typedChangesOutput()))
+    midiOuts.append(global(input: patchStateManager("global")!.typedChangesOutput()))
+    midiOuts.append(voice(input: patchStateManager("patch")!.typedChangesOutput(), part: 0x40))
+    midiOuts.append(multi(input: patchStateManager("multi")!.typedChangesOutput()))
 
     midiOuts.append(contentsOf: (0..<16).map {
-      voice(input: patchStateManager([.part, .i($0)])!.typedChangesOutput(), part: UInt8($0))
+      voice(input: patchStateManager("part/$0")!.typedChangesOutput(), part: UInt8($0))
     })
     
     (0..<2).forEach { i in
-      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.bank, .i(i)])!.output, patchTransform: {
+      midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("bank/i")!.output, patchTransform: {
         guard let patch = $0 as? VirusCVoicePatch else { return nil }
         return [patch.sysexData(deviceId: self.deviceId, bank: UInt8(i + 1), part: UInt8($1))]
       }))
     }
 
-    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager([.multi, .bank])!.output, patchTransform: {
+    midiOuts.append(GenericMidiOut.partiallyUpdatableBank(input: bankStateManager("multi/bank")!.output, patchTransform: {
       guard let patch = $0 as? VirusMultiPatch else { return nil }
       return [patch.sysexData(deviceId: self.deviceId, bank: 1, part: UInt8($1))]
     }))
@@ -64,24 +75,17 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
     return midiOuts
   }
   
-  
-  override func midiChannel(forPath path: SynthPath) -> Int {
-    return channel
-  }
-
-  private var perfParamsOutput: Observable<SynthPathParam>?
-  private var perfDisposeBag: DisposeBag?
-    
+ 
   private func initPerfParamsOutput() {
-    guard let params = super.paramsOutput(forPath: [.multi]) else { return }
+    guard let params = super.paramsOutput(forPath: "multi") else { return }
     
     perfDisposeBag = DisposeBag()
 
     // we do it this way so that subscribing to this output doesn't require mapping the names every time
     var bankSubjects = [Observable<SynthPathParam>]()
     (0..<2).forEach {
-      let bankOut = bankChangesOutput(forPath: [.bank, .i($0)])!
-      let patchBankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: [.patch, .name, .i($0)]) {
+      let bankOut = bankChangesOutput(forPath: "bank/$0")!
+      let patchBankMap = EditorHelper.bankNameOptionsMap(output: bankOut, path: "patch/name/$0") {
         "\($0): \($1)"
       }
       let patchBankSubject = BehaviorSubject<SynthPathParam>(value: [:])
@@ -93,7 +97,7 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   }
   
   override func paramsOutput(forPath path: SynthPath) -> Observable<SynthPathParam>? {
-    guard path == [.multi] else { return super.paramsOutput(forPath: path) }
+    guard path == "multi" else { return super.paramsOutput(forPath: path) }
     return perfParamsOutput
   }
 
