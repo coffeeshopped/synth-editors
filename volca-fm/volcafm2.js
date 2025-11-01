@@ -23,6 +23,7 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ["bank", ['user', i => `Int-${i}`]],
   ],
 }
 
@@ -67,9 +68,6 @@ extension VolcaFM2 {
        "perf" : .basic(),
      ]
      
-     t.slotTransforms = [
-       "bank" : .user({ "Int-\($0)"})
-     ]
      return t
    }()
        

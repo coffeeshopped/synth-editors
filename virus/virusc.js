@@ -6,8 +6,8 @@ const editor = {
     ["multi", Multi.patchTruss],
     ["multi/bank", Multi.bankTruss],
   ]).concat(
-    (16).map(i => [["part", i] = Voice.patchTruss }
-    (2).map(i => [["bank", i] = Voice.bankTruss }
+    (16).map(i => [["part", i], Voice.patchTruss])
+    (2).map(i => [["bank", i], Voice.bankTruss])
   ),
   fetchTransforms: [
   ],
@@ -19,16 +19,22 @@ const editor = {
       ["multi", Multi.patchTransform],
       ["multi/bank", Multi.bankTransform],
     ]).concat(
-      (16).map(i => [["part", i] = Voice.patchTransform(i) }
-      (2).map(i => [["bank", i] = Voice.bankTransform(i) }
+      (16).map(i => [["part", i], Voice.patchTransform(i)])
+      (2).map(i => [["bank", i], Voice.bankTransform(i)])
     ),
   ],
   
   midiChannels: [
     ["patch", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: ([
+    ["multi/bank", 'direct'],
+  ]).concat(
+    (2).map(i => [["bank", i], ['user', x => {
+      const b = ["A", "B"][i]
+      return `${b}${x}`
+    }]])
+  ),
 }
 
 
@@ -79,19 +85,6 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   override func paramsOutput(forPath path: SynthPath) -> Observable<SynthPathParam>? {
     guard path == "multi" else { return super.paramsOutput(forPath: path) }
     return perfParamsOutput
-  }
-
-  
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    if let bankIndex = path.i(1) {
-      return {
-        let b = ["A", "B"][bankIndex]
-        return "\(b)\($0)"
-      }
-    }
-    else {
-      return { "\($0)" }
-    }
   }
 
 

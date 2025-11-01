@@ -25,8 +25,21 @@ const editor = {
   midiChannels: [
     ["voice", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: ([
+    ["multi/bank", ['user' x => {
+      const i1 = ((x / 8) % 8) + 1
+      const i2 = (x % 8) + 1
+      return `${i1}-${i2}`
+    }]],
+  ]).concat(
+    (4).map(i => [["bank", i], ['user', x => {
+      const ram = i * 2 + (x < 64 ? 1 : 2)
+      const i1 = ((x / 8) % 8) + 1
+      const i2 = (x % 8) + 1
+      return `R${ram} ${i1}-${i2}`
+    }]])
+  ),
+  
 }
 
 
@@ -60,25 +73,6 @@ class VirusTISnowEditor : SingleDocSynthEditor, VirusEditor {
       return nil
     }
   }
-    
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    if let bankIndex = path.i(1) {
-      return {
-        let ram = bankIndex * 2 + ($0 < 64 ? 1 : 2)
-        let i1 = (($0 / 8) % 8) + 1
-        let i2 = ($0 % 8) + 1
-        return "R\(ram) \(i1)-\(i2)"
-      }
-    }
-    else {
-      return {
-        let i1 = (($0 / 8) % 8) + 1
-        let i2 = ($0 % 8) + 1
-        return "\(i1)-\(i2)"
-      }
-    }
-  }
-
 
 }
 

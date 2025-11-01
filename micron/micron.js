@@ -1,3 +1,31 @@
+
+const fetchCommand = (bytes) =>
+  ['truss', [0xf0, 0x00, 0x00, 0x0e, 0x22, bytes, 0xf7]]
+
+const patchFetchCommand = (bank, location) =>
+  fetchCommand([0x41, bank, 0x00, location])
+
+// TODO: these fetch commands need access to patch info (the patch index)
+function bankFetchCommands(bank) {
+  let voiceIndexPatch = patch(forPath: "memory/patch") as? MiniakVoiceIndexPatch
+  var fallbackLocation: Int?
+  for i in 0..<128 {
+    if voiceIndexPatch?.voices[bank][i] != nil {
+      fallbackLocation = i
+      break
+    }
+  }
+  guard let fallback = fallbackLocation else { return nil }
+  return (128).flatMap(location => {
+    // check if patch exists
+    const fetchLocation = voiceIndexPatch?.voices[bank][location] == nil ? fallback : location
+    return [
+      patchFetchCommand(bank, fetchLocation),
+      ['wait', 30],
+    ]
+  })
+}
+
 const editor = {
   name: "",
   trussMap: ([
@@ -7,8 +35,18 @@ const editor = {
   ]).concat(
     (8).map(i => [["bank/patch", i], Voice.bankTruss])
   ),
-  fetchTransforms: [
-  ],
+  fetchTransforms: ([
+    ["global", Global.patchTruss],
+    ['patch', ['sequence', [
+      patchFetchCommand(fetchBank, fetchLocation),
+      ['wait', 30],
+      ['send', ['cc', 'channel', 0x20, fetchBank]], // bank select (fine) on chan 1
+      ['send', ['pgmChange', 'channel', fetchLocation]], // pgmChange on chan 1
+    ]]],
+    ['memory/patch', fetchCommand([0x41, 0x00, 0x04, 0x00])],
+  ]).concat(
+    (8).map(i => [["bank/patch", i], ['sequence', bankFetchCommands(i)]])
+  ),
 
   midiOuts: ([
     ['patch', Voice.patchTransform],
@@ -55,48 +93,7 @@ class MicronEditor : SingleDocSynthEditor {
       break
     }
   }
-  
-  private func fetchCommand(_ bytes: [UInt8]) -> RxMidi.FetchCommand {
-    return .request(Data([0xf0, 0x00, 0x00, 0x0e, 0x22] + bytes + [0xf7]))
-  }
-  
-  private func patchFetchCommand(bank: UInt8, location: UInt8) -> RxMidi.FetchCommand {
-    return fetchCommand([0x41, bank, 0x00, location])
-  }
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path.first! {
-    case .patch:
-      return [patchFetchCommand(bank: fetchBank, location: fetchLocation),
-              .wait(0.03),
-              .send(Data([0xb0 + UInt8(channel), 0x20, fetchBank])), // bank select (fine) on chan 1
-              .send(Data([0xc0 + UInt8(channel), fetchLocation])), // pgmChange on chan 1
-      ]
-    case .memory:
-      return [fetchCommand([0x41, 0x00, 0x04, 0x00])]
-    case .bank:
-      guard let bank = path.i(2) else { return nil }
-      let voiceIndexPatch = patch(forPath: "memory/patch") as? MiniakVoiceIndexPatch
-      var fallbackLocation: Int?
-      for i in 0..<128 {
-        if voiceIndexPatch?.voices[bank][i] != nil {
-          fallbackLocation = i
-          break
-        }
-      }
-      guard let fallback = fallbackLocation else { return nil }
-      return Array((0..<128).map { (location) -> [RxMidi.FetchCommand] in
-        // check if patch exists
-        let fetchLocation = voiceIndexPatch?.voices[bank][location] == nil ? fallback : location
-        return [
-          patchFetchCommand(bank: UInt8(bank), location: UInt8(fetchLocation)),
-          .wait(0.03),
-        ] }.joined())
-    default:
-      return nil
-    }
-  }
-  
+    
   override func onSave(toBankPath bankPath: SynthPath, index: Int, fromPatchPath patchPath: SynthPath) {
     // update fetch bank, location to match to where we just saved
     guard patchPath == "patch",

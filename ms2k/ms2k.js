@@ -1,5 +1,12 @@
 const Voice = require('./ms2k_voice.js')
 
+
+const fetchCommand = (byte) =>
+  ['truss', [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, byte, 0xf7]]
+
+// sysex for entering edit mode
+const editModeSysex = [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, 0x4e, 0x01, 0x00, 0xf7]
+
 const editor = {
   name: "",
   trussMap: [
@@ -8,6 +15,11 @@ const editor = {
     ['bank', Voice.bankTruss],
   ],
   fetchTransforms: [
+    ['patch', ['sequence', [
+      fetchCommand(0x10),
+      ['send', editModeSysex],
+    ]]],
+    ['bank', fetchCommand(0x1c)],
   ],
 
   midiOuts: [
@@ -21,26 +33,3 @@ const editor = {
   slotTransforms: [
   ],
 }
-
-class MS2KEditor : SingleDocSynthEditor {
-    
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .patch:
-      return `request(Data([0xf0/${0x42}/${0x30 + UInt8(channel)}/${0x58}/${0x10}/${0xf7}`)),
-              .send(editModeSysex())]
-    case .bank:
-      return `request(Data([0xf0/${0x42}/${0x30 + UInt8(channel)}/${0x58}/${0x1c}/${0xf7}`))]
-    default:
-      return nil
-    }
-  }
-  
-  private func editModeSysex() -> Data {
-    // sysex for entering edit mode
-    return Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x58, 0x4e, 0x01, 0x00, 0xf7])
-  }
-  
-}
-
-

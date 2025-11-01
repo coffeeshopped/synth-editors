@@ -1,3 +1,7 @@
+
+const fetchCommand = (byte) =>
+  ['truss', [0xf0, 0x42, ['+', 0x30, 'channel'], 0x58, byte, 0xf7]]
+
 const editor = {
   name: "",
   trussMap: [
@@ -6,6 +10,11 @@ const editor = {
     ['bank', Voice.bankTruss],
   ],
   fetchTransforms: [
+    ["global", fetchCommand(0x0e)],
+    ['patch', fetchCommand(0x10)],
+    // looks like for microkorg s, fetch is:
+    // F0 42 30 00 01 40 10 F7
+    ['bank', fetchCommand(0x1c)],
   ],
 
   midiOuts: [
@@ -24,31 +33,6 @@ const editor = {
       return `${letter}${bank}${slot}`
     }]]
   ],
-}
-
-
-
-class MicrokorgEditor : SingleDocSynthEditor {
-    
-  private func fetchCommand(functionID: UInt8) -> [RxMidi.FetchCommand] {
-    return `request(Data([0xf0/${0x42}/${0x30 + UInt8(channel)}/${0x58}/${functionID}/${0xf7}`))]
-  }
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .global:
-      return fetchCommand(functionID: 0x0e)
-    case .patch:
-      return fetchCommand(functionID: 0x10)
-    case .bank:
-      // looks like for microkorg s, fetch is:
-      // F0 42 30 00 01 40 10 F7
-      return fetchCommand(functionID: 0x1c)
-    default:
-      return nil
-    }
-  }
-
 }
 
 extension MicrokorgEditor {

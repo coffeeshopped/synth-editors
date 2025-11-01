@@ -33,17 +33,22 @@ extension NordLead2Patch {
   
 }
 
+const fetchBytes = (bytes) => [0xf0, 0x33, 'deviceId', 0x04, bytes, 0xf7]
+const fetchCmd = (bytes) => ['truss', fetchBytes(bytes)]
 
 const editor = {
   name: "",
   trussMap: ([
     ['perf', Perf.patchTruss],
   ]).concat(
-    (4).map(i => [["bank/voice", i] = Voice.bankTruss])
+    (4).map(i => [["bank/voice", i], Voice.bankTruss])
   ),
-  fetchTransforms: [
-  ],
-
+  fetchTransforms: ([
+    ['perf', fetchCmd([0x28, 0x00])],
+  ]).concat(
+    (4).map(i => [["bank/voice", i], ['bankTruss', fetchBytes([0x0b + i, 'b'])]]),
+    (4).map(i => [["part", i], fetchCmd([0x0a, i])])
+  ),
   midiOuts: [
   ],
   
@@ -126,30 +131,6 @@ class NordLead2Editor : SingleDocSynthEditor {
       let patch = ($0.1 as? NordLead2PerfPatch)?.patch(location: part)
       return (pc, patch)
     }
-  }
-
-  // MARK: MIDI I/O
-  
-  fileprivate var sysexHeader: Data {
-    return Data([0xf0, 0x33, UInt8(deviceId), 0x04])
-  }
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .perf:
-      return [.request(sysexHeader + Data([0x28, 0x00, 0xf7]))]
-    case .part:
-      guard let part = path.i(1) else { return nil }
-      return [.request(sysexHeader + Data([0x0a, UInt8(part), 0xf7]))]
-    case .bank:
-      if path[1] == .voice {
-        guard let i = path.i(2) else { return nil }
-        return (0..<99).map { .request(sysexHeader + Data([0x0b + UInt8(i), $0, 0xf7])) }
-      }
-    default:
-      return nil
-    }
-    return nil
   }
     
   private func filteredPerfDocOutput(part: Int) -> Observable<(PatchChange, NordLead2PerfPatch, Bool)> {

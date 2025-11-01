@@ -138,12 +138,6 @@ class JD800Editor : RolandNewAddressableEditor {
     }
   }
   
-  // MARK: MIDI I/O
-  
-  override var requestHeader: Data {
-    return Data([0xf0, 0x41, UInt8(deviceId), 0x3d, 0x11])
-  }
-  
   override public func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
     guard path.first == .part else { return super.fetchCommands(forPath: path) }
     

@@ -26,7 +26,14 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ['bank', ['user', i => {
+      const banks = ["A","B","C","D"]
+      return `${banks[i / 16]}${(i % 16) + 1}`
+    }]],
+    ['multi/bank', 'userZeroToOne'],
+    ['multi/pan', 'userZeroToOne'],
   ],
+
 }
 
 
@@ -272,16 +279,6 @@ class TG77Editor : SingleDocSynthEditor {
     }
   }
   
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    switch path[0] {
-    case .bank:
-      let banks = ["A","B","C","D"]
-      return { "\(banks[$0 / 16])\(($0 % 16) + 1)" }
-    default:
-      // multi, pan
-      return { "\($0+1)" }
-    }
-  }
 }
 
 extension TG77Editor {

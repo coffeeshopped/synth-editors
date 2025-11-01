@@ -32,8 +32,15 @@ const editor = {
   midiChannels: [
     ["voice", "basic"],
   ],
-  slotTransforms: [
-  ],
+  slotTransforms: ([
+    ["multi/bank", 'direct'],
+  ]).concat(
+    (4).map(i => [["bank", i], ['user', x => {
+      const b = ["A", "B", "C", "D"][i]
+      return `${b}${x}`
+    }]])
+  ),
+
 }
 
 
@@ -63,18 +70,6 @@ class VirusTIEditor : SingleDocSynthEditor, VirusEditor {
       return Array((0..<16).map { embMultiFetchRequest($0 + 32) }.joined())
     default:
       return nil
-    }
-  }
-    
-  override func bankIndexLabelBlock(forPath path: SynthPath) -> ((Int) -> String)? {
-    if let bankIndex = path.i(1) {
-      return {
-        let b = ["A", "B", "C", "D"][bankIndex]
-        return "\(b)\($0)"
-      }
-    }
-    else {
-      return { "\($0)" }
     }
   }
 

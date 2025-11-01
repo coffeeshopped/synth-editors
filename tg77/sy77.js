@@ -26,6 +26,12 @@ const editor = {
     ["voice", "basic"],
   ],
   slotTransforms: [
+    ['bank', ['user', i => {
+      const banks = ["A","B","C","D"]
+      return `${banks[i / 16]}${(i % 16) + 1}`
+    }]],
+    ['multi/bank', 'userZeroToOne'],
+    ['multi/pan', 'userZeroToOne'],
   ],
 }
 

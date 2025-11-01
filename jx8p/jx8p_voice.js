@@ -259,6 +259,10 @@ const patchTransform = {
   } 
 }
 
+const bankTransform = {
+  throttle: 0,
+  singlePatch: writeData(channel: self.channel, location: location)
+}
 
 
 class JX8PVoiceBank : TypicalTypedSysexPatchBank<JX8PVoicePatch>, VoiceBank {

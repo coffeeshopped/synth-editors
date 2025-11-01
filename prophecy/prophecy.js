@@ -1,20 +1,28 @@
-static func sysexHeader(deviceId: UInt8) -> [UInt8] {
-  return [0xf0, 0x42, 0x30 + deviceId, 0x41]
-}
+
+
+const sysexHeader = [0xf0, 0x42, ['+', 0x30, 'deviceId'], 0x41]
+
+const fetchCmd = (bytes) => ['truss', [sysexHeader, bytes, 0xf7]]
 
 const editor = {
   name: "",
   trussMap: [
+    ["global", fetchCmd([0x0e, 0x00])],
+    ["patch", fetchCmd([0x10, 0x00])],
+    ["arp", fetchCmd([0x34, tempArp, 0x00])],
+    ["bank/patch/0", fetchCmd([0x1c, 0x10, 0x00, 0x00])],
+    ["bank/patch/1", fetchCmd([0x1c, 0x11, 0x00, 0x00])],
+    ["bank/arp", fetchCmd([0x34, 0x10, 0x00])],
+  ],
+  
+  
+  fetchTransforms: [
     ["global", Global.patchTruss],
     ["patch", Voice.patchTruss],
     ["arp", Arp.patchTruss],
     ["bank/patch/0", Voice.bankTruss],
     ["bank/patch/1", Voice.bankTruss],
     ["bank/arp", Arp.bankTruss],
-  ],
-  
-  
-  fetchTransforms: [
   ],
 
   midiOuts: [
@@ -45,29 +53,6 @@ const editor = {
 class ProphecyEditor : SingleDocSynthEditor {
     
   var tempArp = 0
-
-  private func fetchCommand(cmdBytes: [UInt8]) -> RxMidi.FetchCommand {
-    return .request(Data(Prophecy.sysexHeader(deviceId: UInt8(channel)) + cmdBytes + [0xf7]))
-  }
-    
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path {
-    case "global":
-      return [fetchCommand(cmdBytes: [0x0e, 0x00])]
-    case "patch":
-      return [fetchCommand(cmdBytes: [0x10, 0x00])]
-    case "arp":
-      return [fetchCommand(cmdBytes: [0x34, UInt8(tempArp), 0x00])]
-    case "bank/patch/0",
-         "bank/patch/1":
-      guard let bank = path.i(2) else { return nil }
-      return [fetchCommand(cmdBytes: [0x1c, 0x10 + UInt8(bank), 0x00, 0x00])]
-    case "bank/arp":
-      return [fetchCommand(cmdBytes: [0x34, 0x10, 0x00])]
-    default:
-      return nil
-    }
-  }
   
   private var lastOscSelect = 0
   

@@ -1,3 +1,7 @@
+
+
+const fetchCmd = ['truss', [0xf0, 0x42, ['+', 0x30, 'channel'], 0x03, 0x10, 0xf7]]
+
 const editor = {
   name: "",
   trussMap: [
@@ -6,8 +10,14 @@ const editor = {
     ['bank/voice', Voice.bankTruss],
   ],
   fetchTransforms: [
+    ['voice', fetchCmd],
+    ['bank/voice', ['sequence', 64.flatMap(loc => [
+      ['send', ['pgmChange', loc, 'channel']],
+      ['wait', 30],
+      fetchCmd,
+      ['wait', 30],
+    ])]],
   ],
-
   midiOuts: [
     ["voice", Voice.patchTransform],
     ["bank/voice", Voice.bankTransform],
@@ -22,31 +32,4 @@ const editor = {
       return `${bank}${patch}`
     }]]
   ],
-}
-
-
-
-class DW8KEditor : SingleDocSynthEditor {
-    
-  private func patchFetchCommand() -> RxMidi.FetchCommand {
-    return .request(Data([0xf0, 0x42, 0x30 + UInt8(channel), 0x03, 0x10, 0xf7]))
-  }
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path.first! {
-    case .patch:
-      return [patchFetchCommand()]
-    case .bank:
-      return Array((0..<64).map { (location) -> [RxMidi.FetchCommand] in
-        [
-          .send(Data(Midi.pgmChange(location, channel: channel))),
-          .wait(0.03),
-          patchFetchCommand(),
-          .wait(0.03),
-        ] }.joined())
-    default:
-      return nil
-    }
-  }
-  
 }
