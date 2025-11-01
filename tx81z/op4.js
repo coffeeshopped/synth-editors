@@ -5,9 +5,7 @@ require('./utils.js')
 // const algorithms = Op4.VCED.algorithms()
 
 const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
-
 const fetchWithHeader = header => fetch([0x7e, ['enc', `LM  ${header}`]])
-
 
 const paramData = cmdByte => (cmdBytes => ['yamParm', 'channel', [cmdByte, cmdBytes]])
 

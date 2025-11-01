@@ -1,3 +1,8 @@
+
+
+const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
+const fetchWithHeader = header => fetch([0x7e, ['enc', `LM  ${header}`]])
+
 const editor = {
   name: "",
   trussMap: [
@@ -8,6 +13,10 @@ const editor = {
     ["multi/bank", Multi.bankTruss],
   ],
   fetchTransforms: [
+    ["patch", fetchWithHeader("0012VE")],
+    ["bank", fetchWithHeader("0012VC")],
+    ["multi", fetchWithHeader("0012ME")],
+    ["multi/bank", fetchWithHeader("0012MU")],
   ],
 
   midiOuts: [
@@ -26,25 +35,7 @@ const editor = {
 
 
 class TG33Editor : SingleDocSynthEditor {
-  
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    var data = Data([0xf0, 0x43, 0x20 + UInt8(channel), 0x7e])
-    let headerString: String
-    switch path[0] {
-    case .patch:
-      headerString = "LM  0012VE"
-    case .bank:
-      headerString = "LM  0012VC"
-    case .multi:
-      headerString = path.count == 1 ? "LM  0012ME" : "LM  0012MU"
-    default:
-      return nil
-    }
-    data.append(contentsOf: headerString.unicodeScalars.map { UInt8($0.value) })
-    data.append(0xf7)
-    return "request(data)"
-  }
-  
+    
   private func initPerfParamsOutput() {
     guard let origPerfParams = super.paramsOutput(forPath: "multi"),
           let bankOut = bankChangesOutput(forPath: "bank") else { return }

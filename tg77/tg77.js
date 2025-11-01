@@ -1,3 +1,18 @@
+
+
+const fetch = cmdBytes => ['truss', ['yamFetch', 'channel', cmdBytes]]
+const fetchWithHeader = (header, bytes) => fetch([0x7a, 
+  ['enc', `LM  ${header}`],
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  bytes, 0xf7
+])
+const fetchTemp = (header) => fetchWithHeader(header, [0x7f, 0x00])
+const fetchLocation = (header, loc) => fetchWithHeader(header, [0x00, loc])
+const fetchBank = (header) => ['bankTruss', [
+  fetchLocation(header, 'b'),
+  ['wait', 200],
+]]]
+
 const editor = {
   name: "",
   trussMap: [
@@ -9,7 +24,15 @@ const editor = {
     ["pan", Pan.patchTruss],
     ["pan/bank", Pan.bankTruss],
   ],
-  fetchTransforms: [
+  fetchTransforms: [    
+    ["global", fetchLocation("8101SY", 0)],
+    ["patch", fetchTemp("8101VC")],
+    ["bank", fetchBank("8101VC")],
+    // just sending the request for the "common" patch triggers dump of common + extra on TG77
+    ["multi", fetchTemp("8101MU")],
+    ["multi/bank", fetchBank("8101MU")],
+    ["pan", fetchLocation("8101PN", tempPan)],
+    ["pan/bank", ['bankTruss', fetchBank("8101PN")],
   ],
 
   midiOuts: [
@@ -224,61 +247,7 @@ class TG77Editor : SingleDocSynthEditor {
       return super.paramsOutput(forPath: path)
     }
   }
-  
-  // MARK: MIDI I/O
-  
-  func fetchData(forHeader header: String, location: Int) -> Data {
-    var data = Data([0xf0, 0x43, 0x20 + UInt8(deviceId), 0x7a])
-    data.append(contentsOf: header.unicodeScalars.map { UInt8($0.value) })
-    data.append(contentsOf: [UInt8](repeating: 0, count: 14))
-    if location < 0 {
-      data.append(contentsOf: [0x7f, 0x00, 0xf7])
-    }
-    else {
-      data.append(contentsOf: [0x00, UInt8(location), 0xf7])
-    }
-    return data
-  }
 
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .global:
-      return [.request(fetchData(forHeader: TG77SystemPatch.headerString, location: 0))]
-    case .patch:
-      return [.request(fetchData(forHeader: "LM  8101VC", location: -1))]
-    case .bank:
-      return [RxMidi.FetchCommand]((0..<64).map {
-        return [.request(fetchData(forHeader: "LM  8101VC", location: $0)),
-                .wait(0.2)]
-        }.joined())
-    case .multi:
-      if path.count == 1 {
-        return [.request(fetchData(forHeader: "LM  8101MU", location: -1)),
-                .request(fetchData(forHeader: "LM  8104MU", location: -1))]
-      }
-      else {
-        return [RxMidi.FetchCommand]((0..<16).map {
-          return [.request(fetchData(forHeader: "LM  8101MU", location: $0)),
-                  .wait(0.2),
-                  .request(fetchData(forHeader: "LM  8104MU", location: $0)),
-                  .wait(0.2)]
-          }.joined())
-      }
-    case .pan:
-      if path.count == 1 {
-        return [.request(fetchData(forHeader: TG77PanPatch.headerString, location: tempPan))]
-      }
-      else {
-        return [RxMidi.FetchCommand]((0..<32).map {
-          return [.request(fetchData(forHeader: TG77PanPatch.headerString, location: $0)),
-                  .wait(0.2)]
-          }.joined())
-      }
-    default:
-      return nil
-    }
-  }
-  
 }
 
 extension TG77Editor {

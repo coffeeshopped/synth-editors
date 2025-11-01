@@ -10,6 +10,14 @@ const editor = {
     ["pan/bank", Pan.bankTruss],
   ],
   fetchTransforms: [
+    ["global", fetchLocation("8101SY", 0)],
+    ["patch", fetchTemp("8101VC")],
+    ["bank", fetchBank("8101VC")],
+    // just sending the request for the "common" patch triggers dump of common + extra on TG77
+    ["multi", fetchTemp("8101MU")],
+    ["multi/bank", fetchBank("8101MU")],
+    ["pan", fetchLocation("8101PN", tempPan)],
+    ["pan/bank", ['bankTruss', fetchBank("8101PN")],
   ],
 
   midiOuts: [
@@ -33,28 +41,4 @@ const editor = {
     ['multi/bank', 'userZeroToOne'],
     ['multi/pan', 'userZeroToOne'],
   ],
-}
-
-
-
-class SY77Editor : TG77Editor {
-  
-
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path[0] {
-    case .multi:
-      if path.count == 1 {
-        return [.request(fetchData(forHeader: "LM  8101MU", location: -1))]
-      }
-      else {
-        let arrs: [[RxMidi.FetchCommand]] = (0..<16).map {
-          [.request(fetchData(forHeader: "LM  8101MU", location: $0))]
-        }
-        return [RxMidi.FetchCommand](arrs.joined())
-      }
-    default:
-      return super.fetchCommands(forPath: path)
-    }
-  }
-  
 }

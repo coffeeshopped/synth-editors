@@ -1,3 +1,5 @@
+const Virus = require('./virus.js')
+
 const editor = {
   name: "",
   trussMap: ([
@@ -6,11 +8,18 @@ const editor = {
     ["multi", Multi.patchTruss],
     ["multi/bank", Multi.bankTruss],
   ]).concat(
-    (16).map(i => [["part", i], Voice.patchTruss])
+    (16).map(i => [["part", i], Voice.patchTruss]),
     (2).map(i => [["bank", i], Voice.bankTruss])
   ),
   fetchTransforms: [
-  ],
+    ["global", Virus.fetchCmd([0x35])],
+    ["patch", Virus.fetchCmd([0x30, 0x00, 0x40])],
+    ["multi", Virus.fetchCmd([0x31, 0x00, 0x00])],
+    ["multi/bank", Virus.fetchCmd([0x33, 0x01])],
+  ]).concat(
+    (16).map(i => [["part", i], Virus.fetchCmd([0x30, 0x00, i])]),
+    (2).map(i => [["bank", i], Virus.fetchCmd([0x32, i + 1])])
+  ),
 
   midiOuts: [
     ([
@@ -19,7 +28,7 @@ const editor = {
       ["multi", Multi.patchTransform],
       ["multi/bank", Multi.bankTransform],
     ]).concat(
-      (16).map(i => [["part", i], Voice.patchTransform(i)])
+      (16).map(i => [["part", i], Voice.patchTransform(i)]),
       (2).map(i => [["bank", i], Voice.bankTransform(i)])
     ),
   ],
@@ -43,24 +52,6 @@ class VirusCEditor : SingleDocSynthEditor, VirusEditor {
   
 //  override var sendInterval: TimeInterval { return 0.2 }
   
-  override func fetchCommands(forPath path: SynthPath) -> [RxMidi.FetchCommand]? {
-    switch path.first {
-    case .global:
-      return [fetchRequest([0x35])]
-    case .patch:
-      return [fetchRequest([0x30, 0x00, 0x40])]
-    case .multi:
-      return [fetchRequest(path.last == .bank ? [0x33, 0x01] : [0x31, 0x00, 0x00])]
-    case .bank:
-      guard let bankIndex = path.i(1) else { return nil }
-      return [fetchRequest([0x32, UInt8(bankIndex + 1)])]
-    case .part:
-      guard let part = path.i(1) else { return nil }
-      return [fetchRequest([0x30, 0x00, UInt8(part)])]
-    default:
-      return nil
-    }
-  }
     
   private func initPerfParamsOutput() {
     guard let params = super.paramsOutput(forPath: "multi") else { return }
