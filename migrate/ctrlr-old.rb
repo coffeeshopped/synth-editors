@@ -77,6 +77,11 @@ def panels(content)
   content = content.gsub(/vc\.grid\(items:\s*\[\[/) do |match|
     "['grid', [["
   end
+
+  content = content.gsub(/(vc\.)?grid\(view:\s*view,\s*items:\s*\[\[/) do |match|
+    "['grid', [["
+  end
+
   
   content = content.gsub(/\]\]\),/, "]]],")
   content = content.gsub(/\]\]\)/, "]]]")
@@ -155,8 +160,8 @@ def effects(content)
     "['patchChange', #{$2}, "
   end
   
-  content.gsub!(/vc\.registerForEditMenu\((.*?), bundle:/) do |m|
-    "['editMenu', #{$1},"
+  content.gsub!(/(vc\.)?registerForEditMenu\((.*?), bundle:/) do |m|
+    "['editMenu', #{$2},"
   end
   
   content
@@ -166,6 +171,7 @@ enums = ['switcher', 'button', 'dimPanel', 'child', 'children', 'basicControlCha
 enums.each do |en|
   file_content = one_line_enum(file_content, en)
 end
+
 
 file_content = synth_paths(file_content)
 file_content = panel_items(file_content)

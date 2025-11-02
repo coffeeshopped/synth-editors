@@ -157,7 +157,7 @@ class BassStationIIVoiceController : NewPatchEditorController {
       let pw = PBKnob(label: "PW")
       let pwLFO = PBKnob(label: "←LFO 2")
 
-      grid(view: view, items: [[
+      ['grid', [[
         (osc, "wave"),
         [{switch: "Range"}, "octave"],
         ["Coarse", "coarse"],
@@ -180,7 +180,7 @@ class BassStationIIVoiceController : NewPatchEditorController {
     override var prefix: SynthPath? { return "sub" }
     
     override func loadView(_ view: PBView) {
-      grid(view: view, items: [[
+      ['grid', [[
         [{switch: "Sub Shape"}, "sub/wave"],
         [{switch: "Octave"}, "sub/octave"],
         ],[
@@ -206,7 +206,7 @@ class BassStationIIVoiceController : NewPatchEditorController {
       let retrig = {checkbox: "Retrigger"}
       let rCount = PBKnob(label: "Retrig #")
       let decay = PBKnob(label: "Decay")
-      grid(view: view, items: [[
+      ['grid', [[
         (env, nil),
         [{switch: "Mode"}, "trigger"],
         (retrig, "retrigger"),
@@ -230,7 +230,7 @@ class BassStationIIVoiceController : NewPatchEditorController {
         rCount.alpha = fixed == 0 && r == 1 ? 1 : 0.2
       }
       
-      registerForEditMenu(env, bundle: (
+      ['editMenu', env, (
         paths: { ["attack", "decay", "sustain", "release"] },
         pasteboardType: "com.cfshpd.BSIIEnv",
         initialize: { [0, 0, 127, 0] },
@@ -249,37 +249,10 @@ class BassStationIIVoiceController : NewPatchEditorController {
   }
   
   class LFOController : NewPatchEditorController {
-    override var prefix: SynthPath? { return "lfo/index" }
     
     override func loadView(_ view: PBView) {
       let rate = PBKnob(label: "Speed")
-      grid(view: view, items: [[
-        [{switch: "LFO \(index + 1)"}, "wave"],
-        ["Delay", "delay"],
-        (rate, nil),
-        ],[
-        [{checkbox: "Key Sync"}, "key/sync"],
-        ["Slew", "slew"],
-        [{switch: "Mode"}, "time/sync"],
-      ]]]
       
-      ['patchChange', "time/sync",  { [weak self] in
-        let label: String
-        let path: SynthPath
-        switch $0 {
-        case 0:
-          label = "Speed"
-          path = "speed"
-        default:
-          label = "Sync"
-          path = "sync"
-        }
-        rate.label = label
-        rate.value = self?.latestValue(path: path) ?? 0
-        if let param = self?.latestParam(path: path) {
-          self?.defaultConfigure(control: rate, forParam: param)
-        }
-      }
       addPatchChangeBlock(paths: ["speed", "sync"]) { [weak self] in
         let mode = self?.latestValue(path: "time/sync") ?? 0
         rate.value = $0[mode == 0 ? "speed" : "sync"] ?? 0
@@ -292,4 +265,41 @@ class BassStationIIVoiceController : NewPatchEditorController {
     }
   }
   
+}
+
+const lfo = {
+  index: 'lfo',
+  labelItem: 'wave',
+  text: i => `LFO ${i+1}`,
+  gridBuilder: [[
+    [{switch: "LFO \(index + 1)"}, "wave"],
+    ["Delay", "delay"],
+    (rate, nil),
+    ],[
+    [{checkbox: "Key Sync"}, "key/sync"],
+    ["Slew", "slew"],
+    [{switch: "Mode"}, "time/sync"],
+  ]],
+  effects: [
+    ["patchChange", ['time/sync'], (values, state, locals) => {
+      const sync = values['time/sync']
+      let label: String
+      let path: SynthPath
+      switch $0 {
+      if (sync == 0) {
+        label = "Speed"
+        path = "speed"
+      }
+      else {
+        label = "Sync"
+        path = "sync"
+      }
+      rate.label = label
+      rate.value = self?.latestValue(path: path) ?? 0
+      if let param = self?.latestParam(path: path) {
+        self?.defaultConfigure(control: rate, forParam: param)
+      }
+
+    }]
+  ],
 }
